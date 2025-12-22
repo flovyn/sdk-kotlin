@@ -150,6 +150,9 @@ data class SleepOutput(val startTime: Long, val endTime: Long, val sleptMs: Long
 data class PromiseInput(val promiseName: String)
 data class PromiseOutput(val promiseName: String, val created: Boolean)
 
+data class AwaitPromiseInput(val promiseName: String)
+data class AwaitPromiseOutput(val promiseName: String, val resolvedValue: String)
+
 // --- Random/Sleep/Promise Workflows ---
 
 /**
@@ -220,6 +223,26 @@ class PromiseWorkflow : WorkflowDefinition<PromiseInput, PromiseOutput>() {
         return PromiseOutput(
             promiseName = input.promiseName,
             created = true
+        )
+    }
+}
+
+/**
+ * Await promise workflow - creates a promise and waits for it to be resolved.
+ * Used for testing external promise resolution.
+ */
+class AwaitPromiseWorkflow : WorkflowDefinition<AwaitPromiseInput, AwaitPromiseOutput>() {
+    override val kind = "await-promise-workflow"
+    override val version = SemanticVersion(1, 0, 0)
+
+    override suspend fun execute(ctx: WorkflowContext, input: AwaitPromiseInput): AwaitPromiseOutput {
+        // Create a durable promise and wait for it
+        val promise = ctx.promise<String>(input.promiseName, Duration.ofSeconds(60))
+        val resolvedValue = promise.await()
+
+        return AwaitPromiseOutput(
+            promiseName = input.promiseName,
+            resolvedValue = resolvedValue
         )
     }
 }

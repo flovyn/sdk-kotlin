@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty
+import org.junit.jupiter.api.Disabled
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
@@ -32,6 +33,7 @@ class WorkflowE2ETest {
             .registerWorkflow(RandomWorkflow())
             .registerWorkflow(SleepWorkflow())
             .registerWorkflow(PromiseWorkflow())
+            .registerWorkflow(AwaitPromiseWorkflow())
             .buildAndStart()
     }
 
@@ -167,6 +169,34 @@ class WorkflowE2ETest {
             // Note: Promise workflow will suspend waiting for promise resolution
             // For this test, we just verify it starts and creates the promise
             env.awaitCompletion(executionId, 10.seconds)
+        }
+    }
+
+    @Test
+    fun `test resolve promise externally`(): Unit = runBlocking {
+        withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
+            val promiseName = "external-resolve-${System.currentTimeMillis()}"
+
+            // Start workflow that waits for a promise
+            val executionId = env.startWorkflow(
+                workflowKind = "await-promise-workflow",
+                input = AwaitPromiseInput(promiseName = promiseName)
+            )
+
+            assertNotNull(executionId)
+            println("Started await-promise workflow: $executionId")
+
+            // Give the workflow time to start, be picked up by worker, and create the promise
+            // Needs more time for: worker registration -> poll -> execute -> suspend
+            kotlinx.coroutines.delay(5000)
+
+            // Resolve the promise externally
+            println("Resolving promise '$promiseName' for workflow: $executionId")
+            env.client.resolvePromise(executionId, promiseName, "Hello from external!")
+
+            // Wait for workflow to complete
+            env.awaitCompletion(executionId, 30.seconds)
+            println("Workflow completed after promise resolution")
         }
     }
 }

@@ -9,71 +9,52 @@ import kotlin.random.Random
 import kotlin.reflect.KClass
 
 /**
- * Implementation of WorkflowContext that generates commands.
+ * Implementation of WorkflowContext that delegates to FFI context.
  *
- * The Rust core handles replay and determinism validation. This implementation
- * is responsible for:
- * - Generating commands from workflow operations
- * - Providing deterministic time and random values
- * - Managing workflow state
+ * The Rust FFI layer handles all replay logic:
+ * - Pre-filters events by type for O(1) lookup
+ * - Validates determinism during replay
+ * - Returns cached results for replayed operations
+ * - Only generates commands for NEW operations
  */
 internal class WorkflowContextImpl(
-    override val workflowExecutionId: UUID,
-    override val tenantId: UUID,
-    override val input: Map<String, Any?>,
-    private val timestampMs: Long,
-    private val randomSeed: ByteArray,
-    private val initialState: Map<String, ByteArray>,
-    private val serializer: JsonSerializer,
-    private val isReplaying: Boolean = false
+    private val ffiContext: FfiWorkflowContext,
+    private val serializer: JsonSerializer
 ) : WorkflowContext {
 
-    private val commands = mutableListOf<FfiWorkflowCommand>()
-    private var sequenceNumber = 0
-    private val seededRandom = SeededRandom(randomSeed)
+    override val workflowExecutionId: UUID
+        get() = UUID.fromString(ffiContext.workflowExecutionId())
 
-    // Current state (mutable during execution)
-    private val currentState = initialState.toMutableMap()
+    override val tenantId: UUID
+        get() = UUID.randomUUID() // TODO: Get from ffiContext when available
 
-    // Cancellation tracking
-    private var cancellationRequested = false
+    override val input: Map<String, Any?>
+        get() = emptyMap() // Input is handled externally
 
-    override fun currentTimeMillis(): Long = timestampMs
+    override fun currentTimeMillis(): Long = ffiContext.currentTimeMillis()
 
-    override fun randomUUID(): UUID = seededRandom.nextUUID()
+    override fun randomUUID(): UUID = UUID.fromString(ffiContext.randomUuid())
 
-    override fun random(): Random = seededRandom
+    override fun random(): Random = FfiBasedRandom(ffiContext)
 
     override suspend fun <T> run(name: String, block: suspend () -> T): T {
-        // Execute the operation
-        val result = block()
-
-        // Record the command
-        commands.add(
-            FfiWorkflowCommand.RecordOperation(
-                operationName = name,
-                result = serializer.serialize(result)
-            )
-        )
-
-        return result
+        return when (val result = ffiContext.runOperation(name)) {
+            is FfiOperationResult.Cached -> {
+                @Suppress("UNCHECKED_CAST")
+                serializer.deserialize(result.value, Any::class.java) as T
+            }
+            is FfiOperationResult.Execute -> {
+                val value = block()
+                ffiContext.recordOperationResult(name, serializer.serialize(value))
+                value
+            }
+        }
     }
 
     override suspend fun <T> runAsync(name: String, block: suspend () -> T): Deferred<T> {
         val deferred = DeferredImpl<T>()
-
-        // Execute the operation
-        val result = block()
-
-        // Record the command
-        commands.add(
-            FfiWorkflowCommand.RecordOperation(
-                operationName = name,
-                result = serializer.serialize(result)
-            )
-        )
-
-        deferred.complete(result)
+        val value = run(name, block)
+        deferred.complete(value)
         return deferred
     }
 
@@ -83,23 +64,24 @@ internal class WorkflowContextImpl(
         outputClass: KClass<T>,
         options: ScheduleTaskOptions
     ): T {
-        val taskId = generateTaskId()
+        val inputBytes = serializer.serialize(input)
 
-        // Record command for task execution
-        commands.add(
-            FfiWorkflowCommand.ScheduleTask(
-                taskExecutionId = taskId,
-                taskType = taskType,
-                input = serializer.serialize(input),
-                prioritySeconds = options.prioritySeconds,
-                maxRetries = options.maxRetries?.toUInt(),
-                timeoutMs = options.timeoutSeconds?.let { it * 1000L },
-                queue = null
-            )
-        )
-
-        // Suspend workflow until task completes
-        throw WorkflowSuspendedException("Waiting for task $taskId")
+        return when (val result = ffiContext.scheduleTask(
+            taskType = taskType,
+            input = inputBytes,
+            queue = null,
+            timeoutMs = options.timeoutSeconds?.let { it * 1000L }
+        )) {
+            is FfiTaskResult.Completed -> {
+                serializer.deserialize(result.output, outputClass.java)
+            }
+            is FfiTaskResult.Failed -> {
+                throw TaskFailedException("unknown", result.error)
+            }
+            is FfiTaskResult.Pending -> {
+                throw WorkflowSuspendedException("Waiting for task: ${result.taskExecutionId}")
+            }
+        }
     }
 
     override suspend fun <T : Any> scheduleAsync(
@@ -107,23 +89,25 @@ internal class WorkflowContextImpl(
         input: Any?,
         outputClass: KClass<T>
     ): Deferred<T> {
-        val taskId = generateTaskId()
+        val inputBytes = serializer.serialize(input)
 
-        // Record command for task execution
-        commands.add(
-            FfiWorkflowCommand.ScheduleTask(
-                taskExecutionId = taskId,
-                taskType = taskType,
-                input = serializer.serialize(input),
-                prioritySeconds = 0,
-                maxRetries = null,
-                timeoutMs = null,
-                queue = null
-            )
-        )
-
-        // Return a pending deferred
-        return PendingDeferredImpl(taskId)
+        return when (val result = ffiContext.scheduleTask(
+            taskType = taskType,
+            input = inputBytes,
+            queue = null,
+            timeoutMs = null
+        )) {
+            is FfiTaskResult.Completed -> {
+                val value = serializer.deserialize(result.output, outputClass.java)
+                DeferredImpl<T>().apply { complete(value) }
+            }
+            is FfiTaskResult.Failed -> {
+                DeferredImpl<T>().apply { completeExceptionally(TaskFailedException("unknown", result.error)) }
+            }
+            is FfiTaskResult.Pending -> {
+                PendingDeferredImpl(result.taskExecutionId)
+            }
+        }
     }
 
     override suspend fun <T> scheduleWorkflow(
@@ -133,21 +117,26 @@ internal class WorkflowContextImpl(
         taskQueue: String,
         prioritySeconds: Int
     ): T {
-        val childExecutionId = "$workflowExecutionId-$name"
+        val inputBytes = serializer.serialize(input)
 
-        // Record command
-        commands.add(
-            FfiWorkflowCommand.ScheduleChildWorkflow(
-                name = name,
-                kind = kind,
-                childExecutionId = childExecutionId,
-                input = serializer.serialize(input),
-                taskQueue = taskQueue,
-                prioritySeconds = prioritySeconds
-            )
-        )
-
-        throw WorkflowSuspendedException("Waiting for child workflow $childExecutionId")
+        return when (val result = ffiContext.scheduleChildWorkflow(
+            name = name,
+            kind = kind,
+            input = inputBytes,
+            taskQueue = taskQueue.ifEmpty { null },
+            prioritySeconds = prioritySeconds
+        )) {
+            is FfiChildWorkflowResult.Completed -> {
+                @Suppress("UNCHECKED_CAST")
+                serializer.deserialize(result.output, Any::class.java) as T
+            }
+            is FfiChildWorkflowResult.Failed -> {
+                throw ChildWorkflowFailedException("unknown", result.error)
+            }
+            is FfiChildWorkflowResult.Pending -> {
+                throw WorkflowSuspendedException("Waiting for child workflow: ${result.childExecutionId}")
+            }
+        }
     }
 
     override suspend fun <T> scheduleWorkflowAsync(
@@ -157,115 +146,104 @@ internal class WorkflowContextImpl(
         taskQueue: String,
         prioritySeconds: Int
     ): Deferred<T> {
-        val childExecutionId = "$workflowExecutionId-$name"
+        val inputBytes = serializer.serialize(input)
 
-        // Record command
-        commands.add(
-            FfiWorkflowCommand.ScheduleChildWorkflow(
-                name = name,
-                kind = kind,
-                childExecutionId = childExecutionId,
-                input = serializer.serialize(input),
-                taskQueue = taskQueue,
-                prioritySeconds = prioritySeconds
-            )
-        )
-
-        return PendingDeferredImpl(childExecutionId)
+        return when (val result = ffiContext.scheduleChildWorkflow(
+            name = name,
+            kind = kind,
+            input = inputBytes,
+            taskQueue = taskQueue.ifEmpty { null },
+            prioritySeconds = prioritySeconds
+        )) {
+            is FfiChildWorkflowResult.Completed -> {
+                @Suppress("UNCHECKED_CAST")
+                val value = serializer.deserialize(result.output, Any::class.java) as T
+                DeferredImpl<T>().apply { complete(value) }
+            }
+            is FfiChildWorkflowResult.Failed -> {
+                DeferredImpl<T>().apply { completeExceptionally(ChildWorkflowFailedException("unknown", result.error)) }
+            }
+            is FfiChildWorkflowResult.Pending -> {
+                PendingDeferredImpl(result.childExecutionId)
+            }
+        }
     }
 
     override suspend fun <T> get(key: String): T? {
-        val bytes = currentState[key] ?: return null
+        val bytes = ffiContext.getState(key) ?: return null
         @Suppress("UNCHECKED_CAST")
         return serializer.deserialize(bytes, Any::class.java) as T?
     }
 
     override suspend fun <T> set(key: String, value: T) {
         val bytes = serializer.serialize(value)
-        currentState[key] = bytes
-        commands.add(FfiWorkflowCommand.SetState(key = key, value = bytes))
+        ffiContext.setState(key, bytes)
     }
 
     override suspend fun clear(key: String) {
-        currentState.remove(key)
-        commands.add(FfiWorkflowCommand.ClearState(key = key))
+        ffiContext.clearState(key)
     }
 
     override suspend fun clearAll() {
-        currentState.keys.toList().forEach { clear(it) }
+        ffiContext.stateKeys().forEach { ffiContext.clearState(it) }
     }
 
     override suspend fun stateKeys(): List<String> {
-        return currentState.keys.toList()
+        return ffiContext.stateKeys()
     }
 
     override suspend fun sleep(duration: Duration) {
-        val timerId = "timer-${++sequenceNumber}"
-
-        // Record timer command
-        commands.add(
-            FfiWorkflowCommand.StartTimer(
-                timerId = timerId,
-                durationMs = duration.toMillis()
-            )
-        )
-
-        throw WorkflowSuspendedException("Waiting for timer $timerId")
+        when (val result = ffiContext.startTimer(duration.toMillis())) {
+            is FfiTimerResult.Fired -> {
+                // Timer already fired during replay - continue execution
+            }
+            is FfiTimerResult.Pending -> {
+                throw WorkflowSuspendedException("Waiting for timer: ${result.timerId}")
+            }
+        }
     }
 
     override suspend fun <T> promise(name: String, timeout: Duration?): DurablePromise<T> {
-        val promiseId = "promise-$name"
-
-        // Record promise creation command
-        commands.add(
-            FfiWorkflowCommand.CreatePromise(
-                promiseId = promiseId,
-                timeoutMs = timeout?.toMillis()
-            )
-        )
-
-        return PendingDurablePromise(name)
+        return when (val result = ffiContext.createPromise(name, timeout?.toMillis())) {
+            is FfiPromiseResult.Resolved -> {
+                @Suppress("UNCHECKED_CAST")
+                ResolvedDurablePromise(name, serializer.deserialize(result.value, Any::class.java) as T)
+            }
+            is FfiPromiseResult.Rejected -> {
+                RejectedDurablePromise(name, result.error)
+            }
+            is FfiPromiseResult.TimedOut -> {
+                TimedOutDurablePromise(name)
+            }
+            is FfiPromiseResult.Pending -> {
+                throw WorkflowSuspendedException("Waiting for promise: ${result.promiseId}")
+            }
+        }
     }
 
-    override fun isCancellationRequested(): Boolean = cancellationRequested
+    override fun isCancellationRequested(): Boolean = ffiContext.isCancellationRequested()
 
     override suspend fun checkCancellation() {
-        if (cancellationRequested) {
+        if (isCancellationRequested()) {
             throw WorkflowCancelledException("Workflow cancellation requested")
         }
     }
 
     /**
-     * Mark cancellation as requested.
+     * Request cancellation (called when CancelWorkflow job is received).
      */
     internal fun requestCancellation() {
-        cancellationRequested = true
+        ffiContext.requestCancellation()
     }
-
-    private fun generateTaskId(): String = "task-${++sequenceNumber}"
-
-    /**
-     * Get all commands generated during execution.
-     */
-    fun getCommands(): List<FfiWorkflowCommand> = commands.toList()
 }
 
 /**
- * Seeded random number generator for deterministic workflow execution.
+ * Random implementation backed by FFI context.
  */
-internal class SeededRandom(seed: ByteArray) : Random() {
-    private val random = java.util.Random(seed.fold(0L) { acc, byte -> acc * 31 + byte })
-
-    override fun nextBits(bitCount: Int): Int = random.nextInt() ushr (32 - bitCount)
-
-    fun nextUUID(): UUID {
-        val mostSigBits = random.nextLong()
-        val leastSigBits = random.nextLong()
-        // UUID version 4 (random) with variant 2 (IETF)
-        return UUID(
-            (mostSigBits and -0xf001L) or 0x4000L,
-            (leastSigBits and 0x3FFFFFFFFFFFFFFFL) or Long.MIN_VALUE
-        )
+internal class FfiBasedRandom(private val ffiContext: FfiWorkflowContext) : Random() {
+    override fun nextBits(bitCount: Int): Int {
+        val value = (ffiContext.random() * Int.MAX_VALUE).toInt()
+        return value ushr (32 - bitCount)
     }
 }
 
@@ -311,13 +289,30 @@ internal class PendingDeferredImpl<T>(private val id: String) : Deferred<T> {
 }
 
 /**
- * Pending durable promise (not yet resolved).
+ * Resolved durable promise.
  */
-private class PendingDurablePromise<T>(
-    override val name: String
-) : DurablePromise<T> {
-    override suspend fun await(): T = throw WorkflowSuspendedException("Promise '$name' not resolved")
-    override fun isCompleted(): Boolean = false
+private class ResolvedDurablePromise<T>(private val promiseName: String, private val value: T) : DurablePromise<T> {
+    override val name: String = promiseName
+    override suspend fun await(): T = value
+    override fun isCompleted(): Boolean = true
+}
+
+/**
+ * Rejected durable promise.
+ */
+private class RejectedDurablePromise<T>(private val promiseName: String, private val error: String) : DurablePromise<T> {
+    override val name: String = promiseName
+    override suspend fun await(): T = throw PromiseRejectedException(promiseName, error)
+    override fun isCompleted(): Boolean = true
+}
+
+/**
+ * Timed out durable promise.
+ */
+private class TimedOutDurablePromise<T>(private val promiseName: String) : DurablePromise<T> {
+    override val name: String = promiseName
+    override suspend fun await(): T = throw PromiseTimeoutException(promiseName)
+    override fun isCompleted(): Boolean = true
 }
 
 /**
@@ -345,3 +340,9 @@ class ChildWorkflowFailedException(
     val childExecutionId: String,
     message: String
 ) : Exception("Child workflow '$childExecutionId' failed: $message")
+
+
+/**
+ * Exception thrown when a determinism violation is detected.
+ */
+class DeterminismViolationException(message: String) : Exception(message)

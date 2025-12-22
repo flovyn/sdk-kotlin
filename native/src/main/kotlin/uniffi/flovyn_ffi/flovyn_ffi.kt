@@ -740,6 +740,50 @@ internal interface UniffiForeignFutureCompleteVoid : com.sun.jna.Callback {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // A JNA Library to expose the extern-C FFI definitions.
 // This is an implementation detail which will be called internally by the public API.
 
@@ -767,6 +811,12 @@ internal interface UniffiLib : Library {
     ): Pointer
     fun uniffi_flovyn_ffi_fn_method_coreclient_get_workflow_events(`ptr`: Pointer,`workflowExecutionId`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_coreclient_query_workflow(`ptr`: Pointer,`workflowExecutionId`: RustBuffer.ByValue,`queryName`: RustBuffer.ByValue,`params`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_coreclient_reject_promise(`ptr`: Pointer,`promiseId`: RustBuffer.ByValue,`error`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_flovyn_ffi_fn_method_coreclient_resolve_promise(`ptr`: Pointer,`promiseId`: RustBuffer.ByValue,`value`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
     fun uniffi_flovyn_ffi_fn_method_coreclient_start_workflow(`ptr`: Pointer,`workflowKind`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`taskQueue`: RustBuffer.ByValue,`workflowVersion`: RustBuffer.ByValue,`idempotencyKey`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_ffi_fn_clone_coreworker(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
@@ -777,7 +827,7 @@ internal interface UniffiLib : Library {
     ): Pointer
     fun uniffi_flovyn_ffi_fn_method_coreworker_complete_task(`ptr`: Pointer,`completion`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
-    fun uniffi_flovyn_ffi_fn_method_coreworker_complete_workflow_activation(`ptr`: Pointer,`completion`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_flovyn_ffi_fn_method_coreworker_complete_workflow_activation(`ptr`: Pointer,`context`: Pointer,`status`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
     fun uniffi_flovyn_ffi_fn_method_coreworker_get_status(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
@@ -790,6 +840,46 @@ internal interface UniffiLib : Library {
     fun uniffi_flovyn_ffi_fn_method_coreworker_poll_workflow_activation(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_ffi_fn_method_coreworker_register(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_clone_ffiworkflowcontext(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Pointer
+    fun uniffi_flovyn_ffi_fn_free_ffiworkflowcontext(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_clear_state(`ptr`: Pointer,`key`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_command_count(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_create_promise(`ptr`: Pointer,`name`: RustBuffer.ByValue,`timeoutMs`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_current_time_millis(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_get_state(`ptr`: Pointer,`key`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_is_cancellation_requested(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_random(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Double
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_random_uuid(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_record_operation_result(`ptr`: Pointer,`name`: RustBuffer.ByValue,`result`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_request_cancellation(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_run_operation(`ptr`: Pointer,`name`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_child_workflow(`ptr`: Pointer,`name`: RustBuffer.ByValue,`kind`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`taskQueue`: RustBuffer.ByValue,`prioritySeconds`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_task(`ptr`: Pointer,`taskType`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`queue`: RustBuffer.ByValue,`timeoutMs`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_set_state(`ptr`: Pointer,`key`: RustBuffer.ByValue,`value`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_start_timer(`ptr`: Pointer,`durationMs`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_state_keys(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_take_commands(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_workflow_execution_id(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun ffi_flovyn_ffi_rustbuffer_alloc(`size`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
@@ -905,6 +995,12 @@ internal interface UniffiLib : Library {
     ): Unit
     fun uniffi_flovyn_ffi_checksum_method_coreclient_get_workflow_events(
     ): Short
+    fun uniffi_flovyn_ffi_checksum_method_coreclient_query_workflow(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_coreclient_reject_promise(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_coreclient_resolve_promise(
+    ): Short
     fun uniffi_flovyn_ffi_checksum_method_coreclient_start_workflow(
     ): Short
     fun uniffi_flovyn_ffi_checksum_method_coreworker_complete_task(
@@ -922,6 +1018,42 @@ internal interface UniffiLib : Library {
     fun uniffi_flovyn_ffi_checksum_method_coreworker_poll_workflow_activation(
     ): Short
     fun uniffi_flovyn_ffi_checksum_method_coreworker_register(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_clear_state(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_command_count(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_create_promise(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_current_time_millis(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_get_state(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_is_cancellation_requested(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_random(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_random_uuid(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_record_operation_result(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_request_cancellation(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_run_operation(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_schedule_child_workflow(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_schedule_task(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_set_state(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_start_timer(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_state_keys(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_take_commands(
+    ): Short
+    fun uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_workflow_execution_id(
     ): Short
     fun uniffi_flovyn_ffi_checksum_constructor_coreclient_new(
     ): Short
@@ -947,13 +1079,22 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_flovyn_ffi_checksum_method_coreclient_get_workflow_events() != 65213.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_flovyn_ffi_checksum_method_coreclient_query_workflow() != 26985.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_coreclient_reject_promise() != 35478.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_coreclient_resolve_promise() != 5587.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_flovyn_ffi_checksum_method_coreclient_start_workflow() != 39523.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_ffi_checksum_method_coreworker_complete_task() != 47626.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_flovyn_ffi_checksum_method_coreworker_complete_workflow_activation() != 26796.toShort()) {
+    if (lib.uniffi_flovyn_ffi_checksum_method_coreworker_complete_workflow_activation() != 46055.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_ffi_checksum_method_coreworker_get_status() != 60858.toShort()) {
@@ -968,10 +1109,64 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_flovyn_ffi_checksum_method_coreworker_poll_task_activation() != 12538.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_flovyn_ffi_checksum_method_coreworker_poll_workflow_activation() != 26317.toShort()) {
+    if (lib.uniffi_flovyn_ffi_checksum_method_coreworker_poll_workflow_activation() != 28873.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_ffi_checksum_method_coreworker_register() != 58912.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_clear_state() != 16222.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_command_count() != 11063.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_create_promise() != 43523.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_current_time_millis() != 22875.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_get_state() != 52116.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_is_cancellation_requested() != 34291.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_random() != 57252.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_random_uuid() != 29804.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_record_operation_result() != 52340.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_request_cancellation() != 10403.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_run_operation() != 27099.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_schedule_child_workflow() != 45808.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_schedule_task() != 3297.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_set_state() != 23690.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_start_timer() != 47766.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_state_keys() != 3889.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_take_commands() != 26724.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_workflow_execution_id() != 12211.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_ffi_checksum_constructor_coreclient_new() != 48663.toShort()) {
@@ -1093,6 +1288,29 @@ public object FfiConverterLong: FfiConverter<Long, Long> {
 
     override fun write(value: Long, buf: ByteBuffer) {
         buf.putLong(value)
+    }
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterDouble: FfiConverter<Double, Double> {
+    override fun lift(value: Double): Double {
+        return value
+    }
+
+    override fun read(buf: ByteBuffer): Double {
+        return buf.getDouble()
+    }
+
+    override fun lower(value: Double): Double {
+        return value
+    }
+
+    override fun allocationSize(value: Double) = 8UL
+
+    override fun write(value: Double, buf: ByteBuffer) {
+        buf.putDouble(value)
     }
 }
 
@@ -1380,6 +1598,43 @@ public interface CoreClientInterface {
     fun `getWorkflowEvents`(`workflowExecutionId`: kotlin.String): List<WorkflowEventRecord>
     
     /**
+     * Query workflow state.
+     *
+     * # Arguments
+     * * `workflow_execution_id` - The workflow execution ID
+     * * `query_name` - The name of the query to execute
+     * * `params` - Query parameters as JSON bytes
+     *
+     * # Returns
+     * The query result as JSON bytes.
+     */
+    fun `queryWorkflow`(`workflowExecutionId`: kotlin.String, `queryName`: kotlin.String, `params`: kotlin.ByteArray): kotlin.ByteArray
+    
+    /**
+     * Reject a durable promise with an error.
+     *
+     * This allows external systems to reject promises that were created
+     * by workflows using `ctx.promise()`.
+     *
+     * # Arguments
+     * * `promise_id` - The promise ID (format: workflow_execution_id/promise-name)
+     * * `error` - The error message
+     */
+    fun `rejectPromise`(`promiseId`: kotlin.String, `error`: kotlin.String)
+    
+    /**
+     * Resolve a durable promise with a value.
+     *
+     * This allows external systems to resolve promises that were created
+     * by workflows using `ctx.promise()`.
+     *
+     * # Arguments
+     * * `promise_id` - The promise ID (format: workflow_execution_id/promise-name)
+     * * `value` - The value to resolve the promise with (JSON bytes)
+     */
+    fun `resolvePromise`(`promiseId`: kotlin.String, `value`: kotlin.ByteArray)
+    
+    /**
      * Start a new workflow execution.
      *
      * # Arguments
@@ -1517,6 +1772,74 @@ open class CoreClient: Disposable, AutoCloseable, CoreClientInterface {
     }
     )
     }
+    
+
+    
+    /**
+     * Query workflow state.
+     *
+     * # Arguments
+     * * `workflow_execution_id` - The workflow execution ID
+     * * `query_name` - The name of the query to execute
+     * * `params` - Query parameters as JSON bytes
+     *
+     * # Returns
+     * The query result as JSON bytes.
+     */
+    @Throws(FfiException::class)override fun `queryWorkflow`(`workflowExecutionId`: kotlin.String, `queryName`: kotlin.String, `params`: kotlin.ByteArray): kotlin.ByteArray {
+            return FfiConverterByteArray.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_coreclient_query_workflow(
+        it, FfiConverterString.lower(`workflowExecutionId`),FfiConverterString.lower(`queryName`),FfiConverterByteArray.lower(`params`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Reject a durable promise with an error.
+     *
+     * This allows external systems to reject promises that were created
+     * by workflows using `ctx.promise()`.
+     *
+     * # Arguments
+     * * `promise_id` - The promise ID (format: workflow_execution_id/promise-name)
+     * * `error` - The error message
+     */
+    @Throws(FfiException::class)override fun `rejectPromise`(`promiseId`: kotlin.String, `error`: kotlin.String)
+        = 
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_coreclient_reject_promise(
+        it, FfiConverterString.lower(`promiseId`),FfiConverterString.lower(`error`),_status)
+}
+    }
+    
+    
+
+    
+    /**
+     * Resolve a durable promise with a value.
+     *
+     * This allows external systems to resolve promises that were created
+     * by workflows using `ctx.promise()`.
+     *
+     * # Arguments
+     * * `promise_id` - The promise ID (format: workflow_execution_id/promise-name)
+     * * `value` - The value to resolve the promise with (JSON bytes)
+     */
+    @Throws(FfiException::class)override fun `resolvePromise`(`promiseId`: kotlin.String, `value`: kotlin.ByteArray)
+        = 
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_coreclient_resolve_promise(
+        it, FfiConverterString.lower(`promiseId`),FfiConverterByteArray.lower(`value`),_status)
+}
+    }
+    
     
 
     
@@ -1701,9 +2024,15 @@ public interface CoreWorkerInterface {
     /**
      * Complete a workflow activation.
      *
-     * This sends the commands generated by the language SDK back to the server.
+     * This extracts commands from the context and sends them along with
+     * the completion status to the server.
+     *
+     * # Arguments
+     *
+     * * `context` - The workflow context (commands are extracted from this)
+     * * `status` - The completion status (Completed, Suspended, Cancelled, or Failed)
      */
-    fun `completeWorkflowActivation`(`completion`: WorkflowActivationCompletion)
+    fun `completeWorkflowActivation`(`context`: FfiWorkflowContext, `status`: WorkflowCompletionStatus)
     
     /**
      * Get the current worker status as a string.
@@ -1735,6 +2064,11 @@ public interface CoreWorkerInterface {
      *
      * This blocks until work is available or the worker is shut down.
      * Returns `None` if no work is available within the timeout.
+     *
+     * The returned activation includes a replay-aware context that handles:
+     * - Determinism validation during replay
+     * - Cached result return for replayed operations
+     * - Command generation for new operations
      */
     fun `pollWorkflowActivation`(): WorkflowActivation?
     
@@ -1873,14 +2207,20 @@ open class CoreWorker: Disposable, AutoCloseable, CoreWorkerInterface {
     /**
      * Complete a workflow activation.
      *
-     * This sends the commands generated by the language SDK back to the server.
+     * This extracts commands from the context and sends them along with
+     * the completion status to the server.
+     *
+     * # Arguments
+     *
+     * * `context` - The workflow context (commands are extracted from this)
+     * * `status` - The completion status (Completed, Suspended, Cancelled, or Failed)
      */
-    @Throws(FfiException::class)override fun `completeWorkflowActivation`(`completion`: WorkflowActivationCompletion)
+    @Throws(FfiException::class)override fun `completeWorkflowActivation`(`context`: FfiWorkflowContext, `status`: WorkflowCompletionStatus)
         = 
     callWithPointer {
     uniffiRustCallWithError(FfiException) { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_coreworker_complete_workflow_activation(
-        it, FfiConverterTypeWorkflowActivationCompletion.lower(`completion`),_status)
+        it, FfiConverterTypeFfiWorkflowContext.lower(`context`),FfiConverterTypeWorkflowCompletionStatus.lower(`status`),_status)
 }
     }
     
@@ -1957,6 +2297,11 @@ open class CoreWorker: Disposable, AutoCloseable, CoreWorkerInterface {
      *
      * This blocks until work is available or the worker is shut down.
      * Returns `None` if no work is available within the timeout.
+     *
+     * The returned activation includes a replay-aware context that handles:
+     * - Determinism validation during replay
+     * - Cached result return for replayed operations
+     * - Command generation for new operations
      */
     @Throws(FfiException::class)override fun `pollWorkflowActivation`(): WorkflowActivation? {
             return FfiConverterOptionalTypeWorkflowActivation.lift(
@@ -2019,6 +2364,667 @@ public object FfiConverterTypeCoreWorker: FfiConverter<CoreWorker, Pointer> {
     override fun allocationSize(value: CoreWorker) = 8UL
 
     override fun write(value: CoreWorker, buf: ByteBuffer) {
+        // The Rust code always expects pointers written as 8 bytes,
+        // and will fail to compile if they don't fit.
+        buf.putLong(Pointer.nativeValue(lower(value)))
+    }
+}
+
+
+// This template implements a class for working with a Rust struct via a Pointer/Arc<T>
+// to the live Rust struct on the other side of the FFI.
+//
+// Each instance implements core operations for working with the Rust `Arc<T>` and the
+// Kotlin Pointer to work with the live Rust struct on the other side of the FFI.
+//
+// There's some subtlety here, because we have to be careful not to operate on a Rust
+// struct after it has been dropped, and because we must expose a public API for freeing
+// theq Kotlin wrapper object in lieu of reliable finalizers. The core requirements are:
+//
+//   * Each instance holds an opaque pointer to the underlying Rust struct.
+//     Method calls need to read this pointer from the object's state and pass it in to
+//     the Rust FFI.
+//
+//   * When an instance is no longer needed, its pointer should be passed to a
+//     special destructor function provided by the Rust FFI, which will drop the
+//     underlying Rust struct.
+//
+//   * Given an instance, calling code is expected to call the special
+//     `destroy` method in order to free it after use, either by calling it explicitly
+//     or by using a higher-level helper like the `use` method. Failing to do so risks
+//     leaking the underlying Rust struct.
+//
+//   * We can't assume that calling code will do the right thing, and must be prepared
+//     to handle Kotlin method calls executing concurrently with or even after a call to
+//     `destroy`, and to handle multiple (possibly concurrent!) calls to `destroy`.
+//
+//   * We must never allow Rust code to operate on the underlying Rust struct after
+//     the destructor has been called, and must never call the destructor more than once.
+//     Doing so may trigger memory unsafety.
+//
+//   * To mitigate many of the risks of leaking memory and use-after-free unsafety, a `Cleaner`
+//     is implemented to call the destructor when the Kotlin object becomes unreachable.
+//     This is done in a background thread. This is not a panacea, and client code should be aware that
+//      1. the thread may starve if some there are objects that have poorly performing
+//     `drop` methods or do significant work in their `drop` methods.
+//      2. the thread is shared across the whole library. This can be tuned by using `android_cleaner = true`,
+//         or `android = true` in the [`kotlin` section of the `uniffi.toml` file](https://mozilla.github.io/uniffi-rs/kotlin/configuration.html).
+//
+// If we try to implement this with mutual exclusion on access to the pointer, there is the
+// possibility of a race between a method call and a concurrent call to `destroy`:
+//
+//    * Thread A starts a method call, reads the value of the pointer, but is interrupted
+//      before it can pass the pointer over the FFI to Rust.
+//    * Thread B calls `destroy` and frees the underlying Rust struct.
+//    * Thread A resumes, passing the already-read pointer value to Rust and triggering
+//      a use-after-free.
+//
+// One possible solution would be to use a `ReadWriteLock`, with each method call taking
+// a read lock (and thus allowed to run concurrently) and the special `destroy` method
+// taking a write lock (and thus blocking on live method calls). However, we aim not to
+// generate methods with any hidden blocking semantics, and a `destroy` method that might
+// block if called incorrectly seems to meet that bar.
+//
+// So, we achieve our goals by giving each instance an associated `AtomicLong` counter to track
+// the number of in-flight method calls, and an `AtomicBoolean` flag to indicate whether `destroy`
+// has been called. These are updated according to the following rules:
+//
+//    * The initial value of the counter is 1, indicating a live object with no in-flight calls.
+//      The initial value for the flag is false.
+//
+//    * At the start of each method call, we atomically check the counter.
+//      If it is 0 then the underlying Rust struct has already been destroyed and the call is aborted.
+//      If it is nonzero them we atomically increment it by 1 and proceed with the method call.
+//
+//    * At the end of each method call, we atomically decrement and check the counter.
+//      If it has reached zero then we destroy the underlying Rust struct.
+//
+//    * When `destroy` is called, we atomically flip the flag from false to true.
+//      If the flag was already true we silently fail.
+//      Otherwise we atomically decrement and check the counter.
+//      If it has reached zero then we destroy the underlying Rust struct.
+//
+// Astute readers may observe that this all sounds very similar to the way that Rust's `Arc<T>` works,
+// and indeed it is, with the addition of a flag to guard against multiple calls to `destroy`.
+//
+// The overall effect is that the underlying Rust struct is destroyed only when `destroy` has been
+// called *and* all in-flight method calls have completed, avoiding violating any of the expectations
+// of the underlying Rust code.
+//
+// This makes a cleaner a better alternative to _not_ calling `destroy()` as
+// and when the object is finished with, but the abstraction is not perfect: if the Rust object's `drop`
+// method is slow, and/or there are many objects to cleanup, and it's on a low end Android device, then the cleaner
+// thread may be starved, and the app will leak memory.
+//
+// In this case, `destroy`ing manually may be a better solution.
+//
+// The cleaner can live side by side with the manual calling of `destroy`. In the order of responsiveness, uniffi objects
+// with Rust peers are reclaimed:
+//
+// 1. By calling the `destroy` method of the object, which calls `rustObject.free()`. If that doesn't happen:
+// 2. When the object becomes unreachable, AND the Cleaner thread gets to call `rustObject.free()`. If the thread is starved then:
+// 3. The memory is reclaimed when the process terminates.
+//
+// [1] https://stackoverflow.com/questions/24376768/can-java-finalize-an-object-when-it-is-still-in-scope/24380219
+//
+
+
+/**
+ * Replay-aware workflow context for FFI.
+ *
+ * This context handles all replay logic internally:
+ * - Pre-filters events by type for O(1) lookup
+ * - Validates determinism during replay
+ * - Returns cached results for replayed operations
+ * - Only generates commands for NEW operations
+ */
+public interface FfiWorkflowContextInterface {
+    
+    /**
+     * Clear workflow state.
+     */
+    fun `clearState`(`key`: kotlin.String)
+    
+    /**
+     * Get the number of pending commands.
+     */
+    fun `commandCount`(): kotlin.UInt
+    
+    /**
+     * Create a durable promise.
+     *
+     * Returns:
+     * - `Resolved` if promise already resolved during replay
+     * - `Rejected` if promise already rejected during replay
+     * - `TimedOut` if promise already timed out during replay
+     * - `Pending` if promise is new or not yet resolved
+     */
+    fun `createPromise`(`name`: kotlin.String, `timeoutMs`: kotlin.Long?): FfiPromiseResult
+    
+    /**
+     * Get the current time in milliseconds since Unix epoch.
+     *
+     * This returns a deterministic value that is the same across replays.
+     */
+    fun `currentTimeMillis`(): kotlin.Long
+    
+    /**
+     * Get workflow state.
+     */
+    fun `getState`(`key`: kotlin.String): kotlin.ByteArray?
+    
+    /**
+     * Check if cancellation has been requested.
+     */
+    fun `isCancellationRequested`(): kotlin.Boolean
+    
+    /**
+     * Generate a deterministic random number in [0, 1).
+     */
+    fun `random`(): kotlin.Double
+    
+    /**
+     * Generate a deterministic UUID.
+     *
+     * Each call returns a new UUID that is the same across replays.
+     */
+    fun `randomUuid`(): kotlin.String
+    
+    /**
+     * Record the result of an operation that was executed.
+     */
+    fun `recordOperationResult`(`name`: kotlin.String, `result`: kotlin.ByteArray)
+    
+    /**
+     * Request cancellation (called when CancelWorkflow job is received).
+     */
+    fun `requestCancellation`()
+    
+    /**
+     * Run a side effect operation.
+     *
+     * Returns:
+     * - `Cached` if operation already executed during replay
+     * - `Execute` if operation is new and should be executed
+     */
+    fun `runOperation`(`name`: kotlin.String): FfiOperationResult
+    
+    /**
+     * Schedule a child workflow.
+     *
+     * Returns:
+     * - `Completed` if child already completed during replay
+     * - `Failed` if child already failed during replay
+     * - `Pending` if child is new or not yet completed
+     */
+    fun `scheduleChildWorkflow`(`name`: kotlin.String, `kind`: kotlin.String?, `input`: kotlin.ByteArray, `taskQueue`: kotlin.String?, `prioritySeconds`: kotlin.Int?): FfiChildWorkflowResult
+    
+    /**
+     * Schedule a task for execution.
+     *
+     * Returns:
+     * - `Completed` if task already completed during replay
+     * - `Failed` if task already failed during replay
+     * - `Pending` if task is new or not yet completed
+     */
+    fun `scheduleTask`(`taskType`: kotlin.String, `input`: kotlin.ByteArray, `queue`: kotlin.String?, `timeoutMs`: kotlin.Long?): FfiTaskResult
+    
+    /**
+     * Set workflow state.
+     */
+    fun `setState`(`key`: kotlin.String, `value`: kotlin.ByteArray)
+    
+    /**
+     * Start a timer.
+     *
+     * Returns:
+     * - `Fired` if timer already fired during replay
+     * - `Pending` if timer is new or not yet fired
+     */
+    fun `startTimer`(`durationMs`: kotlin.Long): FfiTimerResult
+    
+    /**
+     * Get all state keys.
+     */
+    fun `stateKeys`(): List<kotlin.String>
+    
+    /**
+     * Take all generated commands (only new ones, not replayed).
+     *
+     * This drains the command buffer and returns the commands.
+     */
+    fun `takeCommands`(): List<FfiWorkflowCommand>
+    
+    /**
+     * Get the workflow execution ID.
+     */
+    fun `workflowExecutionId`(): kotlin.String
+    
+    companion object
+}
+
+/**
+ * Replay-aware workflow context for FFI.
+ *
+ * This context handles all replay logic internally:
+ * - Pre-filters events by type for O(1) lookup
+ * - Validates determinism during replay
+ * - Returns cached results for replayed operations
+ * - Only generates commands for NEW operations
+ */
+open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInterface {
+
+    constructor(pointer: Pointer) {
+        this.pointer = pointer
+        this.cleanable = UniffiLib.CLEANER.register(this, UniffiCleanAction(pointer))
+    }
+
+    /**
+     * This constructor can be used to instantiate a fake object. Only used for tests. Any
+     * attempt to actually use an object constructed this way will fail as there is no
+     * connected Rust object.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    constructor(noPointer: NoPointer) {
+        this.pointer = null
+        this.cleanable = UniffiLib.CLEANER.register(this, UniffiCleanAction(pointer))
+    }
+
+    protected val pointer: Pointer?
+    protected val cleanable: UniffiCleaner.Cleanable
+
+    private val wasDestroyed = AtomicBoolean(false)
+    private val callCounter = AtomicLong(1)
+
+    override fun destroy() {
+        // Only allow a single call to this method.
+        // TODO: maybe we should log a warning if called more than once?
+        if (this.wasDestroyed.compareAndSet(false, true)) {
+            // This decrement always matches the initial count of 1 given at creation time.
+            if (this.callCounter.decrementAndGet() == 0L) {
+                cleanable.clean()
+            }
+        }
+    }
+
+    @Synchronized
+    override fun close() {
+        this.destroy()
+    }
+
+    internal inline fun <R> callWithPointer(block: (ptr: Pointer) -> R): R {
+        // Check and increment the call counter, to keep the object alive.
+        // This needs a compare-and-set retry loop in case of concurrent updates.
+        do {
+            val c = this.callCounter.get()
+            if (c == 0L) {
+                throw IllegalStateException("${this.javaClass.simpleName} object has already been destroyed")
+            }
+            if (c == Long.MAX_VALUE) {
+                throw IllegalStateException("${this.javaClass.simpleName} call counter would overflow")
+            }
+        } while (! this.callCounter.compareAndSet(c, c + 1L))
+        // Now we can safely do the method call without the pointer being freed concurrently.
+        try {
+            return block(this.uniffiClonePointer())
+        } finally {
+            // This decrement always matches the increment we performed above.
+            if (this.callCounter.decrementAndGet() == 0L) {
+                cleanable.clean()
+            }
+        }
+    }
+
+    // Use a static inner class instead of a closure so as not to accidentally
+    // capture `this` as part of the cleanable's action.
+    private class UniffiCleanAction(private val pointer: Pointer?) : Runnable {
+        override fun run() {
+            pointer?.let { ptr ->
+                uniffiRustCall { status ->
+                    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_free_ffiworkflowcontext(ptr, status)
+                }
+            }
+        }
+    }
+
+    fun uniffiClonePointer(): Pointer {
+        return uniffiRustCall() { status ->
+            UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_clone_ffiworkflowcontext(pointer!!, status)
+        }
+    }
+
+    
+    /**
+     * Clear workflow state.
+     */override fun `clearState`(`key`: kotlin.String)
+        = 
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_clear_state(
+        it, FfiConverterString.lower(`key`),_status)
+}
+    }
+    
+    
+
+    
+    /**
+     * Get the number of pending commands.
+     */override fun `commandCount`(): kotlin.UInt {
+            return FfiConverterUInt.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_command_count(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Create a durable promise.
+     *
+     * Returns:
+     * - `Resolved` if promise already resolved during replay
+     * - `Rejected` if promise already rejected during replay
+     * - `TimedOut` if promise already timed out during replay
+     * - `Pending` if promise is new or not yet resolved
+     */
+    @Throws(FfiException::class)override fun `createPromise`(`name`: kotlin.String, `timeoutMs`: kotlin.Long?): FfiPromiseResult {
+            return FfiConverterTypeFfiPromiseResult.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_create_promise(
+        it, FfiConverterString.lower(`name`),FfiConverterOptionalLong.lower(`timeoutMs`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the current time in milliseconds since Unix epoch.
+     *
+     * This returns a deterministic value that is the same across replays.
+     */override fun `currentTimeMillis`(): kotlin.Long {
+            return FfiConverterLong.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_current_time_millis(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get workflow state.
+     */override fun `getState`(`key`: kotlin.String): kotlin.ByteArray? {
+            return FfiConverterOptionalByteArray.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_get_state(
+        it, FfiConverterString.lower(`key`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Check if cancellation has been requested.
+     */override fun `isCancellationRequested`(): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_is_cancellation_requested(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Generate a deterministic random number in [0, 1).
+     */override fun `random`(): kotlin.Double {
+            return FfiConverterDouble.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_random(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Generate a deterministic UUID.
+     *
+     * Each call returns a new UUID that is the same across replays.
+     */override fun `randomUuid`(): kotlin.String {
+            return FfiConverterString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_random_uuid(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Record the result of an operation that was executed.
+     */override fun `recordOperationResult`(`name`: kotlin.String, `result`: kotlin.ByteArray)
+        = 
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_record_operation_result(
+        it, FfiConverterString.lower(`name`),FfiConverterByteArray.lower(`result`),_status)
+}
+    }
+    
+    
+
+    
+    /**
+     * Request cancellation (called when CancelWorkflow job is received).
+     */override fun `requestCancellation`()
+        = 
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_request_cancellation(
+        it, _status)
+}
+    }
+    
+    
+
+    
+    /**
+     * Run a side effect operation.
+     *
+     * Returns:
+     * - `Cached` if operation already executed during replay
+     * - `Execute` if operation is new and should be executed
+     */
+    @Throws(FfiException::class)override fun `runOperation`(`name`: kotlin.String): FfiOperationResult {
+            return FfiConverterTypeFfiOperationResult.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_run_operation(
+        it, FfiConverterString.lower(`name`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Schedule a child workflow.
+     *
+     * Returns:
+     * - `Completed` if child already completed during replay
+     * - `Failed` if child already failed during replay
+     * - `Pending` if child is new or not yet completed
+     */
+    @Throws(FfiException::class)override fun `scheduleChildWorkflow`(`name`: kotlin.String, `kind`: kotlin.String?, `input`: kotlin.ByteArray, `taskQueue`: kotlin.String?, `prioritySeconds`: kotlin.Int?): FfiChildWorkflowResult {
+            return FfiConverterTypeFfiChildWorkflowResult.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_child_workflow(
+        it, FfiConverterString.lower(`name`),FfiConverterOptionalString.lower(`kind`),FfiConverterByteArray.lower(`input`),FfiConverterOptionalString.lower(`taskQueue`),FfiConverterOptionalInt.lower(`prioritySeconds`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Schedule a task for execution.
+     *
+     * Returns:
+     * - `Completed` if task already completed during replay
+     * - `Failed` if task already failed during replay
+     * - `Pending` if task is new or not yet completed
+     */
+    @Throws(FfiException::class)override fun `scheduleTask`(`taskType`: kotlin.String, `input`: kotlin.ByteArray, `queue`: kotlin.String?, `timeoutMs`: kotlin.Long?): FfiTaskResult {
+            return FfiConverterTypeFfiTaskResult.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_task(
+        it, FfiConverterString.lower(`taskType`),FfiConverterByteArray.lower(`input`),FfiConverterOptionalString.lower(`queue`),FfiConverterOptionalLong.lower(`timeoutMs`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Set workflow state.
+     */
+    @Throws(FfiException::class)override fun `setState`(`key`: kotlin.String, `value`: kotlin.ByteArray)
+        = 
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_set_state(
+        it, FfiConverterString.lower(`key`),FfiConverterByteArray.lower(`value`),_status)
+}
+    }
+    
+    
+
+    
+    /**
+     * Start a timer.
+     *
+     * Returns:
+     * - `Fired` if timer already fired during replay
+     * - `Pending` if timer is new or not yet fired
+     */
+    @Throws(FfiException::class)override fun `startTimer`(`durationMs`: kotlin.Long): FfiTimerResult {
+            return FfiConverterTypeFfiTimerResult.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_start_timer(
+        it, FfiConverterLong.lower(`durationMs`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get all state keys.
+     */override fun `stateKeys`(): List<kotlin.String> {
+            return FfiConverterSequenceString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_state_keys(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Take all generated commands (only new ones, not replayed).
+     *
+     * This drains the command buffer and returns the commands.
+     */override fun `takeCommands`(): List<FfiWorkflowCommand> {
+            return FfiConverterSequenceTypeFfiWorkflowCommand.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_take_commands(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the workflow execution ID.
+     */override fun `workflowExecutionId`(): kotlin.String {
+            return FfiConverterString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_workflow_execution_id(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+
+    
+    
+    companion object
+    
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiWorkflowContext: FfiConverter<FfiWorkflowContext, Pointer> {
+
+    override fun lower(value: FfiWorkflowContext): Pointer {
+        return value.uniffiClonePointer()
+    }
+
+    override fun lift(value: Pointer): FfiWorkflowContext {
+        return FfiWorkflowContext(value)
+    }
+
+    override fun read(buf: ByteBuffer): FfiWorkflowContext {
+        // The Rust code always writes pointers as 8 bytes, and will
+        // fail to compile if they don't fit.
+        return lift(Pointer(buf.getLong()))
+    }
+
+    override fun allocationSize(value: FfiWorkflowContext) = 8UL
+
+    override fun write(value: FfiWorkflowContext, buf: ByteBuffer) {
         // The Rust code always expects pointers written as 8 bytes,
         // and will fail to compile if they don't fit.
         buf.putLong(Pointer.nativeValue(lower(value)))
@@ -2390,46 +3396,51 @@ public object FfiConverterTypeWorkerConfig: FfiConverterRustBuffer<WorkerConfig>
 /**
  * A workflow activation containing work for the language SDK to process.
  *
+ * The activation includes a replay-aware context that handles:
+ * - Determinism validation during replay
+ * - Cached result return for replayed operations
+ * - Command generation for new operations
+ *
  * Activations are returned by `CoreWorker::poll_workflow_activation()`.
  */
 data class WorkflowActivation (
     /**
-     * The run ID for this workflow execution.
+     * The replay-aware workflow context.
+     *
+     * Use this context to call workflow operations like `schedule_task()`,
+     * `create_promise()`, `start_timer()`, etc. The context handles replay
+     * automatically and returns cached results during replay.
      */
-    var `runId`: kotlin.String, 
-    /**
-     * The workflow execution ID.
-     */
-    var `workflowExecutionId`: kotlin.String, 
+    var `context`: FfiWorkflowContext, 
     /**
      * The workflow kind/type.
      */
     var `workflowKind`: kotlin.String, 
     /**
-     * Current timestamp in milliseconds since Unix epoch.
+     * Serialized workflow input as JSON bytes.
      */
-    var `timestampMs`: kotlin.Long, 
-    /**
-     * Whether we are currently replaying (re-executing from history).
-     */
-    var `isReplaying`: kotlin.Boolean, 
-    /**
-     * Random seed for deterministic random number generation.
-     */
-    var `randomSeed`: kotlin.ByteArray, 
+    var `input`: kotlin.ByteArray, 
     /**
      * Jobs to process in this activation.
+     *
+     * Jobs include signals, queries, and cancellation requests that
+     * don't go through the context replay mechanism.
      */
-    var `jobs`: List<WorkflowActivationJob>, 
-    /**
-     * Replay events from history (for determinism validation).
-     */
-    var `history`: List<FfiReplayEvent>, 
-    /**
-     * Current workflow state (key-value pairs as JSON bytes).
-     */
-    var `state`: List<StateEntry>
-) {
+    var `jobs`: List<WorkflowActivationJob>
+) : Disposable {
+    
+    @Suppress("UNNECESSARY_SAFE_CALL") // codegen is much simpler if we unconditionally emit safe calls here
+    override fun destroy() {
+        
+        Disposable.destroy(this.`context`)
+    
+        Disposable.destroy(this.`workflowKind`)
+    
+        Disposable.destroy(this.`input`)
+    
+        Disposable.destroy(this.`jobs`)
+    
+    }
     
     companion object
 }
@@ -2440,81 +3451,25 @@ data class WorkflowActivation (
 public object FfiConverterTypeWorkflowActivation: FfiConverterRustBuffer<WorkflowActivation> {
     override fun read(buf: ByteBuffer): WorkflowActivation {
         return WorkflowActivation(
+            FfiConverterTypeFfiWorkflowContext.read(buf),
             FfiConverterString.read(buf),
-            FfiConverterString.read(buf),
-            FfiConverterString.read(buf),
-            FfiConverterLong.read(buf),
-            FfiConverterBoolean.read(buf),
             FfiConverterByteArray.read(buf),
             FfiConverterSequenceTypeWorkflowActivationJob.read(buf),
-            FfiConverterSequenceTypeFfiReplayEvent.read(buf),
-            FfiConverterSequenceTypeStateEntry.read(buf),
         )
     }
 
     override fun allocationSize(value: WorkflowActivation) = (
-            FfiConverterString.allocationSize(value.`runId`) +
-            FfiConverterString.allocationSize(value.`workflowExecutionId`) +
+            FfiConverterTypeFfiWorkflowContext.allocationSize(value.`context`) +
             FfiConverterString.allocationSize(value.`workflowKind`) +
-            FfiConverterLong.allocationSize(value.`timestampMs`) +
-            FfiConverterBoolean.allocationSize(value.`isReplaying`) +
-            FfiConverterByteArray.allocationSize(value.`randomSeed`) +
-            FfiConverterSequenceTypeWorkflowActivationJob.allocationSize(value.`jobs`) +
-            FfiConverterSequenceTypeFfiReplayEvent.allocationSize(value.`history`) +
-            FfiConverterSequenceTypeStateEntry.allocationSize(value.`state`)
+            FfiConverterByteArray.allocationSize(value.`input`) +
+            FfiConverterSequenceTypeWorkflowActivationJob.allocationSize(value.`jobs`)
     )
 
     override fun write(value: WorkflowActivation, buf: ByteBuffer) {
-            FfiConverterString.write(value.`runId`, buf)
-            FfiConverterString.write(value.`workflowExecutionId`, buf)
+            FfiConverterTypeFfiWorkflowContext.write(value.`context`, buf)
             FfiConverterString.write(value.`workflowKind`, buf)
-            FfiConverterLong.write(value.`timestampMs`, buf)
-            FfiConverterBoolean.write(value.`isReplaying`, buf)
-            FfiConverterByteArray.write(value.`randomSeed`, buf)
+            FfiConverterByteArray.write(value.`input`, buf)
             FfiConverterSequenceTypeWorkflowActivationJob.write(value.`jobs`, buf)
-            FfiConverterSequenceTypeFfiReplayEvent.write(value.`history`, buf)
-            FfiConverterSequenceTypeStateEntry.write(value.`state`, buf)
-    }
-}
-
-
-
-/**
- * Completion sent back after processing a workflow activation.
- */
-data class WorkflowActivationCompletion (
-    /**
-     * The run ID this completion is for.
-     */
-    var `runId`: kotlin.String, 
-    /**
-     * Commands generated by the workflow execution.
-     */
-    var `commands`: List<FfiWorkflowCommand>
-) {
-    
-    companion object
-}
-
-/**
- * @suppress
- */
-public object FfiConverterTypeWorkflowActivationCompletion: FfiConverterRustBuffer<WorkflowActivationCompletion> {
-    override fun read(buf: ByteBuffer): WorkflowActivationCompletion {
-        return WorkflowActivationCompletion(
-            FfiConverterString.read(buf),
-            FfiConverterSequenceTypeFfiWorkflowCommand.read(buf),
-        )
-    }
-
-    override fun allocationSize(value: WorkflowActivationCompletion) = (
-            FfiConverterString.allocationSize(value.`runId`) +
-            FfiConverterSequenceTypeFfiWorkflowCommand.allocationSize(value.`commands`)
-    )
-
-    override fun write(value: WorkflowActivationCompletion, buf: ByteBuffer) {
-            FfiConverterString.write(value.`runId`, buf)
-            FfiConverterSequenceTypeFfiWorkflowCommand.write(value.`commands`, buf)
     }
 }
 
@@ -2565,6 +3520,117 @@ public object FfiConverterTypeWorkflowEventRecord: FfiConverterRustBuffer<Workfl
             FfiConverterByteArray.write(value.`payload`, buf)
     }
 }
+
+
+
+/**
+ * Result of scheduling a child workflow.
+ */
+sealed class FfiChildWorkflowResult {
+    
+    /**
+     * Child workflow completed during replay.
+     */
+    data class Completed(
+        /**
+         * Serialized output as JSON bytes.
+         */
+        val `output`: kotlin.ByteArray) : FfiChildWorkflowResult() {
+        companion object
+    }
+    
+    /**
+     * Child workflow failed during replay.
+     */
+    data class Failed(
+        /**
+         * Error message.
+         */
+        val `error`: kotlin.String) : FfiChildWorkflowResult() {
+        companion object
+    }
+    
+    /**
+     * Child workflow is pending - workflow should suspend.
+     */
+    data class Pending(
+        /**
+         * The child execution ID for tracking.
+         */
+        val `childExecutionId`: kotlin.String) : FfiChildWorkflowResult() {
+        companion object
+    }
+    
+
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiChildWorkflowResult : FfiConverterRustBuffer<FfiChildWorkflowResult>{
+    override fun read(buf: ByteBuffer): FfiChildWorkflowResult {
+        return when(buf.getInt()) {
+            1 -> FfiChildWorkflowResult.Completed(
+                FfiConverterByteArray.read(buf),
+                )
+            2 -> FfiChildWorkflowResult.Failed(
+                FfiConverterString.read(buf),
+                )
+            3 -> FfiChildWorkflowResult.Pending(
+                FfiConverterString.read(buf),
+                )
+            else -> throw RuntimeException("invalid enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: FfiChildWorkflowResult) = when(value) {
+        is FfiChildWorkflowResult.Completed -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterByteArray.allocationSize(value.`output`)
+            )
+        }
+        is FfiChildWorkflowResult.Failed -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`error`)
+            )
+        }
+        is FfiChildWorkflowResult.Pending -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`childExecutionId`)
+            )
+        }
+    }
+
+    override fun write(value: FfiChildWorkflowResult, buf: ByteBuffer) {
+        when(value) {
+            is FfiChildWorkflowResult.Completed -> {
+                buf.putInt(1)
+                FfiConverterByteArray.write(value.`output`, buf)
+                Unit
+            }
+            is FfiChildWorkflowResult.Failed -> {
+                buf.putInt(2)
+                FfiConverterString.write(value.`error`, buf)
+                Unit
+            }
+            is FfiChildWorkflowResult.Pending -> {
+                buf.putInt(3)
+                FfiConverterString.write(value.`childExecutionId`, buf)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+}
+
+
 
 
 
@@ -2897,6 +3963,219 @@ public object FfiConverterTypeFfiEventType: FfiConverterRustBuffer<FfiEventType>
 
 
 /**
+ * Result of running a side effect operation.
+ */
+sealed class FfiOperationResult {
+    
+    /**
+     * Operation completed during replay - return cached value.
+     */
+    data class Cached(
+        /**
+         * Serialized value as JSON bytes.
+         */
+        val `value`: kotlin.ByteArray) : FfiOperationResult() {
+        companion object
+    }
+    
+    /**
+     * Operation is new - SDK should execute and record.
+     */
+    data class Execute(
+        /**
+         * Sequence number for this operation.
+         */
+        val `operationSeq`: kotlin.UInt) : FfiOperationResult() {
+        companion object
+    }
+    
+
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiOperationResult : FfiConverterRustBuffer<FfiOperationResult>{
+    override fun read(buf: ByteBuffer): FfiOperationResult {
+        return when(buf.getInt()) {
+            1 -> FfiOperationResult.Cached(
+                FfiConverterByteArray.read(buf),
+                )
+            2 -> FfiOperationResult.Execute(
+                FfiConverterUInt.read(buf),
+                )
+            else -> throw RuntimeException("invalid enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: FfiOperationResult) = when(value) {
+        is FfiOperationResult.Cached -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterByteArray.allocationSize(value.`value`)
+            )
+        }
+        is FfiOperationResult.Execute -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterUInt.allocationSize(value.`operationSeq`)
+            )
+        }
+    }
+
+    override fun write(value: FfiOperationResult, buf: ByteBuffer) {
+        when(value) {
+            is FfiOperationResult.Cached -> {
+                buf.putInt(1)
+                FfiConverterByteArray.write(value.`value`, buf)
+                Unit
+            }
+            is FfiOperationResult.Execute -> {
+                buf.putInt(2)
+                FfiConverterUInt.write(value.`operationSeq`, buf)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+}
+
+
+
+
+
+/**
+ * Result of creating a promise.
+ */
+sealed class FfiPromiseResult {
+    
+    /**
+     * Promise resolved during replay.
+     */
+    data class Resolved(
+        /**
+         * Serialized value as JSON bytes.
+         */
+        val `value`: kotlin.ByteArray) : FfiPromiseResult() {
+        companion object
+    }
+    
+    /**
+     * Promise rejected during replay.
+     */
+    data class Rejected(
+        /**
+         * Error message.
+         */
+        val `error`: kotlin.String) : FfiPromiseResult() {
+        companion object
+    }
+    
+    /**
+     * Promise timed out during replay.
+     */
+    object TimedOut : FfiPromiseResult()
+    
+    
+    /**
+     * Promise is pending - workflow should suspend.
+     */
+    data class Pending(
+        /**
+         * The promise ID for tracking.
+         */
+        val `promiseId`: kotlin.String) : FfiPromiseResult() {
+        companion object
+    }
+    
+
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiPromiseResult : FfiConverterRustBuffer<FfiPromiseResult>{
+    override fun read(buf: ByteBuffer): FfiPromiseResult {
+        return when(buf.getInt()) {
+            1 -> FfiPromiseResult.Resolved(
+                FfiConverterByteArray.read(buf),
+                )
+            2 -> FfiPromiseResult.Rejected(
+                FfiConverterString.read(buf),
+                )
+            3 -> FfiPromiseResult.TimedOut
+            4 -> FfiPromiseResult.Pending(
+                FfiConverterString.read(buf),
+                )
+            else -> throw RuntimeException("invalid enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: FfiPromiseResult) = when(value) {
+        is FfiPromiseResult.Resolved -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterByteArray.allocationSize(value.`value`)
+            )
+        }
+        is FfiPromiseResult.Rejected -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`error`)
+            )
+        }
+        is FfiPromiseResult.TimedOut -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+            )
+        }
+        is FfiPromiseResult.Pending -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`promiseId`)
+            )
+        }
+    }
+
+    override fun write(value: FfiPromiseResult, buf: ByteBuffer) {
+        when(value) {
+            is FfiPromiseResult.Resolved -> {
+                buf.putInt(1)
+                FfiConverterByteArray.write(value.`value`, buf)
+                Unit
+            }
+            is FfiPromiseResult.Rejected -> {
+                buf.putInt(2)
+                FfiConverterString.write(value.`error`, buf)
+                Unit
+            }
+            is FfiPromiseResult.TimedOut -> {
+                buf.putInt(3)
+                Unit
+            }
+            is FfiPromiseResult.Pending -> {
+                buf.putInt(4)
+                FfiConverterString.write(value.`promiseId`, buf)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+}
+
+
+
+
+
+/**
  * Reason for worker stopping.
  */
 sealed class FfiStopReason {
@@ -3102,6 +4381,200 @@ public object FfiConverterTypeFfiTaskExecutionResult : FfiConverterRustBuffer<Ff
             }
             is FfiTaskExecutionResult.Cancelled -> {
                 buf.putInt(3)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+}
+
+
+
+
+
+/**
+ * Result of scheduling a task.
+ */
+sealed class FfiTaskResult {
+    
+    /**
+     * Task completed during replay - return cached result.
+     */
+    data class Completed(
+        /**
+         * Serialized output as JSON bytes.
+         */
+        val `output`: kotlin.ByteArray) : FfiTaskResult() {
+        companion object
+    }
+    
+    /**
+     * Task failed during replay - return cached error.
+     */
+    data class Failed(
+        /**
+         * Error message.
+         */
+        val `error`: kotlin.String, 
+        /**
+         * Whether this is retryable.
+         */
+        val `retryable`: kotlin.Boolean) : FfiTaskResult() {
+        companion object
+    }
+    
+    /**
+     * Task is pending - workflow should suspend.
+     */
+    data class Pending(
+        /**
+         * The task execution ID for tracking.
+         */
+        val `taskExecutionId`: kotlin.String) : FfiTaskResult() {
+        companion object
+    }
+    
+
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiTaskResult : FfiConverterRustBuffer<FfiTaskResult>{
+    override fun read(buf: ByteBuffer): FfiTaskResult {
+        return when(buf.getInt()) {
+            1 -> FfiTaskResult.Completed(
+                FfiConverterByteArray.read(buf),
+                )
+            2 -> FfiTaskResult.Failed(
+                FfiConverterString.read(buf),
+                FfiConverterBoolean.read(buf),
+                )
+            3 -> FfiTaskResult.Pending(
+                FfiConverterString.read(buf),
+                )
+            else -> throw RuntimeException("invalid enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: FfiTaskResult) = when(value) {
+        is FfiTaskResult.Completed -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterByteArray.allocationSize(value.`output`)
+            )
+        }
+        is FfiTaskResult.Failed -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`error`)
+                + FfiConverterBoolean.allocationSize(value.`retryable`)
+            )
+        }
+        is FfiTaskResult.Pending -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`taskExecutionId`)
+            )
+        }
+    }
+
+    override fun write(value: FfiTaskResult, buf: ByteBuffer) {
+        when(value) {
+            is FfiTaskResult.Completed -> {
+                buf.putInt(1)
+                FfiConverterByteArray.write(value.`output`, buf)
+                Unit
+            }
+            is FfiTaskResult.Failed -> {
+                buf.putInt(2)
+                FfiConverterString.write(value.`error`, buf)
+                FfiConverterBoolean.write(value.`retryable`, buf)
+                Unit
+            }
+            is FfiTaskResult.Pending -> {
+                buf.putInt(3)
+                FfiConverterString.write(value.`taskExecutionId`, buf)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+}
+
+
+
+
+
+/**
+ * Result of starting a timer.
+ */
+sealed class FfiTimerResult {
+    
+    /**
+     * Timer fired during replay.
+     */
+    object Fired : FfiTimerResult()
+    
+    
+    /**
+     * Timer is pending - workflow should suspend.
+     */
+    data class Pending(
+        /**
+         * The timer ID for tracking.
+         */
+        val `timerId`: kotlin.String) : FfiTimerResult() {
+        companion object
+    }
+    
+
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiTimerResult : FfiConverterRustBuffer<FfiTimerResult>{
+    override fun read(buf: ByteBuffer): FfiTimerResult {
+        return when(buf.getInt()) {
+            1 -> FfiTimerResult.Fired
+            2 -> FfiTimerResult.Pending(
+                FfiConverterString.read(buf),
+                )
+            else -> throw RuntimeException("invalid enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: FfiTimerResult) = when(value) {
+        is FfiTimerResult.Fired -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+            )
+        }
+        is FfiTimerResult.Pending -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`timerId`)
+            )
+        }
+    }
+
+    override fun write(value: FfiTimerResult, buf: ByteBuffer) {
+        when(value) {
+            is FfiTimerResult.Fired -> {
+                buf.putInt(1)
+                Unit
+            }
+            is FfiTimerResult.Pending -> {
+                buf.putInt(2)
+                FfiConverterString.write(value.`timerId`, buf)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
@@ -4397,6 +5870,140 @@ public object FfiConverterTypeWorkflowActivationJob : FfiConverterRustBuffer<Wor
 
 
 
+/**
+ * Status to report when completing a workflow activation.
+ *
+ * Used with `CoreWorker::complete_workflow_activation()`.
+ * Commands are automatically extracted from the context.
+ */
+sealed class WorkflowCompletionStatus {
+    
+    /**
+     * Workflow completed successfully with output.
+     */
+    data class Completed(
+        /**
+         * Serialized output as JSON bytes.
+         */
+        val `output`: kotlin.ByteArray) : WorkflowCompletionStatus() {
+        companion object
+    }
+    
+    /**
+     * Workflow suspended waiting for external events.
+     *
+     * The workflow will be resumed when a task completes, timer fires,
+     * promise resolves, or child workflow finishes.
+     */
+    object Suspended : WorkflowCompletionStatus()
+    
+    
+    /**
+     * Workflow was cancelled.
+     */
+    data class Cancelled(
+        /**
+         * Reason for cancellation.
+         */
+        val `reason`: kotlin.String) : WorkflowCompletionStatus() {
+        companion object
+    }
+    
+    /**
+     * Workflow failed with an error.
+     */
+    data class Failed(
+        /**
+         * Error message.
+         */
+        val `error`: kotlin.String) : WorkflowCompletionStatus() {
+        companion object
+    }
+    
+
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeWorkflowCompletionStatus : FfiConverterRustBuffer<WorkflowCompletionStatus>{
+    override fun read(buf: ByteBuffer): WorkflowCompletionStatus {
+        return when(buf.getInt()) {
+            1 -> WorkflowCompletionStatus.Completed(
+                FfiConverterByteArray.read(buf),
+                )
+            2 -> WorkflowCompletionStatus.Suspended
+            3 -> WorkflowCompletionStatus.Cancelled(
+                FfiConverterString.read(buf),
+                )
+            4 -> WorkflowCompletionStatus.Failed(
+                FfiConverterString.read(buf),
+                )
+            else -> throw RuntimeException("invalid enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: WorkflowCompletionStatus) = when(value) {
+        is WorkflowCompletionStatus.Completed -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterByteArray.allocationSize(value.`output`)
+            )
+        }
+        is WorkflowCompletionStatus.Suspended -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+            )
+        }
+        is WorkflowCompletionStatus.Cancelled -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`reason`)
+            )
+        }
+        is WorkflowCompletionStatus.Failed -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`error`)
+            )
+        }
+    }
+
+    override fun write(value: WorkflowCompletionStatus, buf: ByteBuffer) {
+        when(value) {
+            is WorkflowCompletionStatus.Completed -> {
+                buf.putInt(1)
+                FfiConverterByteArray.write(value.`output`, buf)
+                Unit
+            }
+            is WorkflowCompletionStatus.Suspended -> {
+                buf.putInt(2)
+                Unit
+            }
+            is WorkflowCompletionStatus.Cancelled -> {
+                buf.putInt(3)
+                FfiConverterString.write(value.`reason`, buf)
+                Unit
+            }
+            is WorkflowCompletionStatus.Failed -> {
+                buf.putInt(4)
+                FfiConverterString.write(value.`error`, buf)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+}
+
+
+
+
+
 
 /**
  * @suppress
@@ -4529,6 +6136,38 @@ public object FfiConverterOptionalString: FfiConverterRustBuffer<kotlin.String?>
 /**
  * @suppress
  */
+public object FfiConverterOptionalByteArray: FfiConverterRustBuffer<kotlin.ByteArray?> {
+    override fun read(buf: ByteBuffer): kotlin.ByteArray? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterByteArray.read(buf)
+    }
+
+    override fun allocationSize(value: kotlin.ByteArray?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterByteArray.allocationSize(value)
+        }
+    }
+
+    override fun write(value: kotlin.ByteArray?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterByteArray.write(value, buf)
+        }
+    }
+}
+
+
+
+
+/**
+ * @suppress
+ */
 public object FfiConverterOptionalTypeTaskActivation: FfiConverterRustBuffer<TaskActivation?> {
     override fun read(buf: ByteBuffer): TaskActivation? {
         if (buf.get().toInt() == 0) {
@@ -4611,62 +6250,6 @@ public object FfiConverterSequenceString: FfiConverterRustBuffer<List<kotlin.Str
         buf.putInt(value.size)
         value.iterator().forEach {
             FfiConverterString.write(it, buf)
-        }
-    }
-}
-
-
-
-
-/**
- * @suppress
- */
-public object FfiConverterSequenceTypeFfiReplayEvent: FfiConverterRustBuffer<List<FfiReplayEvent>> {
-    override fun read(buf: ByteBuffer): List<FfiReplayEvent> {
-        val len = buf.getInt()
-        return List<FfiReplayEvent>(len) {
-            FfiConverterTypeFfiReplayEvent.read(buf)
-        }
-    }
-
-    override fun allocationSize(value: List<FfiReplayEvent>): ULong {
-        val sizeForLength = 4UL
-        val sizeForItems = value.map { FfiConverterTypeFfiReplayEvent.allocationSize(it) }.sum()
-        return sizeForLength + sizeForItems
-    }
-
-    override fun write(value: List<FfiReplayEvent>, buf: ByteBuffer) {
-        buf.putInt(value.size)
-        value.iterator().forEach {
-            FfiConverterTypeFfiReplayEvent.write(it, buf)
-        }
-    }
-}
-
-
-
-
-/**
- * @suppress
- */
-public object FfiConverterSequenceTypeStateEntry: FfiConverterRustBuffer<List<StateEntry>> {
-    override fun read(buf: ByteBuffer): List<StateEntry> {
-        val len = buf.getInt()
-        return List<StateEntry>(len) {
-            FfiConverterTypeStateEntry.read(buf)
-        }
-    }
-
-    override fun allocationSize(value: List<StateEntry>): ULong {
-        val sizeForLength = 4UL
-        val sizeForItems = value.map { FfiConverterTypeStateEntry.allocationSize(it) }.sum()
-        return sizeForLength + sizeForItems
-    }
-
-    override fun write(value: List<StateEntry>, buf: ByteBuffer) {
-        buf.putInt(value.size)
-        value.iterator().forEach {
-            FfiConverterTypeStateEntry.write(it, buf)
         }
     }
 }

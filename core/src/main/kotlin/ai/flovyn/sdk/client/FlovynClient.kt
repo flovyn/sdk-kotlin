@@ -49,10 +49,13 @@ class FlovynClient(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var coreBridge: CoreBridge? = null
-    private var coreClient: CoreClientBridge? = null
+    @PublishedApi
+    internal var coreClient: CoreClientBridge? = null
     private var workflowWorker: WorkflowWorker? = null
     private var taskWorker: TaskWorker? = null
     private var started = false
+    @PublishedApi
+    internal val internalSerializer: JsonSerializer = serializer
 
     /**
      * Check if a workflow is registered.
@@ -151,6 +154,76 @@ class FlovynClient(
         )
 
         return UUID.fromString(response.workflowExecutionId)
+    }
+
+    /**
+     * Query workflow state.
+     *
+     * Queries allow you to read the current state of a workflow without
+     * affecting its execution. The query is executed against the workflow's
+     * current state.
+     *
+     * @param workflowExecutionId The workflow execution ID to query
+     * @param queryName The name of the query to execute
+     * @param params Optional query parameters
+     * @return The query result deserialized to type T
+     */
+    inline fun <reified T> query(
+        workflowExecutionId: UUID,
+        queryName: String,
+        params: Any? = null
+    ): T {
+        val client = coreClient ?: throw IllegalStateException("Client not started")
+
+        val resultBytes = client.queryWorkflow(
+            workflowExecutionId = workflowExecutionId.toString(),
+            queryName = queryName,
+            params = internalSerializer.serialize(params)
+        )
+
+        return internalSerializer.deserialize(resultBytes, T::class.java)
+    }
+
+    /**
+     * Resolve a durable promise with a value.
+     *
+     * This allows external systems to resolve promises that were created
+     * by workflows using `ctx.promise()`.
+     *
+     * @param workflowExecutionId The workflow execution ID
+     * @param promiseName The name of the promise (as passed to ctx.promise())
+     * @param value The value to resolve the promise with
+     */
+    fun resolvePromise(
+        workflowExecutionId: UUID,
+        promiseName: String,
+        value: Any?
+    ) {
+        val client = coreClient ?: throw IllegalStateException("Client not started")
+
+        val promiseId = "$workflowExecutionId:$promiseName"
+        client.resolvePromise(promiseId, internalSerializer.serialize(value))
+    }
+
+    /**
+     * Reject a durable promise with an error.
+     *
+     * This allows external systems to reject promises that were created
+     * by workflows using `ctx.promise()`.
+     *
+     * @param workflowExecutionId The workflow execution ID
+     * @param promiseName The name of the promise (as passed to ctx.promise())
+     * @param error The error message
+     */
+    fun rejectPromise(
+        workflowExecutionId: UUID,
+        promiseName: String,
+        error: String
+    ) {
+        val client = coreClient ?: throw IllegalStateException("Client not started")
+
+        val promiseId = "$workflowExecutionId:$promiseName"
+        client.rejectPromise(promiseId, error)
     }
 
     /**

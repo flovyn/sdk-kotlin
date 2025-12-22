@@ -49,6 +49,42 @@ class CoreClientBridge private constructor(
         return ffiClient.getWorkflowEvents(workflowExecutionId)
     }
 
+    /**
+     * Query workflow state.
+     *
+     * @param workflowExecutionId The workflow execution ID
+     * @param queryName The name of the query to execute
+     * @param params Query parameters as JSON bytes
+     * @return The query result as JSON bytes
+     */
+    fun queryWorkflow(
+        workflowExecutionId: String,
+        queryName: String,
+        params: ByteArray
+    ): ByteArray {
+        return ffiClient.queryWorkflow(workflowExecutionId, queryName, params)
+    }
+
+    /**
+     * Resolve a durable promise with a value.
+     *
+     * @param promiseId The promise ID (format: workflow_execution_id/promise-name)
+     * @param value The value to resolve the promise with (JSON bytes)
+     */
+    fun resolvePromise(promiseId: String, value: ByteArray) {
+        ffiClient.resolvePromise(promiseId, value)
+    }
+
+    /**
+     * Reject a durable promise with an error.
+     *
+     * @param promiseId The promise ID (format: workflow_execution_id/promise-name)
+     * @param error The error message
+     */
+    fun rejectPromise(promiseId: String, error: String) {
+        ffiClient.rejectPromise(promiseId, error)
+    }
+
     override fun close() {
         ffiClient.close()
     }

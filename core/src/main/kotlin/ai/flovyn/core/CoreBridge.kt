@@ -30,10 +30,13 @@ class CoreBridge private constructor(
     }
 
     /**
-     * Complete a workflow activation with the given completion.
+     * Complete a workflow activation with the given context and status.
+     *
+     * @param context The FFI workflow context (contains accumulated commands)
+     * @param status The completion status (Completed, Suspended, Cancelled, or Failed)
      */
-    fun completeWorkflowActivation(completion: WorkflowActivationCompletion) {
-        ffiWorker.completeWorkflowActivation(completion)
+    fun completeWorkflowActivation(context: FfiWorkflowContext, status: WorkflowCompletionStatus) {
+        ffiWorker.completeWorkflowActivation(context, status)
     }
 
     /**

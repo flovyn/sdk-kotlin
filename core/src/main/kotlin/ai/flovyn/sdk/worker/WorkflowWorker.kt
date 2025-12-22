@@ -36,22 +36,10 @@ internal class WorkflowWorker(
         val workflow = registry.get(activation.workflowKind)
             ?: return failActivation(activation, "Unknown workflow: ${activation.workflowKind}")
 
-        val workflowExecutionId = UUID.fromString(activation.workflowExecutionId)
+        val ffiContext = activation.context
 
-        // Build initial state from activation
-        val initialState = activation.state.associate { it.key to it.value }
-
-        // Create context
-        val context = WorkflowContextImpl(
-            workflowExecutionId = workflowExecutionId,
-            tenantId = UUID.randomUUID(), // TODO: Get from activation
-            input = serializer.deserializeToMap(getInitializeInput(activation.jobs)),
-            timestampMs = activation.timestampMs,
-            randomSeed = activation.randomSeed,
-            initialState = initialState,
-            serializer = serializer,
-            isReplaying = activation.isReplaying
-        )
+        // Create Kotlin context wrapping FFI context
+        val context = WorkflowContextImpl(ffiContext, serializer)
 
         // Process cancellation job if present
         if (hasCancellationJob(activation.jobs)) {
@@ -60,83 +48,81 @@ internal class WorkflowWorker(
 
         try {
             // Notify hook
+            val workflowExecutionId = UUID.fromString(ffiContext.workflowExecutionId())
+            val inputMap = serializer.deserializeToMap(getInitializeInput(activation.jobs))
+
             hook?.onWorkflowStarted(
                 workflowExecutionId,
                 activation.workflowKind,
-                context.input
+                inputMap
             )
 
             // Execute workflow
-            val result = executeWorkflow(workflow, context)
+            val result = executeWorkflow(workflow, context, inputMap)
 
-            // Complete workflow
-            val commands = context.getCommands() + FfiWorkflowCommand.CompleteWorkflow(
-                output = serializer.serialize(result)
+            // Complete workflow - FFI context has accumulated commands
+            coreBridge.completeWorkflowActivation(
+                ffiContext,
+                WorkflowCompletionStatus.Completed(serializer.serialize(result))
             )
-
-            val completion = WorkflowActivationCompletion(
-                runId = activation.runId,
-                commands = commands
-            )
-
-            coreBridge.completeWorkflowActivation(completion)
 
             hook?.onWorkflowCompleted(workflowExecutionId, activation.workflowKind, result)
 
         } catch (e: WorkflowSuspendedException) {
-            // Workflow needs to suspend - just return the commands
-            val completion = WorkflowActivationCompletion(
-                runId = activation.runId,
-                commands = context.getCommands()
+            // Workflow needs to suspend - FFI context has accumulated commands
+            coreBridge.completeWorkflowActivation(
+                ffiContext,
+                WorkflowCompletionStatus.Suspended
             )
-            coreBridge.completeWorkflowActivation(completion)
 
         } catch (e: WorkflowCancelledException) {
             // Workflow was cancelled
-            val commands = context.getCommands() + FfiWorkflowCommand.CancelWorkflow(
-                reason = e.message ?: "Workflow cancelled"
+            coreBridge.completeWorkflowActivation(
+                ffiContext,
+                WorkflowCompletionStatus.Cancelled(e.message ?: "Workflow cancelled")
             )
-            val completion = WorkflowActivationCompletion(
-                runId = activation.runId,
-                commands = commands
+
+        } catch (e: DeterminismViolationException) {
+            // Determinism violation detected by FFI context
+            val workflowExecutionId = UUID.fromString(ffiContext.workflowExecutionId())
+            hook?.onWorkflowFailed(workflowExecutionId, activation.workflowKind, e)
+            coreBridge.completeWorkflowActivation(
+                ffiContext,
+                WorkflowCompletionStatus.Failed("Determinism violation: ${e.message}")
             )
-            coreBridge.completeWorkflowActivation(completion)
 
         } catch (e: Exception) {
+            val workflowExecutionId = UUID.fromString(ffiContext.workflowExecutionId())
             hook?.onWorkflowFailed(workflowExecutionId, activation.workflowKind, e)
-            failActivation(activation, e.message ?: "Unknown error", e.stackTraceToString())
+            coreBridge.completeWorkflowActivation(
+                ffiContext,
+                WorkflowCompletionStatus.Failed(e.message ?: "Unknown error")
+            )
         }
     }
 
-    private suspend fun failActivation(
+    private fun failActivation(
         activation: WorkflowActivation,
-        error: String,
-        stackTrace: String = ""
+        error: String
     ) {
-        val completion = WorkflowActivationCompletion(
-            runId = activation.runId,
-            commands = listOf(
-                FfiWorkflowCommand.FailWorkflow(
-                    error = error,
-                    stackTrace = stackTrace,
-                    failureType = "WorkflowError"
-                )
-            )
+        coreBridge.completeWorkflowActivation(
+            activation.context,
+            WorkflowCompletionStatus.Failed(error)
         )
-        coreBridge.completeWorkflowActivation(completion)
     }
 
     @Suppress("UNCHECKED_CAST")
     private suspend fun executeWorkflow(
         registered: RegisteredWorkflow<*, *>,
-        context: WorkflowContextImpl
+        context: WorkflowContextImpl,
+        inputMap: Map<String, Any?>
     ): Any? {
         val workflow = registered.definition as WorkflowDefinition<Any?, Any?>
         val input = if (registered.inputType == Map::class.java) {
-            context.input
+            inputMap
         } else {
             serializer.deserialize(
-                serializer.serialize(context.input),
+                serializer.serialize(inputMap),
                 registered.inputType
             )
         }
