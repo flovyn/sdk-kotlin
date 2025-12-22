@@ -80,7 +80,7 @@ interface WorkflowHook {
 /**
  * Composite hook that delegates to multiple hooks.
  */
-internal class CompositeWorkflowHook(
+class CompositeWorkflowHook(
     private val hooks: List<WorkflowHook>
 ) : WorkflowHook {
 

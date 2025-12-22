@@ -12,11 +12,11 @@ import ai.flovyn.sdk.workflow.WorkflowDefinition
 import java.util.UUID
 
 /**
- * Builder for creating FlovynClient instances.
+ * Builder for creating FlovynClient instances with Jackson serialization.
  *
  * Example:
  * ```kotlin
- * val client = FlovynClient.builder()
+ * val client = FlovynClientBuilder()
  *     .serverAddress("localhost", 9090)
  *     .tenantId(tenantId)
  *     .taskQueue("default")

@@ -99,7 +99,7 @@ class E2ETestEnvBuilder {
     private val harness = TestHarness.getInstance()
     private val taskQueue = "test-queue-${UUID.randomUUID()}"
     @PublishedApi
-    internal val clientBuilder: FlovynClientBuilder = FlovynClient.builder()
+    internal val clientBuilder: FlovynClientBuilder = FlovynClientBuilder()
         .serverAddress("localhost", harness.serverGrpcPort)
         .workerToken(harness.workerToken)
         .tenantId(harness.tenantId)

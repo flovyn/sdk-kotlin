@@ -20,7 +20,7 @@ import java.util.UUID
  *
  * Example:
  * ```kotlin
- * val client = FlovynClient.builder()
+ * val client = FlovynClientBuilder()
  *     .serverAddress("localhost", 9090)
  *     .tenantId(tenantId)
  *     .registerWorkflow(MyWorkflow())
@@ -32,7 +32,7 @@ import java.util.UUID
  * client.stop()
  * ```
  */
-class FlovynClient internal constructor(
+class FlovynClient(
     private val serverHost: String,
     private val serverPort: Int,
     private val workerToken: String?,
@@ -170,12 +170,6 @@ class FlovynClient internal constructor(
         stop()
     }
 
-    companion object {
-        /**
-         * Create a new FlovynClientBuilder.
-         */
-        fun builder(): FlovynClientBuilder = FlovynClientBuilder()
-    }
 }
 
 /**
