@@ -56,7 +56,7 @@ jobs:
           # Extract Kotlin bindings
           mkdir -p tmp/bindings
           tar -xzf tmp/flovyn-ffi-bindings.tar.gz -C ./tmp/bindings
-          cp tmp/bindings/kotlin/flovyn_ffi/* native/src/main/kotlin/uniffi/flovyn_ffi/
+          cp tmp/bindings/kotlin/uniffi/flovyn_ffi/* native/src/main/kotlin/uniffi/flovyn_ffi/
 
           # Cleanup
           rm -rf tmp
