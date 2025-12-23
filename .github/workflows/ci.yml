@@ -30,10 +30,10 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       # Download pre-built native libraries from sdk-rust release
-      # NOTE: macOS builds disabled in sdk-rust (osxcross setup takes 10+ min)
+      # NOTE: macOS and Windows ARM64 builds disabled in sdk-rust
       - name: Download native libraries from sdk-rust release
         run: |
-          mkdir -p native/src/main/resources/natives/{linux-x86_64,linux-aarch64,windows-x86_64,windows-aarch64}
+          mkdir -p native/src/main/resources/natives/{linux-x86_64,linux-aarch64,windows-x86_64}
           mkdir -p native/src/main/kotlin/uniffi/flovyn_ffi
 
           # Download platform archives
@@ -48,8 +48,8 @@ jobs:
             --pattern "flovyn-ffi-bindings.tar.gz" \
             --dir ./tmp
 
-          # Extract native libraries (macOS disabled)
-          for platform in linux-x86_64 linux-aarch64 windows-x86_64 windows-aarch64; do
+          # Extract native libraries (macOS and Windows ARM64 disabled)
+          for platform in linux-x86_64 linux-aarch64 windows-x86_64; do
             tar -xzf tmp/libflovyn_ffi-${platform}.tar.gz -C native/src/main/resources/natives/
           done
 
