@@ -164,7 +164,8 @@ generate_bindings() {
 
     log_info "Generating Kotlin bindings..."
 
-    local bindings_dir="$SDK_KOTLIN_ROOT/native/src/main/kotlin/uniffi"
+    # uniffi-bindgen generates uniffi/flovyn_ffi/ structure, so out-dir should be the parent
+    local bindings_dir="$SDK_KOTLIN_ROOT/native/src/main/kotlin"
     mkdir -p "$bindings_dir"
 
     (cd "$SDK_RUST_PATH" && cargo run -p flovyn-ffi --bin uniffi-bindgen -- \
@@ -172,7 +173,7 @@ generate_bindings() {
         --language kotlin \
         --out-dir "$bindings_dir")
 
-    log_info "Generated bindings at: $bindings_dir/flovyn_ffi/flovyn_ffi.kt"
+    log_info "Generated bindings at: $bindings_dir/uniffi/flovyn_ffi/flovyn_ffi.kt"
 }
 
 # Download from GitHub releases
@@ -242,7 +243,8 @@ download_from_release() {
 
     # Prepare directories
     local natives_dir="$SDK_KOTLIN_ROOT/native/src/main/resources/natives"
-    local bindings_dir="$SDK_KOTLIN_ROOT/native/src/main/kotlin/uniffi"
+    # Tarball has kotlin/uniffi/flovyn_ffi/ structure, so bindings_dir should be the parent
+    local bindings_dir="$SDK_KOTLIN_ROOT/native/src/main/kotlin"
 
     mkdir -p "$natives_dir/$current_platform"
     mkdir -p "$bindings_dir"
