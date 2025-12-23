@@ -8,3 +8,4 @@ out/
 *.dylib
 *.so
 *.dll
+.claude/**/*.local.*
