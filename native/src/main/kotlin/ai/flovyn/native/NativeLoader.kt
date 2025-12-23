@@ -11,8 +11,11 @@ import java.nio.file.Files
  *
  * Supported platforms:
  * - Linux x86_64: libflovyn_ffi.so
+ * - Linux aarch64: libflovyn_ffi.so
  * - macOS x86_64: libflovyn_ffi.dylib
  * - macOS aarch64: libflovyn_ffi.dylib
+ * - Windows x86_64: flovyn_ffi.dll
+ * - Windows aarch64: flovyn_ffi.dll
  */
 object NativeLoader {
     private var loaded = false
@@ -39,7 +42,9 @@ object NativeLoader {
             os.contains("mac") -> "macos-aarch64" to "libflovyn_ffi.dylib" // Default to arm64 on macOS
             os.contains("linux") && isAmd64 -> "linux-x86_64" to "libflovyn_ffi.so"
             os.contains("linux") && isArm64 -> "linux-aarch64" to "libflovyn_ffi.so"
-            os.contains("windows") -> "windows-x86_64" to "flovyn_ffi.dll"
+            os.contains("windows") && isArm64 -> "windows-aarch64" to "flovyn_ffi.dll"
+            os.contains("windows") && isAmd64 -> "windows-x86_64" to "flovyn_ffi.dll"
+            os.contains("windows") -> "windows-x86_64" to "flovyn_ffi.dll" // Default to x86_64 on Windows
             else -> error("Unsupported platform: $os $arch")
         }
 

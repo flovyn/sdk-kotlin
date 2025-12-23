@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  # Pin to specific sdk-rust release version
+  # Update this when upgrading to a new FFI version
+  FFI_VERSION: v0.1.4
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,13 +21,46 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      # Download pre-built native libraries from sdk-rust release
+      # NOTE: macOS builds disabled in sdk-rust (osxcross setup takes 10+ min)
+      - name: Download native libraries from sdk-rust release
+        run: |
+          mkdir -p native/src/main/resources/natives/{linux-x86_64,linux-aarch64,windows-x86_64,windows-aarch64}
+          mkdir -p native/src/main/kotlin/uniffi/flovyn_ffi
+
+          # Download platform archives
+          gh release download ${{ env.FFI_VERSION }} \
+            --repo flovyn/sdk-rust \
+            --pattern "libflovyn_ffi-*.tar.gz" \
+            --dir ./tmp
+
+          # Download bindings
+          gh release download ${{ env.FFI_VERSION }} \
+            --repo flovyn/sdk-rust \
+            --pattern "flovyn-ffi-bindings.tar.gz" \
+            --dir ./tmp
+
+          # Extract native libraries (macOS disabled)
+          for platform in linux-x86_64 linux-aarch64 windows-x86_64 windows-aarch64; do
+            tar -xzf tmp/libflovyn_ffi-${platform}.tar.gz -C native/src/main/resources/natives/
+          done
+
+          # Extract Kotlin bindings
+          tar -xzf tmp/flovyn-ffi-bindings.tar.gz -C ./tmp/bindings
+          cp tmp/bindings/kotlin/flovyn_ffi/* native/src/main/kotlin/uniffi/flovyn_ffi/
+
+          # Cleanup
+          rm -rf tmp
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         run: ./gradlew build
@@ -68,55 +106,29 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+
+      # Download native libraries for Linux (E2E tests run on Linux)
+      - name: Download native libraries
+        run: |
+          mkdir -p native/src/main/resources/natives/linux-x86_64
+
+          gh release download ${{ env.FFI_VERSION }} \
+            --repo flovyn/sdk-rust \
+            --pattern "libflovyn_ffi-linux-x86_64.tar.gz" \
+            --dir ./tmp
+
+          tar -xzf tmp/libflovyn_ffi-linux-x86_64.tar.gz -C native/src/main/resources/natives/
+          rm -rf tmp
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run E2E tests
         run: ./gradlew :sdk-jackson:e2eTest
         env:
           FLOVYN_E2E_USE_DEV_INFRA: "1"
           FLOVYN_SERVER_ADDRESS: localhost:9090
-
-  native-build:
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            lib: libflovyn_ffi.so
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            lib: libflovyn_ffi.dylib
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            lib: libflovyn_ffi.dylib
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Rust
-        uses: dtolnay/rust-action@stable
-        with:
-          targets: ${{ matrix.target }}
-
-      - name: Checkout sdk-rust (for ffi crate)
-        uses: actions/checkout@v4
-        with:
-          repository: flovyn/sdk-rust
-          path: sdk-rust
-
-      - name: Build native library
-        run: |
-          cd sdk-rust
-          cargo build -p flovyn-ffi --release --target ${{ matrix.target }}
-
-      - name: Upload native library
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-${{ matrix.target }}
-          path: sdk-rust/target/${{ matrix.target }}/release/${{ matrix.lib }}
