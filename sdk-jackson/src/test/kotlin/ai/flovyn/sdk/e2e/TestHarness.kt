@@ -89,6 +89,7 @@ class TestHarness private constructor() {
 
         // Start Flovyn Server
         val serverImage = System.getenv("FLOVYN_SERVER_IMAGE") ?: "flovyn-server-test:latest"
+        val verboseLogging = System.getenv("FLOVYN_E2E_VERBOSE") == "1"
         server = GenericContainer(DockerImageName.parse(serverImage))
             .withNetwork(network)
             .withNetworkAliases("flovyn-server")
@@ -100,7 +101,11 @@ class TestHarness private constructor() {
             .withEnv("JWT_SKIP_SIGNATURE_VERIFICATION", "true")
             .withEnv("RUST_LOG", "info")
             .withStartupTimeout(Duration.ofSeconds(120))
-            .withLogConsumer(Slf4jLogConsumer(logger).withPrefix("flovyn-server"))
+            .apply {
+                if (verboseLogging) {
+                    withLogConsumer(Slf4jLogConsumer(logger).withPrefix("flovyn-server"))
+                }
+            }
 
         server.start()
         serverHttpPort = server.getMappedPort(8000)

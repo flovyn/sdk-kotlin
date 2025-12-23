@@ -51,10 +51,25 @@ tasks.register<Test>("e2eTest") {
     // Run tests sequentially to share containers
     maxParallelForks = 1
 
-    // Show stdout/stderr from tests
+    // Control verbose logging with FLOVYN_E2E_VERBOSE=1
+    val verboseLogging = System.getenv("FLOVYN_E2E_VERBOSE") == "1"
     testLogging {
-        showStandardStreams = true
-        events("passed", "skipped", "failed", "standardOut", "standardError")
+        showStandardStreams = verboseLogging
+        events = if (verboseLogging) {
+            setOf(
+                org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
+            )
+        } else {
+            setOf(
+                org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
+            )
+        }
     }
 
     // Pass environment variables
