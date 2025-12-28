@@ -9,6 +9,7 @@ import ai.flovyn.sdk.worker.WorkflowWorker
 import ai.flovyn.sdk.worker.TaskWorker
 import kotlinx.coroutines.*
 import uniffi.flovyn_ffi.ClientConfig
+import uniffi.flovyn_ffi.OAuth2Credentials
 import uniffi.flovyn_ffi.WorkerConfig
 import java.util.UUID
 
@@ -36,9 +37,10 @@ class FlovynClient(
     private val serverHost: String,
     private val serverPort: Int,
     private val workerToken: String?,
+    private val oauth2Credentials: OAuth2Credentials?,
     private val tenantId: UUID?,
     private val workerId: String,
-    private val taskQueue: String,
+    private val queue: String,
     private val maxConcurrentWorkflows: Int,
     private val maxConcurrentTasks: Int,
     internal val workflowRegistry: WorkflowRegistry,
@@ -86,8 +88,9 @@ class FlovynClient(
         val workerConfig = WorkerConfig(
             serverUrl = serverUrl,
             workerToken = workerToken,
+            oauth2Credentials = oauth2Credentials,
             tenantId = tenantIdStr,
-            taskQueue = taskQueue,
+            queue = queue,
             workerIdentity = workerId,
             maxConcurrentWorkflowTasks = maxConcurrentWorkflows.toUInt(),
             maxConcurrentTasks = maxConcurrentTasks.toUInt(),
@@ -99,6 +102,7 @@ class FlovynClient(
         val clientConfig = ClientConfig(
             serverUrl = serverUrl,
             clientToken = null,
+            oauth2Credentials = oauth2Credentials,
             tenantId = tenantIdStr
         )
 
@@ -148,7 +152,7 @@ class FlovynClient(
         val response = client.startWorkflow(
             workflowKind = workflowKind,
             input = serializer.serialize(input),
-            taskQueue = options.taskQueue ?: taskQueue,
+            queue = options.queue ?: queue,
             workflowVersion = options.workflowVersion,
             idempotencyKey = options.idempotencyKey
         )
@@ -249,7 +253,7 @@ class FlovynClient(
  * Options for starting a workflow.
  */
 data class StartWorkflowOptions(
-    val taskQueue: String? = null,
+    val queue: String? = null,
     val workflowVersion: String? = null,
     val idempotencyKey: String? = null
 )

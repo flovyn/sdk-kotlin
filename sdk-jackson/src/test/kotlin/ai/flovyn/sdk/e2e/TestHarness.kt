@@ -215,7 +215,7 @@ class TestHarness private constructor() {
         """.trimIndent()
 
         val createTokenRequest = Request.Builder()
-            .url("http://localhost:$serverHttpPort/api/tenants/$tenantSlug/worker-tokens")
+            .url("http://localhost:$serverHttpPort/api/tenants/$tenantSlug/worker-token/tokens")
             .header("Authorization", "Bearer $jwt")
             .header("Content-Type", "application/json")
             .post(createTokenBody.toRequestBody("application/json".toMediaType()))

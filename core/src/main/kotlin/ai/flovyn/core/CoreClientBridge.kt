@@ -18,7 +18,7 @@ class CoreClientBridge private constructor(
      *
      * @param workflowKind The kind of workflow to start
      * @param input The workflow input as JSON bytes
-     * @param taskQueue The task queue to use
+     * @param queue The task queue to use
      * @param workflowVersion Optional workflow version
      * @param idempotencyKey Optional idempotency key
      * @return The response containing the workflow execution ID
@@ -26,14 +26,14 @@ class CoreClientBridge private constructor(
     fun startWorkflow(
         workflowKind: String,
         input: ByteArray,
-        taskQueue: String,
+        queue: String,
         workflowVersion: String? = null,
         idempotencyKey: String? = null
     ): StartWorkflowResponse {
         return ffiClient.startWorkflow(
             workflowKind = workflowKind,
             input = input,
-            taskQueue = taskQueue,
+            queue = queue,
             workflowVersion = workflowVersion,
             idempotencyKey = idempotencyKey
         )

@@ -114,7 +114,7 @@ internal class WorkflowContextImpl(
         name: String,
         kind: String,
         input: Any?,
-        taskQueue: String,
+        queue: String,
         prioritySeconds: Int
     ): T {
         val inputBytes = serializer.serialize(input)
@@ -123,7 +123,7 @@ internal class WorkflowContextImpl(
             name = name,
             kind = kind,
             input = inputBytes,
-            taskQueue = taskQueue.ifEmpty { null },
+            queue = queue.ifEmpty { null },
             prioritySeconds = prioritySeconds
         )) {
             is FfiChildWorkflowResult.Completed -> {
@@ -143,7 +143,7 @@ internal class WorkflowContextImpl(
         name: String,
         kind: String,
         input: Any?,
-        taskQueue: String,
+        queue: String,
         prioritySeconds: Int
     ): Deferred<T> {
         val inputBytes = serializer.serialize(input)
@@ -152,7 +152,7 @@ internal class WorkflowContextImpl(
             name = name,
             kind = kind,
             input = inputBytes,
-            taskQueue = taskQueue.ifEmpty { null },
+            queue = queue.ifEmpty { null },
             prioritySeconds = prioritySeconds
         )) {
             is FfiChildWorkflowResult.Completed -> {

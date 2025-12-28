@@ -80,7 +80,7 @@ suspend fun main() {
     val client = FlovynClient.builder()
         .serverAddress("localhost", 9090)
         .tenantId(tenantId)
-        .taskQueue("default")
+        .queue("default")
         .registerWorkflow(GreetingWorkflow())
         .registerTask(SendEmailTask())
         .build()

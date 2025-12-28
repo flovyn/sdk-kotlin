@@ -9,6 +9,7 @@ import ai.flovyn.sdk.worker.WorkflowRegistry
 import ai.flovyn.sdk.worker.register
 import ai.flovyn.sdk.workflow.DynamicWorkflowDefinition
 import ai.flovyn.sdk.workflow.WorkflowDefinition
+import uniffi.flovyn_ffi.OAuth2Credentials
 import java.util.UUID
 
 /**
@@ -19,7 +20,7 @@ import java.util.UUID
  * val client = FlovynClientBuilder()
  *     .serverAddress("localhost", 9090)
  *     .tenantId(tenantId)
- *     .taskQueue("default")
+ *     .queue("default")
  *     .registerWorkflow(MyWorkflow())
  *     .registerTask(MyTask())
  *     .build()
@@ -30,8 +31,9 @@ class FlovynClientBuilder {
     private var serverPort: Int = 9090
     private var tenantId: UUID? = null
     private var workerToken: String? = null
+    private var oauth2Credentials: OAuth2Credentials? = null
     private var workerId: String = "worker-${UUID.randomUUID()}"
-    private var taskQueue: String = "default"
+    private var queue: String = "default"
     private var maxConcurrentWorkflows: Int = 10
     private var maxConcurrentTasks: Int = 20
     private var pollTimeoutSeconds: Long = 60
@@ -67,6 +69,31 @@ class FlovynClientBuilder {
     }
 
     /**
+     * Set OAuth2 client credentials for authentication.
+     *
+     * The SDK will fetch a JWT from the OAuth2 provider using the client credentials
+     * flow and use it for all gRPC requests.
+     *
+     * @param clientId OAuth2 client ID
+     * @param clientSecret OAuth2 client secret
+     * @param tokenEndpoint Token endpoint URL (e.g., "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/token")
+     * @param scopes Optional scopes (space-separated)
+     */
+    fun oauth2ClientCredentials(
+        clientId: String,
+        clientSecret: String,
+        tokenEndpoint: String,
+        scopes: String? = null
+    ) = apply {
+        this.oauth2Credentials = OAuth2Credentials(
+            clientId = clientId,
+            clientSecret = clientSecret,
+            tokenEndpoint = tokenEndpoint,
+            scopes = scopes
+        )
+    }
+
+    /**
      * Set the worker ID.
      */
     fun workerId(id: String) = apply {
@@ -76,8 +103,8 @@ class FlovynClientBuilder {
     /**
      * Set the task queue that this worker will poll from.
      */
-    fun taskQueue(queue: String) = apply {
-        this.taskQueue = queue
+    fun queue(queue: String) = apply {
+        this.queue = queue
     }
 
     /**
@@ -168,9 +195,10 @@ class FlovynClientBuilder {
             serverHost = serverHost,
             serverPort = serverPort,
             workerToken = workerToken,
+            oauth2Credentials = oauth2Credentials,
             tenantId = tenantId,
             workerId = workerId,
-            taskQueue = taskQueue,
+            queue = queue,
             maxConcurrentWorkflows = maxConcurrentWorkflows,
             maxConcurrentTasks = maxConcurrentTasks,
             workflowRegistry = workflowRegistry,

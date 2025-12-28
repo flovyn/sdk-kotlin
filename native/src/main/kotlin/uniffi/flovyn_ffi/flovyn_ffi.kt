@@ -817,7 +817,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun uniffi_flovyn_ffi_fn_method_coreclient_resolve_promise(`ptr`: Pointer,`promiseId`: RustBuffer.ByValue,`value`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
-    fun uniffi_flovyn_ffi_fn_method_coreclient_start_workflow(`ptr`: Pointer,`workflowKind`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`taskQueue`: RustBuffer.ByValue,`workflowVersion`: RustBuffer.ByValue,`idempotencyKey`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_flovyn_ffi_fn_method_coreclient_start_workflow(`ptr`: Pointer,`workflowKind`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`queue`: RustBuffer.ByValue,`workflowVersion`: RustBuffer.ByValue,`idempotencyKey`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_ffi_fn_clone_coreworker(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Pointer
@@ -867,7 +867,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_run_operation(`ptr`: Pointer,`name`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_child_workflow(`ptr`: Pointer,`name`: RustBuffer.ByValue,`kind`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`taskQueue`: RustBuffer.ByValue,`prioritySeconds`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_child_workflow(`ptr`: Pointer,`name`: RustBuffer.ByValue,`kind`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`queue`: RustBuffer.ByValue,`prioritySeconds`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_task(`ptr`: Pointer,`taskType`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`queue`: RustBuffer.ByValue,`timeoutMs`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
@@ -1172,7 +1172,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_flovyn_ffi_checksum_constructor_coreclient_new() != 48663.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_flovyn_ffi_checksum_constructor_coreworker_new() != 6582.toShort()) {
+    if (lib.uniffi_flovyn_ffi_checksum_constructor_coreworker_new() != 17022.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
 }
@@ -1640,14 +1640,14 @@ public interface CoreClientInterface {
      * # Arguments
      * * `workflow_kind` - The type/kind of workflow to start
      * * `input` - Serialized input as JSON bytes
-     * * `task_queue` - Optional task queue (defaults to "default")
+     * * `queue` - Optional task queue (defaults to "default")
      * * `workflow_version` - Optional workflow version
      * * `idempotency_key` - Optional idempotency key for deduplication
      *
      * # Returns
      * The workflow execution ID and idempotency information.
      */
-    fun `startWorkflow`(`workflowKind`: kotlin.String, `input`: kotlin.ByteArray, `taskQueue`: kotlin.String?, `workflowVersion`: kotlin.String?, `idempotencyKey`: kotlin.String?): StartWorkflowResponse
+    fun `startWorkflow`(`workflowKind`: kotlin.String, `input`: kotlin.ByteArray, `queue`: kotlin.String?, `workflowVersion`: kotlin.String?, `idempotencyKey`: kotlin.String?): StartWorkflowResponse
     
     companion object
 }
@@ -1849,19 +1849,19 @@ open class CoreClient: Disposable, AutoCloseable, CoreClientInterface {
      * # Arguments
      * * `workflow_kind` - The type/kind of workflow to start
      * * `input` - Serialized input as JSON bytes
-     * * `task_queue` - Optional task queue (defaults to "default")
+     * * `queue` - Optional task queue (defaults to "default")
      * * `workflow_version` - Optional workflow version
      * * `idempotency_key` - Optional idempotency key for deduplication
      *
      * # Returns
      * The workflow execution ID and idempotency information.
      */
-    @Throws(FfiException::class)override fun `startWorkflow`(`workflowKind`: kotlin.String, `input`: kotlin.ByteArray, `taskQueue`: kotlin.String?, `workflowVersion`: kotlin.String?, `idempotencyKey`: kotlin.String?): StartWorkflowResponse {
+    @Throws(FfiException::class)override fun `startWorkflow`(`workflowKind`: kotlin.String, `input`: kotlin.ByteArray, `queue`: kotlin.String?, `workflowVersion`: kotlin.String?, `idempotencyKey`: kotlin.String?): StartWorkflowResponse {
             return FfiConverterTypeStartWorkflowResponse.lift(
     callWithPointer {
     uniffiRustCallWithError(FfiException) { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_coreclient_start_workflow(
-        it, FfiConverterString.lower(`workflowKind`),FfiConverterByteArray.lower(`input`),FfiConverterOptionalString.lower(`taskQueue`),FfiConverterOptionalString.lower(`workflowVersion`),FfiConverterOptionalString.lower(`idempotencyKey`),_status)
+        it, FfiConverterString.lower(`workflowKind`),FfiConverterByteArray.lower(`input`),FfiConverterOptionalString.lower(`queue`),FfiConverterOptionalString.lower(`workflowVersion`),FfiConverterOptionalString.lower(`idempotencyKey`),_status)
 }
     }
     )
@@ -2114,6 +2114,11 @@ open class CoreWorker: Disposable, AutoCloseable, CoreWorkerInterface {
      *
      * This establishes a connection to the Flovyn server but does not
      * register the worker yet. Call `register()` to register.
+     *
+     * Authentication priority:
+     * 1. OAuth2 credentials (if provided, fetches JWT token)
+     * 2. Worker token (if provided)
+     * 3. Placeholder token (for testing)
      */
     constructor(`config`: WorkerConfig) :
         this(
@@ -2557,7 +2562,7 @@ public interface FfiWorkflowContextInterface {
      * - `Failed` if child already failed during replay
      * - `Pending` if child is new or not yet completed
      */
-    fun `scheduleChildWorkflow`(`name`: kotlin.String, `kind`: kotlin.String?, `input`: kotlin.ByteArray, `taskQueue`: kotlin.String?, `prioritySeconds`: kotlin.Int?): FfiChildWorkflowResult
+    fun `scheduleChildWorkflow`(`name`: kotlin.String, `kind`: kotlin.String?, `input`: kotlin.ByteArray, `queue`: kotlin.String?, `prioritySeconds`: kotlin.Int?): FfiChildWorkflowResult
     
     /**
      * Schedule a task for execution.
@@ -2880,12 +2885,12 @@ open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInte
      * - `Failed` if child already failed during replay
      * - `Pending` if child is new or not yet completed
      */
-    @Throws(FfiException::class)override fun `scheduleChildWorkflow`(`name`: kotlin.String, `kind`: kotlin.String?, `input`: kotlin.ByteArray, `taskQueue`: kotlin.String?, `prioritySeconds`: kotlin.Int?): FfiChildWorkflowResult {
+    @Throws(FfiException::class)override fun `scheduleChildWorkflow`(`name`: kotlin.String, `kind`: kotlin.String?, `input`: kotlin.ByteArray, `queue`: kotlin.String?, `prioritySeconds`: kotlin.Int?): FfiChildWorkflowResult {
             return FfiConverterTypeFfiChildWorkflowResult.lift(
     callWithPointer {
     uniffiRustCallWithError(FfiException) { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_child_workflow(
-        it, FfiConverterString.lower(`name`),FfiConverterOptionalString.lower(`kind`),FfiConverterByteArray.lower(`input`),FfiConverterOptionalString.lower(`taskQueue`),FfiConverterOptionalInt.lower(`prioritySeconds`),_status)
+        it, FfiConverterString.lower(`name`),FfiConverterOptionalString.lower(`kind`),FfiConverterByteArray.lower(`input`),FfiConverterOptionalString.lower(`queue`),FfiConverterOptionalInt.lower(`prioritySeconds`),_status)
 }
     }
     )
@@ -3044,8 +3049,14 @@ data class ClientConfig (
     /**
      * Client token for authentication (should start with "fct_").
      * If not provided, a placeholder will be used.
+     * Ignored if oauth2_credentials is provided.
      */
     var `clientToken`: kotlin.String?, 
+    /**
+     * OAuth2 client credentials for authentication.
+     * If provided, the SDK will fetch a JWT using client credentials flow.
+     */
+    var `oauth2Credentials`: OAuth2Credentials?, 
     /**
      * Tenant ID (UUID format) for operations.
      */
@@ -3063,6 +3074,7 @@ public object FfiConverterTypeClientConfig: FfiConverterRustBuffer<ClientConfig>
         return ClientConfig(
             FfiConverterString.read(buf),
             FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalTypeOAuth2Credentials.read(buf),
             FfiConverterString.read(buf),
         )
     }
@@ -3070,12 +3082,14 @@ public object FfiConverterTypeClientConfig: FfiConverterRustBuffer<ClientConfig>
     override fun allocationSize(value: ClientConfig) = (
             FfiConverterString.allocationSize(value.`serverUrl`) +
             FfiConverterOptionalString.allocationSize(value.`clientToken`) +
+            FfiConverterOptionalTypeOAuth2Credentials.allocationSize(value.`oauth2Credentials`) +
             FfiConverterString.allocationSize(value.`tenantId`)
     )
 
     override fun write(value: ClientConfig, buf: ByteBuffer) {
             FfiConverterString.write(value.`serverUrl`, buf)
             FfiConverterOptionalString.write(value.`clientToken`, buf)
+            FfiConverterOptionalTypeOAuth2Credentials.write(value.`oauth2Credentials`, buf)
             FfiConverterString.write(value.`tenantId`, buf)
     }
 }
@@ -3132,6 +3146,61 @@ public object FfiConverterTypeFfiReplayEvent: FfiConverterRustBuffer<FfiReplayEv
             FfiConverterTypeFfiEventType.write(value.`eventType`, buf)
             FfiConverterByteArray.write(value.`data`, buf)
             FfiConverterLong.write(value.`timestampMs`, buf)
+    }
+}
+
+
+
+/**
+ * OAuth2 client credentials for authentication.
+ */
+data class OAuth2Credentials (
+    /**
+     * OAuth2 client ID.
+     */
+    var `clientId`: kotlin.String, 
+    /**
+     * OAuth2 client secret.
+     */
+    var `clientSecret`: kotlin.String, 
+    /**
+     * Token endpoint URL (e.g., "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/token").
+     */
+    var `tokenEndpoint`: kotlin.String, 
+    /**
+     * Optional scopes (space-separated if multiple).
+     */
+    var `scopes`: kotlin.String?
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeOAuth2Credentials: FfiConverterRustBuffer<OAuth2Credentials> {
+    override fun read(buf: ByteBuffer): OAuth2Credentials {
+        return OAuth2Credentials(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: OAuth2Credentials) = (
+            FfiConverterString.allocationSize(value.`clientId`) +
+            FfiConverterString.allocationSize(value.`clientSecret`) +
+            FfiConverterString.allocationSize(value.`tokenEndpoint`) +
+            FfiConverterOptionalString.allocationSize(value.`scopes`)
+    )
+
+    override fun write(value: OAuth2Credentials, buf: ByteBuffer) {
+            FfiConverterString.write(value.`clientId`, buf)
+            FfiConverterString.write(value.`clientSecret`, buf)
+            FfiConverterString.write(value.`tokenEndpoint`, buf)
+            FfiConverterOptionalString.write(value.`scopes`, buf)
     }
 }
 
@@ -3313,8 +3382,14 @@ data class WorkerConfig (
     /**
      * Worker token for authentication (should start with "fwt_").
      * If not provided or not starting with "fwt_", a placeholder will be used.
+     * Ignored if oauth2_credentials is provided.
      */
     var `workerToken`: kotlin.String?, 
+    /**
+     * OAuth2 client credentials for authentication.
+     * If provided, the SDK will fetch a JWT using client credentials flow.
+     */
+    var `oauth2Credentials`: OAuth2Credentials?, 
     /**
      * Tenant ID (UUID format) for worker registration.
      */
@@ -3322,7 +3397,7 @@ data class WorkerConfig (
     /**
      * Task queue to poll for work.
      */
-    var `taskQueue`: kotlin.String, 
+    var `queue`: kotlin.String, 
     /**
      * Optional worker identity for debugging/monitoring.
      */
@@ -3356,6 +3431,7 @@ public object FfiConverterTypeWorkerConfig: FfiConverterRustBuffer<WorkerConfig>
         return WorkerConfig(
             FfiConverterString.read(buf),
             FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalTypeOAuth2Credentials.read(buf),
             FfiConverterString.read(buf),
             FfiConverterString.read(buf),
             FfiConverterOptionalString.read(buf),
@@ -3369,8 +3445,9 @@ public object FfiConverterTypeWorkerConfig: FfiConverterRustBuffer<WorkerConfig>
     override fun allocationSize(value: WorkerConfig) = (
             FfiConverterString.allocationSize(value.`serverUrl`) +
             FfiConverterOptionalString.allocationSize(value.`workerToken`) +
+            FfiConverterOptionalTypeOAuth2Credentials.allocationSize(value.`oauth2Credentials`) +
             FfiConverterString.allocationSize(value.`tenantId`) +
-            FfiConverterString.allocationSize(value.`taskQueue`) +
+            FfiConverterString.allocationSize(value.`queue`) +
             FfiConverterOptionalString.allocationSize(value.`workerIdentity`) +
             FfiConverterOptionalUInt.allocationSize(value.`maxConcurrentWorkflowTasks`) +
             FfiConverterOptionalUInt.allocationSize(value.`maxConcurrentTasks`) +
@@ -3381,8 +3458,9 @@ public object FfiConverterTypeWorkerConfig: FfiConverterRustBuffer<WorkerConfig>
     override fun write(value: WorkerConfig, buf: ByteBuffer) {
             FfiConverterString.write(value.`serverUrl`, buf)
             FfiConverterOptionalString.write(value.`workerToken`, buf)
+            FfiConverterOptionalTypeOAuth2Credentials.write(value.`oauth2Credentials`, buf)
             FfiConverterString.write(value.`tenantId`, buf)
-            FfiConverterString.write(value.`taskQueue`, buf)
+            FfiConverterString.write(value.`queue`, buf)
             FfiConverterOptionalString.write(value.`workerIdentity`, buf)
             FfiConverterOptionalUInt.write(value.`maxConcurrentWorkflowTasks`, buf)
             FfiConverterOptionalUInt.write(value.`maxConcurrentTasks`, buf)
@@ -4894,7 +4972,7 @@ sealed class FfiWorkflowCommand {
         /**
          * Task queue for the child.
          */
-        val `taskQueue`: kotlin.String, 
+        val `queue`: kotlin.String, 
         /**
          * Priority in seconds.
          */
@@ -5155,7 +5233,7 @@ public object FfiConverterTypeFfiWorkflowCommand : FfiConverterRustBuffer<FfiWor
                 + FfiConverterOptionalString.allocationSize(value.`kind`)
                 + FfiConverterString.allocationSize(value.`childExecutionId`)
                 + FfiConverterByteArray.allocationSize(value.`input`)
-                + FfiConverterString.allocationSize(value.`taskQueue`)
+                + FfiConverterString.allocationSize(value.`queue`)
                 + FfiConverterInt.allocationSize(value.`prioritySeconds`)
             )
         }
@@ -5272,7 +5350,7 @@ public object FfiConverterTypeFfiWorkflowCommand : FfiConverterRustBuffer<FfiWor
                 FfiConverterOptionalString.write(value.`kind`, buf)
                 FfiConverterString.write(value.`childExecutionId`, buf)
                 FfiConverterByteArray.write(value.`input`, buf)
-                FfiConverterString.write(value.`taskQueue`, buf)
+                FfiConverterString.write(value.`queue`, buf)
                 FfiConverterInt.write(value.`prioritySeconds`, buf)
                 Unit
             }
@@ -6158,6 +6236,38 @@ public object FfiConverterOptionalByteArray: FfiConverterRustBuffer<kotlin.ByteA
         } else {
             buf.put(1)
             FfiConverterByteArray.write(value, buf)
+        }
+    }
+}
+
+
+
+
+/**
+ * @suppress
+ */
+public object FfiConverterOptionalTypeOAuth2Credentials: FfiConverterRustBuffer<OAuth2Credentials?> {
+    override fun read(buf: ByteBuffer): OAuth2Credentials? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterTypeOAuth2Credentials.read(buf)
+    }
+
+    override fun allocationSize(value: OAuth2Credentials?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterTypeOAuth2Credentials.allocationSize(value)
+        }
+    }
+
+    override fun write(value: OAuth2Credentials?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterTypeOAuth2Credentials.write(value, buf)
         }
     }
 }

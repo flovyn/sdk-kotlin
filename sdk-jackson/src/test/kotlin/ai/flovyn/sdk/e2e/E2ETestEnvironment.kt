@@ -18,7 +18,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 class E2ETestEnvironment internal constructor(
     private val harness: TestHarness,
-    private val taskQueue: String,
+    private val queue: String,
     val client: FlovynClient
 ) {
 
@@ -31,7 +31,7 @@ class E2ETestEnvironment internal constructor(
         client.start()
         // Wait for worker registration
         delay(WORKER_REGISTRATION_DELAY.inWholeMilliseconds)
-        logger.info("Worker started for queue: $taskQueue")
+        logger.info("Worker started for queue: $queue")
     }
 
     /**
@@ -97,13 +97,13 @@ class E2ETestEnvironment internal constructor(
  */
 class E2ETestEnvBuilder {
     private val harness = TestHarness.getInstance()
-    private val taskQueue = "test-queue-${UUID.randomUUID()}"
+    private val queue = "test-queue-${UUID.randomUUID()}"
     @PublishedApi
     internal val clientBuilder: FlovynClientBuilder = FlovynClientBuilder()
         .serverAddress("localhost", harness.serverGrpcPort)
         .workerToken(harness.workerToken)
         .tenantId(harness.tenantId)
-        .taskQueue(taskQueue)
+        .queue(queue)
 
     /**
      * Register a workflow definition.
@@ -126,8 +126,8 @@ class E2ETestEnvBuilder {
     /**
      * Set the task queue.
      */
-    fun taskQueue(queue: String) = apply {
-        clientBuilder.taskQueue(queue)
+    fun queue(queue: String) = apply {
+        clientBuilder.queue(queue)
     }
 
     /**
@@ -135,7 +135,7 @@ class E2ETestEnvBuilder {
      */
     fun build(): E2ETestEnvironment {
         val client = clientBuilder.build()
-        return E2ETestEnvironment(harness, taskQueue, client)
+        return E2ETestEnvironment(harness, queue, client)
     }
 
     /**

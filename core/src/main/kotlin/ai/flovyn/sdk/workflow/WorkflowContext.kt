@@ -94,7 +94,7 @@ interface WorkflowContext {
      * @param name Unique name for this child execution
      * @param kind The workflow kind to execute
      * @param input The workflow input
-     * @param taskQueue Optional task queue (defaults to same queue)
+     * @param queue Optional task queue (defaults to same queue)
      * @param prioritySeconds Priority offset in seconds
      * @return The workflow output
      */
@@ -102,7 +102,7 @@ interface WorkflowContext {
         name: String,
         kind: String,
         input: Any? = null,
-        taskQueue: String = "",
+        queue: String = "",
         prioritySeconds: Int = 0
     ): T
 
@@ -112,7 +112,7 @@ interface WorkflowContext {
      * @param name Unique name for this child execution
      * @param kind The workflow kind to execute
      * @param input The workflow input
-     * @param taskQueue Optional task queue (defaults to same queue)
+     * @param queue Optional task queue (defaults to same queue)
      * @param prioritySeconds Priority offset in seconds
      * @return A Deferred that resolves to the workflow output
      */
@@ -120,7 +120,7 @@ interface WorkflowContext {
         name: String,
         kind: String,
         input: Any? = null,
-        taskQueue: String = "",
+        queue: String = "",
         prioritySeconds: Int = 0
     ): Deferred<T>
 
