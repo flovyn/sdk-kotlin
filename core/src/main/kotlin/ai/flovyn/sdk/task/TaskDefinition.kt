@@ -36,7 +36,7 @@ abstract class TaskDefinition<INPUT, OUTPUT> {
 
     /**
      * Unique identifier for this task type.
-     * Used for routing and invocation via ctx.schedule(taskType = "...").
+     * Used for routing and invocation via ctx.schedule(kind = "...").
      */
     abstract val kind: String
 

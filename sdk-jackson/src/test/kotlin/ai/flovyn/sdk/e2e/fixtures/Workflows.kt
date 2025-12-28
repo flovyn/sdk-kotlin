@@ -106,7 +106,7 @@ class TaskSchedulingWorkflow : WorkflowDefinition<TaskSchedulingInput, TaskSched
         var sum = 0
         for (num in input.numbers) {
             val result = ctx.schedule<AddTaskOutput>(
-                taskType = "add-task",
+                kind = "add-task",
                 input = AddTaskInput(a = sum, b = num)
             )
             sum = result.result

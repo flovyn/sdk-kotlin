@@ -66,13 +66,13 @@ interface WorkflowHook {
      *
      * @param workflowExecutionId The workflow execution ID
      * @param taskId The task execution ID
-     * @param taskType The type of task
+     * @param kind The type of task
      * @param input The task input
      */
     suspend fun onTaskScheduled(
         workflowExecutionId: UUID,
         taskId: String,
-        taskType: String,
+        kind: String,
         input: Any?
     ) {}
 }
@@ -117,11 +117,11 @@ class CompositeWorkflowHook(
     override suspend fun onTaskScheduled(
         workflowExecutionId: UUID,
         taskId: String,
-        taskType: String,
+        kind: String,
         input: Any?
     ) {
         hooks.forEach { hook ->
-            runCatching { hook.onTaskScheduled(workflowExecutionId, taskId, taskType, input) }
+            runCatching { hook.onTaskScheduled(workflowExecutionId, taskId, kind, input) }
         }
     }
 }

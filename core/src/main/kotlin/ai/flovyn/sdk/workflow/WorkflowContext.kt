@@ -61,14 +61,14 @@ interface WorkflowContext {
     /**
      * Schedule a task for execution (base method with explicit type).
      *
-     * @param taskType The type of task to schedule
+     * @param kind The type of task to schedule
      * @param input The task input
      * @param outputClass The class of the expected output type
      * @param options Task scheduling options
      * @return The task output
      */
     suspend fun <T : Any> schedule(
-        taskType: String,
+        kind: String,
         input: Any?,
         outputClass: KClass<T>,
         options: ScheduleTaskOptions = ScheduleTaskOptions.DEFAULT
@@ -77,13 +77,13 @@ interface WorkflowContext {
     /**
      * Schedule a task for async execution (base method with explicit type).
      *
-     * @param taskType The type of task to schedule
+     * @param kind The type of task to schedule
      * @param input The task input
      * @param outputClass The class of the expected output type
      * @return A Deferred that resolves to the task output
      */
     suspend fun <T : Any> scheduleAsync(
-        taskType: String,
+        kind: String,
         input: Any?,
         outputClass: KClass<T>
     ): Deferred<T>
@@ -200,24 +200,24 @@ suspend fun <T> awaitAll(deferreds: List<Deferred<T>>): List<T> =
  * Schedule a task for execution with reified type parameter.
  */
 suspend inline fun <reified T : Any> WorkflowContext.schedule(
-    taskType: String,
+    kind: String,
     input: Any?,
     options: ScheduleTaskOptions = ScheduleTaskOptions.DEFAULT
-): T = schedule(taskType, input, T::class, options)
+): T = schedule(kind, input, T::class, options)
 
 /**
  * Schedule a task for execution with maxRetries parameter.
  */
 suspend inline fun <reified T : Any> WorkflowContext.schedule(
-    taskType: String,
+    kind: String,
     input: Any?,
     maxRetries: Int
-): T = schedule(taskType, input, T::class, ScheduleTaskOptions(maxRetries = maxRetries))
+): T = schedule(kind, input, T::class, ScheduleTaskOptions(maxRetries = maxRetries))
 
 /**
  * Schedule a task for async execution with reified type parameter.
  */
 suspend inline fun <reified T : Any> WorkflowContext.scheduleAsync(
-    taskType: String,
+    kind: String,
     input: Any?
-): Deferred<T> = scheduleAsync(taskType, input, T::class)
+): Deferred<T> = scheduleAsync(kind, input, T::class)

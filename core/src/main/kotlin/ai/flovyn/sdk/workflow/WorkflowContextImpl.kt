@@ -59,7 +59,7 @@ internal class WorkflowContextImpl(
     }
 
     override suspend fun <T : Any> schedule(
-        taskType: String,
+        kind: String,
         input: Any?,
         outputClass: KClass<T>,
         options: ScheduleTaskOptions
@@ -67,7 +67,7 @@ internal class WorkflowContextImpl(
         val inputBytes = serializer.serialize(input)
 
         return when (val result = ffiContext.scheduleTask(
-            taskType = taskType,
+            kind = kind,
             input = inputBytes,
             queue = null,
             timeoutMs = options.timeoutSeconds?.let { it * 1000L }
@@ -85,14 +85,14 @@ internal class WorkflowContextImpl(
     }
 
     override suspend fun <T : Any> scheduleAsync(
-        taskType: String,
+        kind: String,
         input: Any?,
         outputClass: KClass<T>
     ): Deferred<T> {
         val inputBytes = serializer.serialize(input)
 
         return when (val result = ffiContext.scheduleTask(
-            taskType = taskType,
+            kind = kind,
             input = inputBytes,
             queue = null,
             timeoutMs = null

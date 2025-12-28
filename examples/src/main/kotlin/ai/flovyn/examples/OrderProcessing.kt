@@ -188,7 +188,7 @@ class OrderProcessingWorkflow : WorkflowDefinition<OrderInput, OrderOutput>() {
         // Step 1: Reserve inventory
         ctx.set("status", "reserving-inventory")
         val inventoryResult = ctx.schedule<InventoryResult>(
-            taskType = "reserve-inventory",
+            kind = "reserve-inventory",
             input = InventoryInput(
                 orderId = orderId,
                 items = input.items
@@ -208,7 +208,7 @@ class OrderProcessingWorkflow : WorkflowDefinition<OrderInput, OrderOutput>() {
         // Step 2: Process payment
         ctx.set("status", "processing-payment")
         val paymentResult = ctx.schedule<PaymentResult>(
-            taskType = "process-payment",
+            kind = "process-payment",
             input = PaymentInput(
                 orderId = orderId,
                 amount = totalAmount,
@@ -234,7 +234,7 @@ class OrderProcessingWorkflow : WorkflowDefinition<OrderInput, OrderOutput>() {
         // Step 3: Arrange shipping
         ctx.set("status", "arranging-shipping")
         val shippingResult = ctx.schedule<ShippingResult>(
-            taskType = "arrange-shipping",
+            kind = "arrange-shipping",
             input = ShippingInput(
                 orderId = orderId,
                 items = input.items,

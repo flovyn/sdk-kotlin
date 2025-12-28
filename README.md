@@ -132,12 +132,12 @@ interface WorkflowContext {
 
     // Task scheduling
     suspend fun <T : Any> schedule(
-        taskType: String,
+        kind: String,
         input: Any?,
         options: ScheduleTaskOptions = ScheduleTaskOptions.DEFAULT
     ): T
 
-    suspend fun <T : Any> scheduleAsync(taskType: String, input: Any?): Deferred<T>
+    suspend fun <T : Any> scheduleAsync(kind: String, input: Any?): Deferred<T>
 
     // State management
     suspend fun <T> get(key: String): T?

@@ -869,7 +869,7 @@ internal interface UniffiLib : Library {
     ): RustBuffer.ByValue
     fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_child_workflow(`ptr`: Pointer,`name`: RustBuffer.ByValue,`kind`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`queue`: RustBuffer.ByValue,`prioritySeconds`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_task(`ptr`: Pointer,`taskType`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`queue`: RustBuffer.ByValue,`timeoutMs`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_task(`ptr`: Pointer,`kind`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`queue`: RustBuffer.ByValue,`timeoutMs`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_set_state(`ptr`: Pointer,`key`: RustBuffer.ByValue,`value`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
@@ -2572,7 +2572,7 @@ public interface FfiWorkflowContextInterface {
      * - `Failed` if task already failed during replay
      * - `Pending` if task is new or not yet completed
      */
-    fun `scheduleTask`(`taskType`: kotlin.String, `input`: kotlin.ByteArray, `queue`: kotlin.String?, `timeoutMs`: kotlin.Long?): FfiTaskResult
+    fun `scheduleTask`(`kind`: kotlin.String, `input`: kotlin.ByteArray, `queue`: kotlin.String?, `timeoutMs`: kotlin.Long?): FfiTaskResult
     
     /**
      * Set workflow state.
@@ -2906,12 +2906,12 @@ open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInte
      * - `Failed` if task already failed during replay
      * - `Pending` if task is new or not yet completed
      */
-    @Throws(FfiException::class)override fun `scheduleTask`(`taskType`: kotlin.String, `input`: kotlin.ByteArray, `queue`: kotlin.String?, `timeoutMs`: kotlin.Long?): FfiTaskResult {
+    @Throws(FfiException::class)override fun `scheduleTask`(`kind`: kotlin.String, `input`: kotlin.ByteArray, `queue`: kotlin.String?, `timeoutMs`: kotlin.Long?): FfiTaskResult {
             return FfiConverterTypeFfiTaskResult.lift(
     callWithPointer {
     uniffiRustCallWithError(FfiException) { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_ffi_fn_method_ffiworkflowcontext_schedule_task(
-        it, FfiConverterString.lower(`taskType`),FfiConverterByteArray.lower(`input`),FfiConverterOptionalString.lower(`queue`),FfiConverterOptionalLong.lower(`timeoutMs`),_status)
+        it, FfiConverterString.lower(`kind`),FfiConverterByteArray.lower(`input`),FfiConverterOptionalString.lower(`queue`),FfiConverterOptionalLong.lower(`timeoutMs`),_status)
 }
     }
     )
@@ -4925,7 +4925,7 @@ sealed class FfiWorkflowCommand {
         /**
          * Task type/kind.
          */
-        val `taskType`: kotlin.String, 
+        val `kind`: kotlin.String, 
         /**
          * Serialized input as JSON bytes.
          */
@@ -5217,7 +5217,7 @@ public object FfiConverterTypeFfiWorkflowCommand : FfiConverterRustBuffer<FfiWor
             (
                 4UL
                 + FfiConverterString.allocationSize(value.`taskExecutionId`)
-                + FfiConverterString.allocationSize(value.`taskType`)
+                + FfiConverterString.allocationSize(value.`kind`)
                 + FfiConverterByteArray.allocationSize(value.`input`)
                 + FfiConverterOptionalInt.allocationSize(value.`prioritySeconds`)
                 + FfiConverterOptionalUInt.allocationSize(value.`maxRetries`)
@@ -5336,7 +5336,7 @@ public object FfiConverterTypeFfiWorkflowCommand : FfiConverterRustBuffer<FfiWor
             is FfiWorkflowCommand.ScheduleTask -> {
                 buf.putInt(4)
                 FfiConverterString.write(value.`taskExecutionId`, buf)
-                FfiConverterString.write(value.`taskType`, buf)
+                FfiConverterString.write(value.`kind`, buf)
                 FfiConverterByteArray.write(value.`input`, buf)
                 FfiConverterOptionalInt.write(value.`prioritySeconds`, buf)
                 FfiConverterOptionalUInt.write(value.`maxRetries`, buf)
