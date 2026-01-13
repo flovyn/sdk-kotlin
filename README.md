@@ -75,11 +75,11 @@ import ai.flovyn.sdk.client.FlovynClient
 import java.util.UUID
 
 suspend fun main() {
-    val tenantId = UUID.fromString("your-tenant-id")
+    val orgId = UUID.fromString("your-org-id")
 
     val client = FlovynClient.builder()
         .serverAddress("localhost", 9090)
-        .tenantId(tenantId)
+        .orgId(orgId)
         .queue("default")
         .registerWorkflow(GreetingWorkflow())
         .registerTask(SendEmailTask())

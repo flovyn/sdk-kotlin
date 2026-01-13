@@ -25,7 +25,7 @@ internal class WorkflowContextImpl(
     override val workflowExecutionId: UUID
         get() = UUID.fromString(ffiContext.workflowExecutionId())
 
-    override val tenantId: UUID
+    override val orgId: UUID
         get() = UUID.randomUUID() // TODO: Get from ffiContext when available
 
     override val input: Map<String, Any?>

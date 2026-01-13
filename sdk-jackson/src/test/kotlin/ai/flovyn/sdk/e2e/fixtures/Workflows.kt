@@ -246,3 +246,65 @@ class AwaitPromiseWorkflow : WorkflowDefinition<AwaitPromiseInput, AwaitPromiseO
         )
     }
 }
+
+// --- Schema Test Workflows ---
+
+/**
+ * Input for schema test workflow.
+ */
+data class SchemaTestInput(
+    val orderId: String,
+    val amount: Double,
+    val customerEmail: String? = null
+)
+
+/**
+ * Output for schema test workflow.
+ */
+data class SchemaTestOutput(
+    val success: Boolean,
+    val transactionId: String?
+)
+
+/**
+ * Workflow with explicit JSON Schema definitions.
+ * Used to test that schemas are properly passed to the server.
+ */
+class SchemaTestWorkflow : WorkflowDefinition<SchemaTestInput, SchemaTestOutput>() {
+    override val kind = "schema-test-workflow"
+    override val name = "Schema Test Workflow"
+    override val version = SemanticVersion(1, 0, 0)
+    override val description = "A workflow with explicit JSON Schema for testing"
+
+    // Explicit JSON Schema for input
+    override val inputSchema: String = """
+        {
+            "type": "object",
+            "properties": {
+                "orderId": { "type": "string", "description": "The order ID" },
+                "amount": { "type": "number", "description": "Amount in dollars" },
+                "customerEmail": { "type": "string", "format": "email", "description": "Customer email (optional)" }
+            },
+            "required": ["orderId", "amount"]
+        }
+    """.trimIndent()
+
+    // Explicit JSON Schema for output
+    override val outputSchema: String = """
+        {
+            "type": "object",
+            "properties": {
+                "success": { "type": "boolean" },
+                "transactionId": { "type": "string" }
+            },
+            "required": ["success"]
+        }
+    """.trimIndent()
+
+    override suspend fun execute(ctx: WorkflowContext, input: SchemaTestInput): SchemaTestOutput {
+        return SchemaTestOutput(
+            success = true,
+            transactionId = "txn-${input.orderId}"
+        )
+    }
+}

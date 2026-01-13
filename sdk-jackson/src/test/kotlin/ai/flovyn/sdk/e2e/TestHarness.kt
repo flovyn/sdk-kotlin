@@ -50,16 +50,16 @@ class TestHarness private constructor() {
     var serverHttpPort: Int = 0
         private set
 
-    // Test tenant info
-    var tenantId: UUID = UUID.randomUUID()
+    // Test org info
+    var orgId: UUID = UUID.randomUUID()
         private set
-    var tenantSlug: String = ""
+    var orgSlug: String = ""
         private set
     var workerToken: String = ""
         private set
 
     /**
-     * Start all containers and set up test tenant.
+     * Start all containers and set up test org.
      */
     fun start() {
         logger.info("Starting test harness containers...")
@@ -115,10 +115,10 @@ class TestHarness private constructor() {
         // Wait for server health
         waitForHealth()
 
-        // Set up test tenant
-        setupTestTenant()
+        // Set up test org
+        setupTestOrg()
 
-        logger.info("Test harness ready - tenant: $tenantSlug")
+        logger.info("Test harness ready - org: $orgSlug")
     }
 
     /**
@@ -170,42 +170,42 @@ class TestHarness private constructor() {
     }
 
     /**
-     * Set up test tenant with JWT authentication.
+     * Set up test org with JWT authentication.
      */
-    private fun setupTestTenant() {
+    private fun setupTestOrg() {
         // Generate JWT for test user
         val jwt = generateTestJwt()
 
-        // Create tenant
+        // Create org
         val slug = "test-${UUID.randomUUID().toString().take(8)}"
-        val createTenantBody = """
+        val createOrgBody = """
             {
-                "name": "E2E Test Tenant",
+                "name": "E2E Test Organization",
                 "slug": "$slug",
                 "tier": "FREE",
                 "region": "us-west-2"
             }
         """.trimIndent()
 
-        val createTenantRequest = Request.Builder()
-            .url("http://localhost:$serverHttpPort/api/tenants")
+        val createOrgRequest = Request.Builder()
+            .url("http://localhost:$serverHttpPort/api/orgs")
             .header("Authorization", "Bearer $jwt")
             .header("Content-Type", "application/json")
-            .post(createTenantBody.toRequestBody("application/json".toMediaType()))
+            .post(createOrgBody.toRequestBody("application/json".toMediaType()))
             .build()
 
-        httpClient.newCall(createTenantRequest).execute().use { response ->
+        httpClient.newCall(createOrgRequest).execute().use { response ->
             if (!response.isSuccessful) {
-                throw RuntimeException("Failed to create tenant: ${response.code} ${response.body?.string()}")
+                throw RuntimeException("Failed to create org: ${response.code} ${response.body?.string()}")
             }
             val body = response.body?.string() ?: "{}"
-            // Parse tenant ID from response
+            // Parse org ID from response
             val idMatch = """"id"\s*:\s*"([^"]+)"""".toRegex().find(body)
-            tenantId = UUID.fromString(idMatch?.groupValues?.get(1) ?: throw RuntimeException("No tenant ID in response"))
-            tenantSlug = slug
+            orgId = UUID.fromString(idMatch?.groupValues?.get(1) ?: throw RuntimeException("No org ID in response"))
+            orgSlug = slug
         }
 
-        logger.info("Created test tenant: $tenantSlug ($tenantId)")
+        logger.info("Created test org: $orgSlug ($orgId)")
 
         // Create worker token
         val createTokenBody = """
@@ -215,7 +215,7 @@ class TestHarness private constructor() {
         """.trimIndent()
 
         val createTokenRequest = Request.Builder()
-            .url("http://localhost:$serverHttpPort/api/tenants/$tenantSlug/worker-token/tokens")
+            .url("http://localhost:$serverHttpPort/api/orgs/$orgSlug/worker-token/tokens")
             .header("Authorization", "Bearer $jwt")
             .header("Content-Type", "application/json")
             .post(createTokenBody.toRequestBody("application/json".toMediaType()))

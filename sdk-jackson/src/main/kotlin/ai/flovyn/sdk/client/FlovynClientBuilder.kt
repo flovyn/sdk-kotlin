@@ -19,7 +19,7 @@ import java.util.UUID
  * ```kotlin
  * val client = FlovynClientBuilder()
  *     .serverAddress("localhost", 9090)
- *     .tenantId(tenantId)
+ *     .orgId(orgId)
  *     .queue("default")
  *     .registerWorkflow(MyWorkflow())
  *     .registerTask(MyTask())
@@ -29,7 +29,7 @@ import java.util.UUID
 class FlovynClientBuilder {
     private var serverHost: String = "localhost"
     private var serverPort: Int = 9090
-    private var tenantId: UUID? = null
+    private var orgId: UUID? = null
     private var workerToken: String? = null
     private var oauth2Credentials: OAuth2Credentials? = null
     private var workerId: String = "worker-${UUID.randomUUID()}"
@@ -54,10 +54,10 @@ class FlovynClientBuilder {
     }
 
     /**
-     * Set the tenant ID.
+     * Set the org ID.
      */
-    fun tenantId(id: UUID) = apply {
-        this.tenantId = id
+    fun orgId(id: UUID) = apply {
+        this.orgId = id
     }
 
     /**
@@ -180,9 +180,9 @@ class FlovynClientBuilder {
      * Build the FlovynClient.
      */
     fun build(): FlovynClient {
-        // Either workerToken or tenantId must be provided
-        require(workerToken != null || tenantId != null) {
-            "Either workerToken or tenantId is required"
+        // Either workerToken or orgId must be provided
+        require(workerToken != null || orgId != null) {
+            "Either workerToken or orgId is required"
         }
 
         val compositeHook = when {
@@ -196,7 +196,7 @@ class FlovynClientBuilder {
             serverPort = serverPort,
             workerToken = workerToken,
             oauth2Credentials = oauth2Credentials,
-            tenantId = tenantId,
+            orgId = orgId,
             workerId = workerId,
             queue = queue,
             maxConcurrentWorkflows = maxConcurrentWorkflows,

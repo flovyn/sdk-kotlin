@@ -102,7 +102,7 @@ class E2ETestEnvBuilder {
     internal val clientBuilder: FlovynClientBuilder = FlovynClientBuilder()
         .serverAddress("localhost", harness.serverGrpcPort)
         .workerToken(harness.workerToken)
-        .tenantId(harness.tenantId)
+        .orgId(harness.orgId)
         .queue(queue)
 
     /**

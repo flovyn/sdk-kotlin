@@ -10,7 +10,9 @@ import ai.flovyn.sdk.worker.TaskWorker
 import kotlinx.coroutines.*
 import uniffi.flovyn_ffi.ClientConfig
 import uniffi.flovyn_ffi.OAuth2Credentials
+import uniffi.flovyn_ffi.TaskMetadataFfi
 import uniffi.flovyn_ffi.WorkerConfig
+import uniffi.flovyn_ffi.WorkflowMetadataFfi
 import java.util.UUID
 
 /**
@@ -23,7 +25,7 @@ import java.util.UUID
  * ```kotlin
  * val client = FlovynClientBuilder()
  *     .serverAddress("localhost", 9090)
- *     .tenantId(tenantId)
+ *     .orgId(orgId)
  *     .registerWorkflow(MyWorkflow())
  *     .registerTask(MyTask())
  *     .build()
@@ -38,7 +40,7 @@ class FlovynClient(
     private val serverPort: Int,
     private val workerToken: String?,
     private val oauth2Credentials: OAuth2Credentials?,
-    private val tenantId: UUID?,
+    private val orgId: UUID?,
     private val workerId: String,
     private val queue: String,
     private val maxConcurrentWorkflows: Int,
@@ -80,22 +82,54 @@ class FlovynClient(
         // gRPC URL format: http://host:port
         val serverUrl = "http://$serverHost:$serverPort"
 
-        // Tenant ID is required
-        val tenantIdStr = tenantId?.toString()
-            ?: throw IllegalStateException("tenantId must be set")
+        // Org ID is required
+        val orgIdStr = orgId?.toString()
+            ?: throw IllegalStateException("orgId must be set")
+
+        // Convert registered workflows to FFI metadata
+        val workflowMetadata = workflowRegistry.getAll().map { registered ->
+            val def = registered.definition
+            WorkflowMetadataFfi(
+                kind = def.kind,
+                name = def.name,
+                description = def.description,
+                version = def.version.toString(),
+                tags = def.tags,
+                cancellable = def.cancellable,
+                timeoutSeconds = def.timeoutSeconds?.toUInt(),
+                inputSchema = def.inputSchema,
+                outputSchema = def.outputSchema
+            )
+        }
+
+        // Convert registered tasks to FFI metadata
+        val taskMetadata = taskRegistry.getAll().map { registered ->
+            val def = registered.definition
+            TaskMetadataFfi(
+                kind = def.kind,
+                name = def.name,
+                description = def.description,
+                version = def.version.toString(),
+                tags = def.tags,
+                cancellable = def.cancellable,
+                timeoutSeconds = def.timeoutSeconds?.toUInt(),
+                inputSchema = null, // Task schema support deferred
+                outputSchema = null
+            )
+        }
 
         // Create worker configuration
         val workerConfig = WorkerConfig(
             serverUrl = serverUrl,
             workerToken = workerToken,
             oauth2Credentials = oauth2Credentials,
-            tenantId = tenantIdStr,
+            orgId = orgIdStr,
             queue = queue,
             workerIdentity = workerId,
             maxConcurrentWorkflowTasks = maxConcurrentWorkflows.toUInt(),
             maxConcurrentTasks = maxConcurrentTasks.toUInt(),
-            workflowKinds = workflowRegistry.getAllKinds().toList(),
-            taskKinds = taskRegistry.getAllKinds().toList()
+            workflowMetadata = workflowMetadata,
+            taskMetadata = taskMetadata
         )
 
         // Create client configuration
@@ -103,7 +137,7 @@ class FlovynClient(
             serverUrl = serverUrl,
             clientToken = null,
             oauth2Credentials = oauth2Credentials,
-            tenantId = tenantIdStr
+            orgId = orgIdStr
         )
 
         // Initialize bridges

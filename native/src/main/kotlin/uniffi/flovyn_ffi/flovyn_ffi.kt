@@ -1088,7 +1088,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_flovyn_ffi_checksum_method_coreclient_resolve_promise() != 5587.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_flovyn_ffi_checksum_method_coreclient_start_workflow() != 39523.toShort()) {
+    if (lib.uniffi_flovyn_ffi_checksum_method_coreclient_start_workflow() != 11116.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_ffi_checksum_method_coreworker_complete_task() != 47626.toShort()) {
@@ -1148,10 +1148,10 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_run_operation() != 27099.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_schedule_child_workflow() != 45808.toShort()) {
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_schedule_child_workflow() != 23683.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_schedule_task() != 3297.toShort()) {
+    if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_schedule_task() != 40280.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_ffi_checksum_method_ffiworkflowcontext_set_state() != 23690.toShort()) {
@@ -3043,7 +3043,7 @@ public object FfiConverterTypeFfiWorkflowContext: FfiConverter<FfiWorkflowContex
  */
 data class ClientConfig (
     /**
-     * Server URL (e.g., "http://localhost:9090").
+     * Server URL (e.g., `http://localhost:9090`).
      */
     var `serverUrl`: kotlin.String, 
     /**
@@ -3058,9 +3058,9 @@ data class ClientConfig (
      */
     var `oauth2Credentials`: OAuth2Credentials?, 
     /**
-     * Tenant ID (UUID format) for operations.
+     * Org ID (UUID format) for operations.
      */
-    var `tenantId`: kotlin.String
+    var `orgId`: kotlin.String
 ) {
     
     companion object
@@ -3083,14 +3083,14 @@ public object FfiConverterTypeClientConfig: FfiConverterRustBuffer<ClientConfig>
             FfiConverterString.allocationSize(value.`serverUrl`) +
             FfiConverterOptionalString.allocationSize(value.`clientToken`) +
             FfiConverterOptionalTypeOAuth2Credentials.allocationSize(value.`oauth2Credentials`) +
-            FfiConverterString.allocationSize(value.`tenantId`)
+            FfiConverterString.allocationSize(value.`orgId`)
     )
 
     override fun write(value: ClientConfig, buf: ByteBuffer) {
             FfiConverterString.write(value.`serverUrl`, buf)
             FfiConverterOptionalString.write(value.`clientToken`, buf)
             FfiConverterOptionalTypeOAuth2Credentials.write(value.`oauth2Credentials`, buf)
-            FfiConverterString.write(value.`tenantId`, buf)
+            FfiConverterString.write(value.`orgId`, buf)
     }
 }
 
@@ -3164,7 +3164,7 @@ data class OAuth2Credentials (
      */
     var `clientSecret`: kotlin.String, 
     /**
-     * Token endpoint URL (e.g., "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/token").
+     * Token endpoint URL (e.g., `https://keycloak.example.com/realms/myrealm/protocol/openid-connect/token`).
      */
     var `tokenEndpoint`: kotlin.String, 
     /**
@@ -3372,11 +3372,101 @@ public object FfiConverterTypeTaskActivation: FfiConverterRustBuffer<TaskActivat
 
 
 /**
+ * Task metadata passed from Kotlin/Swift to Rust FFI.
+ */
+data class TaskMetadataFfi (
+    /**
+     * Unique task kind identifier (required).
+     */
+    var `kind`: kotlin.String, 
+    /**
+     * Human-readable name (defaults to kind if empty).
+     */
+    var `name`: kotlin.String, 
+    /**
+     * Optional description.
+     */
+    var `description`: kotlin.String?, 
+    /**
+     * Version string (e.g., "1.0.0").
+     */
+    var `version`: kotlin.String?, 
+    /**
+     * Tags for categorization.
+     */
+    var `tags`: List<kotlin.String>, 
+    /**
+     * Whether the task can be cancelled.
+     */
+    var `cancellable`: kotlin.Boolean, 
+    /**
+     * Timeout in seconds.
+     */
+    var `timeoutSeconds`: kotlin.UInt?, 
+    /**
+     * JSON Schema for input validation (JSON string).
+     */
+    var `inputSchema`: kotlin.String?, 
+    /**
+     * JSON Schema for output validation (JSON string).
+     */
+    var `outputSchema`: kotlin.String?
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeTaskMetadataFfi: FfiConverterRustBuffer<TaskMetadataFfi> {
+    override fun read(buf: ByteBuffer): TaskMetadataFfi {
+        return TaskMetadataFfi(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterSequenceString.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterOptionalUInt.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: TaskMetadataFfi) = (
+            FfiConverterString.allocationSize(value.`kind`) +
+            FfiConverterString.allocationSize(value.`name`) +
+            FfiConverterOptionalString.allocationSize(value.`description`) +
+            FfiConverterOptionalString.allocationSize(value.`version`) +
+            FfiConverterSequenceString.allocationSize(value.`tags`) +
+            FfiConverterBoolean.allocationSize(value.`cancellable`) +
+            FfiConverterOptionalUInt.allocationSize(value.`timeoutSeconds`) +
+            FfiConverterOptionalString.allocationSize(value.`inputSchema`) +
+            FfiConverterOptionalString.allocationSize(value.`outputSchema`)
+    )
+
+    override fun write(value: TaskMetadataFfi, buf: ByteBuffer) {
+            FfiConverterString.write(value.`kind`, buf)
+            FfiConverterString.write(value.`name`, buf)
+            FfiConverterOptionalString.write(value.`description`, buf)
+            FfiConverterOptionalString.write(value.`version`, buf)
+            FfiConverterSequenceString.write(value.`tags`, buf)
+            FfiConverterBoolean.write(value.`cancellable`, buf)
+            FfiConverterOptionalUInt.write(value.`timeoutSeconds`, buf)
+            FfiConverterOptionalString.write(value.`inputSchema`, buf)
+            FfiConverterOptionalString.write(value.`outputSchema`, buf)
+    }
+}
+
+
+
+/**
  * Configuration for creating a CoreWorker.
  */
 data class WorkerConfig (
     /**
-     * Server URL (e.g., "http://localhost:9090").
+     * Server URL (e.g., `http://localhost:9090`).
      */
     var `serverUrl`: kotlin.String, 
     /**
@@ -3391,9 +3481,9 @@ data class WorkerConfig (
      */
     var `oauth2Credentials`: OAuth2Credentials?, 
     /**
-     * Tenant ID (UUID format) for worker registration.
+     * Org ID (UUID format) for worker registration.
      */
-    var `tenantId`: kotlin.String, 
+    var `orgId`: kotlin.String, 
     /**
      * Task queue to poll for work.
      */
@@ -3411,13 +3501,13 @@ data class WorkerConfig (
      */
     var `maxConcurrentTasks`: kotlin.UInt?, 
     /**
-     * Workflow kinds this worker handles.
+     * Workflow metadata for this worker (replaces workflow_kinds).
      */
-    var `workflowKinds`: List<kotlin.String>, 
+    var `workflowMetadata`: List<WorkflowMetadataFfi>, 
     /**
-     * Task kinds this worker handles.
+     * Task metadata for this worker (replaces task_kinds).
      */
-    var `taskKinds`: List<kotlin.String>
+    var `taskMetadata`: List<TaskMetadataFfi>
 ) {
     
     companion object
@@ -3437,8 +3527,8 @@ public object FfiConverterTypeWorkerConfig: FfiConverterRustBuffer<WorkerConfig>
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalUInt.read(buf),
             FfiConverterOptionalUInt.read(buf),
-            FfiConverterSequenceString.read(buf),
-            FfiConverterSequenceString.read(buf),
+            FfiConverterSequenceTypeWorkflowMetadataFfi.read(buf),
+            FfiConverterSequenceTypeTaskMetadataFfi.read(buf),
         )
     }
 
@@ -3446,26 +3536,26 @@ public object FfiConverterTypeWorkerConfig: FfiConverterRustBuffer<WorkerConfig>
             FfiConverterString.allocationSize(value.`serverUrl`) +
             FfiConverterOptionalString.allocationSize(value.`workerToken`) +
             FfiConverterOptionalTypeOAuth2Credentials.allocationSize(value.`oauth2Credentials`) +
-            FfiConverterString.allocationSize(value.`tenantId`) +
+            FfiConverterString.allocationSize(value.`orgId`) +
             FfiConverterString.allocationSize(value.`queue`) +
             FfiConverterOptionalString.allocationSize(value.`workerIdentity`) +
             FfiConverterOptionalUInt.allocationSize(value.`maxConcurrentWorkflowTasks`) +
             FfiConverterOptionalUInt.allocationSize(value.`maxConcurrentTasks`) +
-            FfiConverterSequenceString.allocationSize(value.`workflowKinds`) +
-            FfiConverterSequenceString.allocationSize(value.`taskKinds`)
+            FfiConverterSequenceTypeWorkflowMetadataFfi.allocationSize(value.`workflowMetadata`) +
+            FfiConverterSequenceTypeTaskMetadataFfi.allocationSize(value.`taskMetadata`)
     )
 
     override fun write(value: WorkerConfig, buf: ByteBuffer) {
             FfiConverterString.write(value.`serverUrl`, buf)
             FfiConverterOptionalString.write(value.`workerToken`, buf)
             FfiConverterOptionalTypeOAuth2Credentials.write(value.`oauth2Credentials`, buf)
-            FfiConverterString.write(value.`tenantId`, buf)
+            FfiConverterString.write(value.`orgId`, buf)
             FfiConverterString.write(value.`queue`, buf)
             FfiConverterOptionalString.write(value.`workerIdentity`, buf)
             FfiConverterOptionalUInt.write(value.`maxConcurrentWorkflowTasks`, buf)
             FfiConverterOptionalUInt.write(value.`maxConcurrentTasks`, buf)
-            FfiConverterSequenceString.write(value.`workflowKinds`, buf)
-            FfiConverterSequenceString.write(value.`taskKinds`, buf)
+            FfiConverterSequenceTypeWorkflowMetadataFfi.write(value.`workflowMetadata`, buf)
+            FfiConverterSequenceTypeTaskMetadataFfi.write(value.`taskMetadata`, buf)
     }
 }
 
@@ -3596,6 +3686,97 @@ public object FfiConverterTypeWorkflowEventRecord: FfiConverterRustBuffer<Workfl
             FfiConverterInt.write(value.`sequence`, buf)
             FfiConverterString.write(value.`eventType`, buf)
             FfiConverterByteArray.write(value.`payload`, buf)
+    }
+}
+
+
+
+/**
+ * Workflow metadata passed from Kotlin/Swift to Rust FFI.
+ * Contains full metadata including optional schemas.
+ */
+data class WorkflowMetadataFfi (
+    /**
+     * Unique workflow kind identifier (required).
+     */
+    var `kind`: kotlin.String, 
+    /**
+     * Human-readable name (defaults to kind if empty).
+     */
+    var `name`: kotlin.String, 
+    /**
+     * Optional description.
+     */
+    var `description`: kotlin.String?, 
+    /**
+     * Version string (e.g., "1.0.0").
+     */
+    var `version`: kotlin.String?, 
+    /**
+     * Tags for categorization.
+     */
+    var `tags`: List<kotlin.String>, 
+    /**
+     * Whether the workflow can be cancelled.
+     */
+    var `cancellable`: kotlin.Boolean, 
+    /**
+     * Timeout in seconds.
+     */
+    var `timeoutSeconds`: kotlin.UInt?, 
+    /**
+     * JSON Schema for input validation (JSON string).
+     */
+    var `inputSchema`: kotlin.String?, 
+    /**
+     * JSON Schema for output validation (JSON string).
+     */
+    var `outputSchema`: kotlin.String?
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeWorkflowMetadataFfi: FfiConverterRustBuffer<WorkflowMetadataFfi> {
+    override fun read(buf: ByteBuffer): WorkflowMetadataFfi {
+        return WorkflowMetadataFfi(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterSequenceString.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterOptionalUInt.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: WorkflowMetadataFfi) = (
+            FfiConverterString.allocationSize(value.`kind`) +
+            FfiConverterString.allocationSize(value.`name`) +
+            FfiConverterOptionalString.allocationSize(value.`description`) +
+            FfiConverterOptionalString.allocationSize(value.`version`) +
+            FfiConverterSequenceString.allocationSize(value.`tags`) +
+            FfiConverterBoolean.allocationSize(value.`cancellable`) +
+            FfiConverterOptionalUInt.allocationSize(value.`timeoutSeconds`) +
+            FfiConverterOptionalString.allocationSize(value.`inputSchema`) +
+            FfiConverterOptionalString.allocationSize(value.`outputSchema`)
+    )
+
+    override fun write(value: WorkflowMetadataFfi, buf: ByteBuffer) {
+            FfiConverterString.write(value.`kind`, buf)
+            FfiConverterString.write(value.`name`, buf)
+            FfiConverterOptionalString.write(value.`description`, buf)
+            FfiConverterOptionalString.write(value.`version`, buf)
+            FfiConverterSequenceString.write(value.`tags`, buf)
+            FfiConverterBoolean.write(value.`cancellable`, buf)
+            FfiConverterOptionalUInt.write(value.`timeoutSeconds`, buf)
+            FfiConverterOptionalString.write(value.`inputSchema`, buf)
+            FfiConverterOptionalString.write(value.`outputSchema`, buf)
     }
 }
 
@@ -3986,7 +4167,7 @@ public object FfiConverterTypeFfiError : FfiConverterRustBuffer<FfiException> {
 /**
  * Event types that can occur during workflow execution.
  *
- * This enum mirrors `flovyn_core::EventType` but with uniffi support.
+ * This enum mirrors `flovyn_sdk_core::EventType` but with uniffi support.
  */
 
 enum class FfiEventType {
@@ -4923,7 +5104,7 @@ sealed class FfiWorkflowCommand {
          */
         val `taskExecutionId`: kotlin.String, 
         /**
-         * Task type/kind.
+         * Task kind.
          */
         val `kind`: kotlin.String, 
         /**
@@ -4945,7 +5126,15 @@ sealed class FfiWorkflowCommand {
         /**
          * Optional queue name.
          */
-        val `queue`: kotlin.String?) : FfiWorkflowCommand() {
+        val `queue`: kotlin.String?, 
+        /**
+         * Optional idempotency key for external correlation.
+         */
+        val `idempotencyKey`: kotlin.String?, 
+        /**
+         * Optional TTL for idempotency key in seconds.
+         */
+        val `idempotencyKeyTtlSeconds`: kotlin.Long?) : FfiWorkflowCommand() {
         companion object
     }
     
@@ -5043,7 +5232,15 @@ sealed class FfiWorkflowCommand {
         /**
          * Optional timeout in milliseconds.
          */
-        val `timeoutMs`: kotlin.Long?) : FfiWorkflowCommand() {
+        val `timeoutMs`: kotlin.Long?, 
+        /**
+         * Optional idempotency key for external webhook correlation.
+         */
+        val `idempotencyKey`: kotlin.String?, 
+        /**
+         * TTL for the idempotency key in seconds.
+         */
+        val `idempotencyKeyTtlSeconds`: kotlin.Long?) : FfiWorkflowCommand() {
         companion object
     }
     
@@ -5140,6 +5337,8 @@ public object FfiConverterTypeFfiWorkflowCommand : FfiConverterRustBuffer<FfiWor
                 FfiConverterOptionalUInt.read(buf),
                 FfiConverterOptionalLong.read(buf),
                 FfiConverterOptionalString.read(buf),
+                FfiConverterOptionalString.read(buf),
+                FfiConverterOptionalLong.read(buf),
                 )
             5 -> FfiWorkflowCommand.ScheduleChildWorkflow(
                 FfiConverterString.read(buf),
@@ -5165,6 +5364,8 @@ public object FfiConverterTypeFfiWorkflowCommand : FfiConverterRustBuffer<FfiWor
                 )
             10 -> FfiWorkflowCommand.CreatePromise(
                 FfiConverterString.read(buf),
+                FfiConverterOptionalLong.read(buf),
+                FfiConverterOptionalString.read(buf),
                 FfiConverterOptionalLong.read(buf),
                 )
             11 -> FfiWorkflowCommand.ResolvePromise(
@@ -5223,6 +5424,8 @@ public object FfiConverterTypeFfiWorkflowCommand : FfiConverterRustBuffer<FfiWor
                 + FfiConverterOptionalUInt.allocationSize(value.`maxRetries`)
                 + FfiConverterOptionalLong.allocationSize(value.`timeoutMs`)
                 + FfiConverterOptionalString.allocationSize(value.`queue`)
+                + FfiConverterOptionalString.allocationSize(value.`idempotencyKey`)
+                + FfiConverterOptionalLong.allocationSize(value.`idempotencyKeyTtlSeconds`)
             )
         }
         is FfiWorkflowCommand.ScheduleChildWorkflow -> {
@@ -5273,6 +5476,8 @@ public object FfiConverterTypeFfiWorkflowCommand : FfiConverterRustBuffer<FfiWor
                 4UL
                 + FfiConverterString.allocationSize(value.`promiseId`)
                 + FfiConverterOptionalLong.allocationSize(value.`timeoutMs`)
+                + FfiConverterOptionalString.allocationSize(value.`idempotencyKey`)
+                + FfiConverterOptionalLong.allocationSize(value.`idempotencyKeyTtlSeconds`)
             )
         }
         is FfiWorkflowCommand.ResolvePromise -> {
@@ -5342,6 +5547,8 @@ public object FfiConverterTypeFfiWorkflowCommand : FfiConverterRustBuffer<FfiWor
                 FfiConverterOptionalUInt.write(value.`maxRetries`, buf)
                 FfiConverterOptionalLong.write(value.`timeoutMs`, buf)
                 FfiConverterOptionalString.write(value.`queue`, buf)
+                FfiConverterOptionalString.write(value.`idempotencyKey`, buf)
+                FfiConverterOptionalLong.write(value.`idempotencyKeyTtlSeconds`, buf)
                 Unit
             }
             is FfiWorkflowCommand.ScheduleChildWorkflow -> {
@@ -5380,6 +5587,8 @@ public object FfiConverterTypeFfiWorkflowCommand : FfiConverterRustBuffer<FfiWor
                 buf.putInt(10)
                 FfiConverterString.write(value.`promiseId`, buf)
                 FfiConverterOptionalLong.write(value.`timeoutMs`, buf)
+                FfiConverterOptionalString.write(value.`idempotencyKey`, buf)
+                FfiConverterOptionalLong.write(value.`idempotencyKeyTtlSeconds`, buf)
                 Unit
             }
             is FfiWorkflowCommand.ResolvePromise -> {
@@ -6370,6 +6579,34 @@ public object FfiConverterSequenceString: FfiConverterRustBuffer<List<kotlin.Str
 /**
  * @suppress
  */
+public object FfiConverterSequenceTypeTaskMetadataFfi: FfiConverterRustBuffer<List<TaskMetadataFfi>> {
+    override fun read(buf: ByteBuffer): List<TaskMetadataFfi> {
+        val len = buf.getInt()
+        return List<TaskMetadataFfi>(len) {
+            FfiConverterTypeTaskMetadataFfi.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<TaskMetadataFfi>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeTaskMetadataFfi.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<TaskMetadataFfi>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeTaskMetadataFfi.write(it, buf)
+        }
+    }
+}
+
+
+
+
+/**
+ * @suppress
+ */
 public object FfiConverterSequenceTypeWorkflowEventRecord: FfiConverterRustBuffer<List<WorkflowEventRecord>> {
     override fun read(buf: ByteBuffer): List<WorkflowEventRecord> {
         val len = buf.getInt()
@@ -6388,6 +6625,34 @@ public object FfiConverterSequenceTypeWorkflowEventRecord: FfiConverterRustBuffe
         buf.putInt(value.size)
         value.iterator().forEach {
             FfiConverterTypeWorkflowEventRecord.write(it, buf)
+        }
+    }
+}
+
+
+
+
+/**
+ * @suppress
+ */
+public object FfiConverterSequenceTypeWorkflowMetadataFfi: FfiConverterRustBuffer<List<WorkflowMetadataFfi>> {
+    override fun read(buf: ByteBuffer): List<WorkflowMetadataFfi> {
+        val len = buf.getInt()
+        return List<WorkflowMetadataFfi>(len) {
+            FfiConverterTypeWorkflowMetadataFfi.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<WorkflowMetadataFfi>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeWorkflowMetadataFfi.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<WorkflowMetadataFfi>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeWorkflowMetadataFfi.write(it, buf)
         }
     }
 }

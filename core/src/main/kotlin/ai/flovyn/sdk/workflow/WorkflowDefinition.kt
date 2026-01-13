@@ -78,6 +78,20 @@ abstract class WorkflowDefinition<INPUT, OUTPUT> {
      * Tags for categorization and filtering.
      */
     open val tags: List<String> get() = emptyList()
+
+    /**
+     * JSON Schema for input validation.
+     * Override this to provide a custom schema.
+     * For typed workflows, this can be auto-generated from the INPUT type.
+     */
+    open val inputSchema: String? get() = null
+
+    /**
+     * JSON Schema for output validation.
+     * Override this to provide a custom schema.
+     * For typed workflows, this can be auto-generated from the OUTPUT type.
+     */
+    open val outputSchema: String? get() = null
 }
 
 /**

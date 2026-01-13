@@ -20,8 +20,8 @@ interface WorkflowContext {
     /** The input data for this workflow (as a map) */
     val input: Map<String, Any?>
 
-    /** The tenant ID owning this workflow */
-    val tenantId: UUID
+    /** The org ID owning this workflow */
+    val orgId: UUID
 
     /**
      * Get the current time in milliseconds.
