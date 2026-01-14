@@ -35,20 +35,19 @@ jobs:
         run: |
           mkdir -p worker-native/src/main/resources/natives/{linux-x86_64,linux-aarch64,windows-x86_64}
           mkdir -p worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi
+          mkdir -p tmp
+
+          BASE_URL="https://github.com/flovyn/sdk-rust/releases/download/${{ env.FFI_VERSION }}"
 
           # Download platform archives
-          gh release download ${{ env.FFI_VERSION }} \
-            --repo flovyn/sdk-rust \
-            --pattern "libflovyn_worker_ffi-*.tar.gz" \
-            --dir ./tmp
+          for platform in linux-x86_64 linux-aarch64 windows-x86_64; do
+            curl -fsSL "${BASE_URL}/libflovyn_worker_ffi-${platform}.tar.gz" -o "tmp/libflovyn_worker_ffi-${platform}.tar.gz"
+          done
 
           # Download bindings
-          gh release download ${{ env.FFI_VERSION }} \
-            --repo flovyn/sdk-rust \
-            --pattern "flovyn-worker-ffi-bindings.tar.gz" \
-            --dir ./tmp
+          curl -fsSL "${BASE_URL}/flovyn-worker-ffi-bindings.tar.gz" -o "tmp/flovyn-worker-ffi-bindings.tar.gz"
 
-          # Extract native libraries (macOS and Windows ARM64 disabled)
+          # Extract native libraries
           for platform in linux-x86_64 linux-aarch64 windows-x86_64; do
             tar -xzf tmp/libflovyn_worker_ffi-${platform}.tar.gz -C worker-native/src/main/resources/natives/
           done
@@ -115,11 +114,10 @@ jobs:
       - name: Download native libraries
         run: |
           mkdir -p worker-native/src/main/resources/natives/linux-x86_64
+          mkdir -p tmp
 
-          gh release download ${{ env.FFI_VERSION }} \
-            --repo flovyn/sdk-rust \
-            --pattern "libflovyn_worker_ffi-linux-x86_64.tar.gz" \
-            --dir ./tmp
+          curl -fsSL "https://github.com/flovyn/sdk-rust/releases/download/${{ env.FFI_VERSION }}/libflovyn_worker_ffi-linux-x86_64.tar.gz" \
+            -o tmp/libflovyn_worker_ffi-linux-x86_64.tar.gz
 
           tar -xzf tmp/libflovyn_worker_ffi-linux-x86_64.tar.gz -C worker-native/src/main/resources/natives/
           rm -rf tmp
