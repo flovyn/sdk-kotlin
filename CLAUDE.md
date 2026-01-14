@@ -12,10 +12,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew test
 
 # Run E2E tests (requires Flovyn server or dev infrastructure)
-FLOVYN_E2E_USE_DEV_INFRA=1 ./gradlew :sdk-jackson:e2eTest
+FLOVYN_E2E_USE_DEV_INFRA=1 ./gradlew :worker-sdk-jackson:e2eTest
 
 # Run a single test class
-./gradlew :core:test --tests "ai.flovyn.sdk.workflow.SomeTest"
+./gradlew :worker-sdk:test --tests "ai.flovyn.sdk.workflow.SomeTest"
 
 # Run examples
 ./gradlew :examples:runHelloWorld
@@ -28,16 +28,16 @@ This is the official Kotlin SDK for Flovyn, a workflow orchestration platform wi
 
 ### Module Structure
 
-- **native**: JNA-based native library loader that extracts and loads platform-specific FFI binaries (`libflovyn_ffi.dylib/so/dll`) from JAR resources. Supported platforms: Linux/macOS/Windows on x86_64 and aarch64.
+- **worker-native**: JNA-based native library loader that extracts and loads platform-specific FFI binaries (`libflovyn_worker_ffi.dylib/so/dll`) from JAR resources. Supported platforms: Linux/macOS/Windows on x86_64 and aarch64.
 
-- **core**: Core SDK abstractions independent of serialization:
+- **worker-sdk**: Core SDK abstractions independent of serialization:
   - `ai.flovyn.core.CoreBridge` / `CoreClientBridge`: Wraps FFI bindings for worker and client operations
   - `ai.flovyn.sdk.workflow.WorkflowDefinition` / `WorkflowContext`: Base classes for defining workflows with deterministic execution
   - `ai.flovyn.sdk.task.TaskDefinition` / `TaskContext`: Base classes for defining tasks (side-effectful operations)
   - `ai.flovyn.sdk.worker.WorkflowWorker` / `TaskWorker`: Poll-based workers that process activations from the server
   - `ai.flovyn.sdk.client.FlovynClient`: Main entry point managing workers and workflow execution
 
-- **sdk-jackson**: Jackson-based serialization layer. Provides `FlovynClientBuilder` for constructing clients with automatic JSON serialization of data classes.
+- **worker-sdk-jackson**: Jackson-based serialization layer. Provides `FlovynClientBuilder` for constructing clients with automatic JSON serialization of data classes.
 
 - **examples**: Sample applications demonstrating SDK usage.
 
@@ -59,7 +59,7 @@ This is the official Kotlin SDK for Flovyn, a workflow orchestration platform wi
 
 Native binaries come from the `flovyn/sdk-rust` repository and are downloaded during CI. To develop locally with custom bindings:
 1. Build the Rust FFI library
-2. Place platform binaries in `native/src/main/resources/natives/{platform}/`
-3. Copy Kotlin bindings to `native/src/main/kotlin/uniffi/flovyn_ffi/`
+2. Place platform binaries in `worker-native/src/main/resources/natives/{platform}/`
+3. Copy Kotlin bindings to `worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi/`
 
-Alternatively, set `uniffi.component.flovyn_ffi.libraryOverride` or `jna.library.path` system properties.
+Alternatively, set `uniffi.component.flovyn_worker_ffi.libraryOverride` or `jna.library.path` system properties.

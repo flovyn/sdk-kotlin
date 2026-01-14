@@ -1,6 +1,6 @@
 rootProject.name = "flovyn-sdk-kotlin"
 
-include("native")
-include("core")
-include("sdk-jackson")
+include("worker-native")
+include("worker-sdk")
+include("worker-sdk-jackson")
 include("examples")

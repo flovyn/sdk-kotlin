@@ -33,30 +33,30 @@ jobs:
       # NOTE: macOS and Windows ARM64 builds disabled in sdk-rust
       - name: Download native libraries from sdk-rust release
         run: |
-          mkdir -p native/src/main/resources/natives/{linux-x86_64,linux-aarch64,windows-x86_64}
-          mkdir -p native/src/main/kotlin/uniffi/flovyn_ffi
+          mkdir -p worker-native/src/main/resources/natives/{linux-x86_64,linux-aarch64,windows-x86_64}
+          mkdir -p worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi
 
           # Download platform archives
           gh release download ${{ env.FFI_VERSION }} \
             --repo flovyn/sdk-rust \
-            --pattern "libflovyn_ffi-*.tar.gz" \
+            --pattern "libflovyn_worker_ffi-*.tar.gz" \
             --dir ./tmp
 
           # Download bindings
           gh release download ${{ env.FFI_VERSION }} \
             --repo flovyn/sdk-rust \
-            --pattern "flovyn-ffi-bindings.tar.gz" \
+            --pattern "flovyn-worker-ffi-bindings.tar.gz" \
             --dir ./tmp
 
           # Extract native libraries (macOS and Windows ARM64 disabled)
           for platform in linux-x86_64 linux-aarch64 windows-x86_64; do
-            tar -xzf tmp/libflovyn_ffi-${platform}.tar.gz -C native/src/main/resources/natives/
+            tar -xzf tmp/libflovyn_worker_ffi-${platform}.tar.gz -C worker-native/src/main/resources/natives/
           done
 
           # Extract Kotlin bindings
           mkdir -p tmp/bindings
-          tar -xzf tmp/flovyn-ffi-bindings.tar.gz -C ./tmp/bindings
-          cp tmp/bindings/kotlin/uniffi/flovyn_ffi/* native/src/main/kotlin/uniffi/flovyn_ffi/
+          tar -xzf tmp/flovyn-worker-ffi-bindings.tar.gz -C ./tmp/bindings
+          cp tmp/bindings/kotlin/uniffi/flovyn_worker_ffi/* worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi/
 
           # Cleanup
           rm -rf tmp
@@ -116,20 +116,20 @@ jobs:
       # Download native libraries for Linux (E2E tests run on Linux)
       - name: Download native libraries
         run: |
-          mkdir -p native/src/main/resources/natives/linux-x86_64
+          mkdir -p worker-native/src/main/resources/natives/linux-x86_64
 
           gh release download ${{ env.FFI_VERSION }} \
             --repo flovyn/sdk-rust \
-            --pattern "libflovyn_ffi-linux-x86_64.tar.gz" \
+            --pattern "libflovyn_worker_ffi-linux-x86_64.tar.gz" \
             --dir ./tmp
 
-          tar -xzf tmp/libflovyn_ffi-linux-x86_64.tar.gz -C native/src/main/resources/natives/
+          tar -xzf tmp/libflovyn_worker_ffi-linux-x86_64.tar.gz -C worker-native/src/main/resources/natives/
           rm -rf tmp
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run E2E tests
-        run: ./gradlew :sdk-jackson:e2eTest
+        run: ./gradlew :worker-sdk-jackson:e2eTest
         env:
           FLOVYN_E2E_USE_DEV_INFRA: "1"
           FLOVYN_SERVER_ADDRESS: localhost:9090

@@ -89,9 +89,9 @@ get_rust_target() {
 # Get library filename for platform
 get_lib_name() {
     case "$1" in
-        macos-*) echo "libflovyn_ffi.dylib" ;;
-        linux-*) echo "libflovyn_ffi.so" ;;
-        windows-*) echo "flovyn_ffi.dll" ;;
+        macos-*) echo "libflovyn_worker_ffi.dylib" ;;
+        linux-*) echo "libflovyn_worker_ffi.so" ;;
+        windows-*) echo "flovyn_worker_ffi.dll" ;;
         *) log_error "Unknown platform: $1"; exit 1 ;;
     esac
 }
@@ -113,12 +113,12 @@ build_native() {
     local rust_target=$(get_rust_target "$platform")
     local lib_name=$(get_lib_name "$platform")
 
-    log_info "Building flovyn-ffi for $platform ($rust_target)..."
+    log_info "Building flovyn-worker-ffi for $platform ($rust_target)..."
 
-    (cd "$SDK_RUST_PATH" && cargo build -p flovyn-ffi --release --target "$rust_target")
+    (cd "$SDK_RUST_PATH" && cargo build -p flovyn-worker-ffi --release --target "$rust_target")
 
     local src="$SDK_RUST_PATH/target/$rust_target/release/$lib_name"
-    local dest_dir="$SDK_KOTLIN_ROOT/native/src/main/resources/natives/$platform"
+    local dest_dir="$SDK_KOTLIN_ROOT/worker-native/src/main/resources/natives/$platform"
 
     mkdir -p "$dest_dir"
     cp "$src" "$dest_dir/"
@@ -133,12 +133,12 @@ build_current_platform() {
     local platform=$(detect_platform)
     local lib_name=$(get_lib_name "$platform")
 
-    log_info "Building flovyn-ffi for current platform ($platform)..."
+    log_info "Building flovyn-worker-ffi for current platform ($platform)..."
 
-    (cd "$SDK_RUST_PATH" && cargo build -p flovyn-ffi --release)
+    (cd "$SDK_RUST_PATH" && cargo build -p flovyn-worker-ffi --release)
 
     local src="$SDK_RUST_PATH/target/release/$lib_name"
-    local dest_dir="$SDK_KOTLIN_ROOT/native/src/main/resources/natives/$platform"
+    local dest_dir="$SDK_KOTLIN_ROOT/worker-native/src/main/resources/natives/$platform"
 
     mkdir -p "$dest_dir"
     cp "$src" "$dest_dir/"
@@ -159,21 +159,21 @@ generate_bindings() {
     # Build if library doesn't exist
     if [[ ! -f "$lib_path" ]]; then
         log_info "Native library not found, building first..."
-        (cd "$SDK_RUST_PATH" && cargo build -p flovyn-ffi --release)
+        (cd "$SDK_RUST_PATH" && cargo build -p flovyn-worker-ffi --release)
     fi
 
     log_info "Generating Kotlin bindings..."
 
-    # uniffi-bindgen generates uniffi/flovyn_ffi/ structure, so out-dir should be the parent
-    local bindings_dir="$SDK_KOTLIN_ROOT/native/src/main/kotlin"
+    # uniffi-bindgen generates uniffi/flovyn_worker_ffi/ structure, so out-dir should be the parent
+    local bindings_dir="$SDK_KOTLIN_ROOT/worker-native/src/main/kotlin"
     mkdir -p "$bindings_dir"
 
-    (cd "$SDK_RUST_PATH" && cargo run -p flovyn-ffi --bin uniffi-bindgen -- \
+    (cd "$SDK_RUST_PATH" && cargo run -p flovyn-worker-ffi --bin uniffi-bindgen -- \
         generate --library "$lib_path" \
         --language kotlin \
         --out-dir "$bindings_dir")
 
-    log_info "Generated bindings at: $bindings_dir/uniffi/flovyn_ffi/flovyn_ffi.kt"
+    log_info "Generated bindings at: $bindings_dir/uniffi/flovyn_worker_ffi/flovyn_worker_ffi.kt"
 }
 
 # Download from GitHub releases
@@ -215,14 +215,14 @@ download_from_release() {
     trap "rm -rf $tmp_dir" EXIT
 
     # Download only the current platform's archive and bindings
-    local archive_pattern="libflovyn_ffi-${current_platform}.tar.gz"
+    local archive_pattern="libflovyn_worker_ffi-${current_platform}.tar.gz"
 
     if [[ "$version" == "latest" ]]; then
         log_info "Fetching latest release..."
         gh release download \
             --repo "$SDK_RUST_REPO" \
             --pattern "$archive_pattern" \
-            --pattern "flovyn-ffi-bindings.tar.gz" \
+            --pattern "flovyn-worker-ffi-bindings.tar.gz" \
             --dir "$tmp_dir" \
             2>&1 || {
                 log_error "Failed to download release. Make sure releases exist in $SDK_RUST_REPO"
@@ -233,7 +233,7 @@ download_from_release() {
         gh release download "$version" \
             --repo "$SDK_RUST_REPO" \
             --pattern "$archive_pattern" \
-            --pattern "flovyn-ffi-bindings.tar.gz" \
+            --pattern "flovyn-worker-ffi-bindings.tar.gz" \
             --dir "$tmp_dir" \
             2>&1 || {
                 log_error "Failed to download release $version from $SDK_RUST_REPO"
@@ -242,9 +242,9 @@ download_from_release() {
     fi
 
     # Prepare directories
-    local natives_dir="$SDK_KOTLIN_ROOT/native/src/main/resources/natives"
-    # Tarball has kotlin/uniffi/flovyn_ffi/ structure, so bindings_dir should be the parent
-    local bindings_dir="$SDK_KOTLIN_ROOT/native/src/main/kotlin"
+    local natives_dir="$SDK_KOTLIN_ROOT/worker-native/src/main/resources/natives"
+    # Tarball has kotlin/uniffi/flovyn_worker_ffi/ structure, so bindings_dir should be the parent
+    local bindings_dir="$SDK_KOTLIN_ROOT/worker-native/src/main/kotlin"
 
     mkdir -p "$natives_dir/$current_platform"
     mkdir -p "$bindings_dir"
@@ -261,7 +261,7 @@ download_from_release() {
     fi
 
     # Extract bindings
-    local bindings_archive="$tmp_dir/flovyn-ffi-bindings.tar.gz"
+    local bindings_archive="$tmp_dir/flovyn-worker-ffi-bindings.tar.gz"
     if [[ -f "$bindings_archive" ]]; then
         log_info "Extracting Kotlin bindings..."
         mkdir -p "$tmp_dir/bindings"

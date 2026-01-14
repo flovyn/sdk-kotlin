@@ -6,7 +6,7 @@ plugins {
 description = "Example applications using Flovyn SDK"
 
 dependencies {
-    implementation(project(":sdk-jackson"))
+    implementation(project(":worker-sdk-jackson"))
 }
 
 // Make all example classes runnable
