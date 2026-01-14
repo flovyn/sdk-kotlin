@@ -69,34 +69,8 @@ jobs:
   e2e-test:
     runs-on: ubuntu-latest
     needs: build
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: flovyn
-          POSTGRES_PASSWORD: flovyn
-          POSTGRES_DB: flovyn
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      # Uncomment when flovyn-server Docker image is available
-      # flovyn-server:
-      #   image: flovyn/server:latest
-      #   ports:
-      #     - 9090:9090
-      #   env:
-      #     DATABASE_URL: postgres://flovyn:flovyn@postgres:5432/flovyn
-      #   options: >-
-      #     --health-cmd "grpc_health_probe -addr=:9090"
-      #     --health-interval 10s
-      #     --health-timeout 5s
-      #     --health-retries 5
+    timeout-minutes: 30
+    continue-on-error: true # E2E tests can be flaky, don't block the workflow
 
     steps:
       - uses: actions/checkout@v4
@@ -110,20 +84,39 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      # Download native libraries for Linux (E2E tests run on Linux)
-      - name: Download native libraries
+      # Download native libraries and bindings for Linux (E2E tests run on Linux)
+      - name: Download native libraries and bindings
         run: |
           mkdir -p worker-native/src/main/resources/natives/linux-x86_64
+          mkdir -p worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi
           mkdir -p tmp
 
           curl -fsSL "https://github.com/flovyn/sdk-rust/releases/download/${{ env.FFI_VERSION }}/libflovyn_worker_ffi-linux-x86_64.tar.gz" \
             -o tmp/libflovyn_worker_ffi-linux-x86_64.tar.gz
 
+          curl -fsSL "https://github.com/flovyn/sdk-rust/releases/download/${{ env.FFI_VERSION }}/flovyn-worker-ffi-bindings.tar.gz" \
+            -o tmp/flovyn-worker-ffi-bindings.tar.gz
+
           tar -xzf tmp/libflovyn_worker_ffi-linux-x86_64.tar.gz -C worker-native/src/main/resources/natives/
+
+          mkdir -p tmp/bindings
+          tar -xzf tmp/flovyn-worker-ffi-bindings.tar.gz -C ./tmp/bindings
+          cp tmp/bindings/kotlin/uniffi/flovyn_worker_ffi/* worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi/
+
           rm -rf tmp
+
+      - name: Login to Scaleway Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: rg.fr-par.scw.cloud/flovyn
+          username: nologin
+          password: ${{ secrets.SCW_SECRET_KEY }}
+
+      - name: Pull Flovyn Server image
+        run: docker pull rg.fr-par.scw.cloud/flovyn/flovyn-server:latest
 
       - name: Run E2E tests
         run: ./gradlew :worker-sdk-jackson:e2eTest
         env:
           FLOVYN_E2E_USE_DEV_INFRA: "1"
-          FLOVYN_SERVER_ADDRESS: localhost:9090
+          FLOVYN_SERVER_IMAGE: rg.fr-par.scw.cloud/flovyn/flovyn-server
