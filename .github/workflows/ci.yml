@@ -9,7 +9,7 @@ on:
 env:
   # Pin to specific sdk-rust release version
   # Update this when upgrading to a new FFI version
-  FFI_VERSION: v0.1.4
+  FFI_VERSION: v0.1.5
 
 jobs:
   build:
@@ -60,8 +60,6 @@ jobs:
 
           # Cleanup
           rm -rf tmp
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         run: ./gradlew build
@@ -125,8 +123,6 @@ jobs:
 
           tar -xzf tmp/libflovyn_worker_ffi-linux-x86_64.tar.gz -C worker-native/src/main/resources/natives/
           rm -rf tmp
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run E2E tests
         run: ./gradlew :worker-sdk-jackson:e2eTest
