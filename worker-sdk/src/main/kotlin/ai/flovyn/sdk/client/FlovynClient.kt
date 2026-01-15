@@ -133,9 +133,10 @@ class FlovynClient(
         )
 
         // Create client configuration
+        // Use worker token for client operations (same as Rust SDK)
         val clientConfig = ClientConfig(
             serverUrl = serverUrl,
-            clientToken = null,
+            clientToken = workerToken,
             oauth2Credentials = oauth2Credentials,
             orgId = orgIdStr
         )
@@ -223,6 +224,35 @@ class FlovynClient(
     }
 
     /**
+     * Get the promise UUID from workflow events.
+     *
+     * Searches workflow events for a PROMISE_CREATED event with matching promiseName
+     * and returns the promiseId (UUID) from that event.
+     */
+    private fun getPromiseId(workflowExecutionId: UUID, promiseName: String): String {
+        val client = coreClient ?: throw IllegalStateException("Client not started")
+
+        val events = client.getWorkflowEvents(workflowExecutionId.toString())
+
+        for (event in events) {
+            if (event.eventType == "PROMISE_CREATED") {
+                // Parse payload JSON to find promiseName and promiseId
+                val payloadJson = String(event.payload, Charsets.UTF_8)
+                val payload = internalSerializer.deserialize(payloadJson.toByteArray(), Map::class.java) as? Map<*, *>
+
+                val eventPromiseName = payload?.get("promiseName") as? String
+                if (eventPromiseName == promiseName) {
+                    val promiseId = payload["promiseId"] as? String
+                        ?: throw IllegalStateException("Promise '$promiseName' has no promiseId in event payload")
+                    return promiseId
+                }
+            }
+        }
+
+        throw IllegalStateException("Promise '$promiseName' not found in workflow $workflowExecutionId")
+    }
+
+    /**
      * Resolve a durable promise with a value.
      *
      * This allows external systems to resolve promises that were created
@@ -239,7 +269,7 @@ class FlovynClient(
     ) {
         val client = coreClient ?: throw IllegalStateException("Client not started")
 
-        val promiseId = "$workflowExecutionId:$promiseName"
+        val promiseId = getPromiseId(workflowExecutionId, promiseName)
         client.resolvePromise(promiseId, internalSerializer.serialize(value))
     }
 
@@ -260,7 +290,7 @@ class FlovynClient(
     ) {
         val client = coreClient ?: throw IllegalStateException("Client not started")
 
-        val promiseId = "$workflowExecutionId:$promiseName"
+        val promiseId = getPromiseId(workflowExecutionId, promiseName)
         client.rejectPromise(promiseId, error)
     }
 

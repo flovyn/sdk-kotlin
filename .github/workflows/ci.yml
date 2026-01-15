@@ -29,36 +29,8 @@ jobs:
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
-      # Download pre-built native libraries from sdk-rust release
-      # NOTE: macOS and Windows ARM64 builds disabled in sdk-rust
       - name: Download native libraries from sdk-rust release
-        run: |
-          mkdir -p worker-native/src/main/resources/natives/{linux-x86_64,linux-aarch64,windows-x86_64}
-          mkdir -p worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi
-          mkdir -p tmp
-
-          BASE_URL="https://github.com/flovyn/sdk-rust/releases/download/${{ env.FFI_VERSION }}"
-
-          # Download platform archives
-          for platform in linux-x86_64 linux-aarch64 windows-x86_64; do
-            curl -fsSL "${BASE_URL}/libflovyn_worker_ffi-${platform}.tar.gz" -o "tmp/libflovyn_worker_ffi-${platform}.tar.gz"
-          done
-
-          # Download bindings
-          curl -fsSL "${BASE_URL}/flovyn-worker-ffi-bindings.tar.gz" -o "tmp/flovyn-worker-ffi-bindings.tar.gz"
-
-          # Extract native libraries
-          for platform in linux-x86_64 linux-aarch64 windows-x86_64; do
-            tar -xzf tmp/libflovyn_worker_ffi-${platform}.tar.gz -C worker-native/src/main/resources/natives/
-          done
-
-          # Extract Kotlin bindings
-          mkdir -p tmp/bindings
-          tar -xzf tmp/flovyn-worker-ffi-bindings.tar.gz -C ./tmp/bindings
-          cp tmp/bindings/kotlin/uniffi/flovyn_worker_ffi/* worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi/
-
-          # Cleanup
-          rm -rf tmp
+        run: ./bin/download-ffi.sh ${{ env.FFI_VERSION }} linux-x86_64 linux-aarch64 windows-x86_64
 
       - name: Build
         run: ./gradlew build
@@ -84,26 +56,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      # Download native libraries and bindings for Linux (E2E tests run on Linux)
-      - name: Download native libraries and bindings
-        run: |
-          mkdir -p worker-native/src/main/resources/natives/linux-x86_64
-          mkdir -p worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi
-          mkdir -p tmp
-
-          curl -fsSL "https://github.com/flovyn/sdk-rust/releases/download/${{ env.FFI_VERSION }}/libflovyn_worker_ffi-linux-x86_64.tar.gz" \
-            -o tmp/libflovyn_worker_ffi-linux-x86_64.tar.gz
-
-          curl -fsSL "https://github.com/flovyn/sdk-rust/releases/download/${{ env.FFI_VERSION }}/flovyn-worker-ffi-bindings.tar.gz" \
-            -o tmp/flovyn-worker-ffi-bindings.tar.gz
-
-          tar -xzf tmp/libflovyn_worker_ffi-linux-x86_64.tar.gz -C worker-native/src/main/resources/natives/
-
-          mkdir -p tmp/bindings
-          tar -xzf tmp/flovyn-worker-ffi-bindings.tar.gz -C ./tmp/bindings
-          cp tmp/bindings/kotlin/uniffi/flovyn_worker_ffi/* worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi/
-
-          rm -rf tmp
+      - name: Download native libraries from sdk-rust release
+        run: ./bin/download-ffi.sh ${{ env.FFI_VERSION }} linux-x86_64
 
       - name: Login to Scaleway Container Registry
         uses: docker/login-action@v3

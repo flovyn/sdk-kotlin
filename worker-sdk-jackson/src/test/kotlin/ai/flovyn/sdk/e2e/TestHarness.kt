@@ -1,48 +1,35 @@
 package ai.flovyn.sdk.e2e
 
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.Keys
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
+import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.Network
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.time.Duration
-import java.time.Instant
 import java.util.*
-import java.util.concurrent.TimeUnit
-import javax.crypto.SecretKey
 
 /**
  * Test harness for E2E tests using Testcontainers.
  *
- * Manages the complete container stack:
- * - PostgreSQL for database
- * - NATS for messaging
- * - Flovyn Server
+ * Provides container orchestration for PostgreSQL, NATS, and Flovyn server,
+ * using static API key authentication.
  *
- * Mirrors the Rust SDK test harness pattern.
+ * All containers are started by the harness - no external dependencies required.
+ *
+ * Matches sdk-rust/worker-sdk/tests/e2e/harness.rs exactly.
  */
 class TestHarness private constructor() {
 
     private val logger = LoggerFactory.getLogger(TestHarness::class.java)
-    private val httpClient = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .build()
-
-    private val network = Network.newNetwork()
 
     // Container instances
     private lateinit var postgres: PostgreSQLContainer<*>
     private lateinit var nats: GenericContainer<*>
     private lateinit var server: GenericContainer<*>
+    private lateinit var configFile: File
 
     // Connection info
     var serverGrpcPort: Int = 0
@@ -50,56 +37,74 @@ class TestHarness private constructor() {
     var serverHttpPort: Int = 0
         private set
 
-    // Test org info
+    // Test org info (pre-configured via config file)
+    // Matches Rust: format!("test-{}", &Uuid::new_v4().to_string()[..8])
     var orgId: UUID = UUID.randomUUID()
         private set
-    var orgSlug: String = ""
+    var orgSlug: String = "test-${UUID.randomUUID().toString().substring(0, 8)}"
         private set
-    var workerToken: String = ""
+    // Matches Rust: format!("flovyn_sk_test_{}", &Uuid::new_v4().to_string()[..16])
+    var apiKey: String = "flovyn_sk_test_${UUID.randomUUID().toString().substring(0, 16)}"
+        private set
+    // Matches Rust: format!("flovyn_wk_test_{}", &Uuid::new_v4().to_string()[..16])
+    var workerToken: String = "flovyn_wk_test_${UUID.randomUUID().toString().substring(0, 16)}"
         private set
 
     /**
      * Start all containers and set up test org.
      */
     fun start() {
-        logger.info("Starting test harness containers...")
+        logger.info("[HARNESS] Starting test harness containers...")
 
-        // Start PostgreSQL
+        // Create config file with org and static API keys
+        // Use /tmp explicitly for macOS compatibility with Docker bind mounts
+        // (macOS default temp dir /var/folders/... is not shared with Docker)
+        configFile = File.createTempFile("flovyn-test-config-", ".toml", File("/tmp"))
+        configFile.writeText(createConfigContent())
+        configFile.deleteOnExit()
+        logger.info("[HARNESS] Created config file with pre-configured org and API keys at: ${configFile.absolutePath}")
+
+        // Start PostgreSQL container
+        // Matches Rust: GenericImage::new("postgres", "18-alpine").with_wait_for(WaitFor::message_on_stderr("database system is ready to accept connections"))
         postgres = PostgreSQLContainer(DockerImageName.parse("postgres:18-alpine"))
-            .withNetwork(network)
-            .withNetworkAliases("postgres")
             .withDatabaseName("flovyn")
             .withUsername("flovyn")
             .withPassword("flovyn")
             .withLabel("flovyn-test", "true")
 
         postgres.start()
-        logger.info("PostgreSQL started on port ${postgres.firstMappedPort}")
+        val pgPort = postgres.firstMappedPort
+        logger.info("PostgreSQL started on port $pgPort")
 
-        // Start NATS
+        // Start NATS container
+        // Matches Rust: GenericImage::new("nats", "latest").with_wait_for(WaitFor::message_on_stderr("Server is ready"))
         nats = GenericContainer(DockerImageName.parse("nats:latest"))
-            .withNetwork(network)
-            .withNetworkAliases("nats")
             .withExposedPorts(4222)
             .withLabel("flovyn-test", "true")
             .waitingFor(Wait.forLogMessage(".*Server is ready.*", 1))
 
         nats.start()
-        logger.info("NATS started on port ${nats.firstMappedPort}")
+        val natsPort = nats.firstMappedPort
+        logger.info("NATS started on port $natsPort")
 
-        // Start Flovyn Server
-        val serverImage = System.getenv("FLOVYN_SERVER_IMAGE") ?: "rg.fr-par.scw.cloud/flovyn/flovyn-server:latest"
+        // Start Flovyn Server container
+        // Matches Rust configuration exactly
+        val serverImage = System.getenv("FLOVYN_SERVER_IMAGE") ?: "rg.fr-par.scw.cloud/flovyn/flovyn-server"
         val verboseLogging = System.getenv("FLOVYN_E2E_VERBOSE") == "1"
-        server = GenericContainer(DockerImageName.parse(serverImage))
-            .withNetwork(network)
-            .withNetworkAliases("flovyn-server")
+
+        server = GenericContainer(DockerImageName.parse("$serverImage:latest"))
             .withExposedPorts(8000, 9090)
             .withLabel("flovyn-test", "true")
-            .withEnv("DATABASE_URL", "postgres://flovyn:flovyn@postgres:5432/flovyn")
-            .withEnv("NATS_URL", "nats://nats:4222")
-            .withEnv("FLOVYN_SECURITY_ENABLED", "true")
-            .withEnv("JWT_SKIP_SIGNATURE_VERIFICATION", "true")
-            .withEnv("RUST_LOG", "info")
+            // Add host.docker.internal mapping for Linux (required for container to reach host ports)
+            .withExtraHost("host.docker.internal", "host-gateway")
+            .withEnv("DATABASE_URL", "postgres://flovyn:flovyn@host.docker.internal:$pgPort/flovyn")
+            .withEnv("NATS__ENABLED", "true")
+            .withEnv("NATS__URL", "nats://host.docker.internal:$natsPort")
+            .withEnv("SERVER_PORT", "8000")
+            .withEnv("GRPC_SERVER_PORT", "9090")
+            // Mount config file and point to it
+            .withFileSystemBind(configFile.absolutePath, "/app/config.toml", BindMode.READ_ONLY)
+            .withEnv("CONFIG_FILE", "/app/config.toml")
             .withStartupTimeout(Duration.ofSeconds(120))
             .apply {
                 if (verboseLogging) {
@@ -110,154 +115,97 @@ class TestHarness private constructor() {
         server.start()
         serverHttpPort = server.getMappedPort(8000)
         serverGrpcPort = server.getMappedPort(9090)
-        logger.info("Flovyn Server started - HTTP: $serverHttpPort, gRPC: $serverGrpcPort")
+        logger.info("Flovyn server started - HTTP: $serverHttpPort, gRPC: $serverGrpcPort")
 
-        // Wait for server health
+        // Wait for server health (30s timeout)
         waitForHealth()
 
-        // Set up test org
-        setupTestOrg()
-
-        logger.info("Test harness ready - org: $orgSlug")
+        logger.info("[HARNESS] Test harness ready - org: $orgSlug")
     }
 
     /**
      * Stop all containers.
      */
     fun stop() {
-        val keepContainers = System.getProperty("FLOVYN_TEST_KEEP_CONTAINERS", "0") == "1"
+        val keepContainers = System.getenv("FLOVYN_TEST_KEEP_CONTAINERS") != null
         if (keepContainers) {
-            logger.info("Keeping containers running (FLOVYN_TEST_KEEP_CONTAINERS=1)")
+            logger.info("[HARNESS] FLOVYN_TEST_KEEP_CONTAINERS set - skipping cleanup")
             return
         }
 
-        logger.info("Stopping test harness containers...")
+        logger.info("[HARNESS] Stopping containers...")
         runCatching { server.stop() }
         runCatching { nats.stop() }
         runCatching { postgres.stop() }
-        runCatching { network.close() }
-        logger.info("Test harness stopped")
+        runCatching { configFile.delete() }
+        logger.info("[HARNESS] Cleanup complete")
     }
 
     /**
-     * Wait for server health endpoint to respond.
+     * Wait for server health endpoint to respond (max 30 seconds).
+     * Matches Rust: wait_for_health function
      */
     private fun waitForHealth() {
-        val healthUrl = "http://localhost:$serverHttpPort/_/health"
-        val maxAttempts = 30
+        val url = "http://localhost:$serverHttpPort/_/health"
+        val maxAttempts = 15
         val delayMs = 2000L
 
-        repeat(maxAttempts) { attempt ->
+        repeat(maxAttempts) { i ->
             try {
-                val request = Request.Builder()
-                    .url(healthUrl)
-                    .get()
-                    .build()
+                val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
 
-                httpClient.newCall(request).execute().use { response ->
-                    if (response.isSuccessful) {
-                        logger.info("Server health check passed after ${attempt + 1} attempts")
-                        return
-                    }
+                if (connection.responseCode == 200) {
+                    logger.info("Server is healthy after ${i * 2} seconds")
+                    return
                 }
+                logger.info("Health check returned: ${connection.responseCode}")
+                connection.disconnect()
             } catch (e: Exception) {
-                logger.debug("Health check attempt ${attempt + 1} failed: ${e.message}")
+                // Connection refused - server not ready yet
             }
             Thread.sleep(delayMs)
         }
 
-        throw RuntimeException("Server health check failed after $maxAttempts attempts. Check Docker logs.")
-    }
-
-    /**
-     * Set up test org with JWT authentication.
-     */
-    private fun setupTestOrg() {
-        // Generate JWT for test user
-        val jwt = generateTestJwt()
-
-        // Create org
-        val slug = "test-${UUID.randomUUID().toString().take(8)}"
-        val createOrgBody = """
-            {
-                "name": "E2E Test Organization",
-                "slug": "$slug",
-                "tier": "FREE",
-                "region": "us-west-2"
-            }
-        """.trimIndent()
-
-        val createOrgRequest = Request.Builder()
-            .url("http://localhost:$serverHttpPort/api/orgs")
-            .header("Authorization", "Bearer $jwt")
-            .header("Content-Type", "application/json")
-            .post(createOrgBody.toRequestBody("application/json".toMediaType()))
-            .build()
-
-        httpClient.newCall(createOrgRequest).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw RuntimeException("Failed to create org: ${response.code} ${response.body?.string()}")
-            }
-            val body = response.body?.string() ?: "{}"
-            // Parse org ID from response
-            val idMatch = """"id"\s*:\s*"([^"]+)"""".toRegex().find(body)
-            orgId = UUID.fromString(idMatch?.groupValues?.get(1) ?: throw RuntimeException("No org ID in response"))
-            orgSlug = slug
-        }
-
-        logger.info("Created test org: $orgSlug ($orgId)")
-
-        // Create worker token
-        val createTokenBody = """
-            {
-                "displayName": "E2E Test Worker Token"
-            }
-        """.trimIndent()
-
-        val createTokenRequest = Request.Builder()
-            .url("http://localhost:$serverHttpPort/api/orgs/$orgSlug/worker-token/tokens")
-            .header("Authorization", "Bearer $jwt")
-            .header("Content-Type", "application/json")
-            .post(createTokenBody.toRequestBody("application/json".toMediaType()))
-            .build()
-
-        httpClient.newCall(createTokenRequest).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw RuntimeException("Failed to create worker token: ${response.code} ${response.body?.string()}")
-            }
-            val body = response.body?.string() ?: "{}"
-            val tokenMatch = """"token"\s*:\s*"([^"]+)"""".toRegex().find(body)
-            workerToken = tokenMatch?.groupValues?.get(1) ?: throw RuntimeException("No token in response")
-        }
-
-        logger.info("Created worker token: ${workerToken.take(10)}...")
-    }
-
-    /**
-     * Generate a test JWT.
-     * Since the server has JWT_SKIP_SIGNATURE_VERIFICATION=true, we can use a simple HMAC key.
-     */
-    private fun generateTestJwt(): String {
-        val now = Instant.now()
-        val userId = "test-user-${UUID.randomUUID().toString().take(8).uppercase()}"
-
-        // Use a simple HMAC key since signature verification is skipped
-        val secretKey: SecretKey = Keys.hmacShaKeyFor(
-            "test-secret-key-for-e2e-tests-minimum-256-bits-required-here".toByteArray()
+        throw RuntimeException(
+            "Server health check timed out after 30 seconds.\nCheck logs with: docker logs ${server.containerId}"
         )
-
-        return Jwts.builder()
-            .subject(userId)
-            .claim("id", userId)
-            .claim("name", "E2E Test User")
-            .claim("email", "e2e-test@example.com")
-            .issuer("http://localhost:3000")
-            .audience().add("flovyn-server").and()
-            .issuedAt(Date.from(now))
-            .expiration(Date.from(now.plusSeconds(3600)))
-            .signWith(secretKey)
-            .compact()
     }
+
+    /**
+     * Create config content with org and static API key configuration.
+     * Matches Rust create_config_file function exactly (including leading newline).
+     */
+    private fun createConfigContent(): String = """
+# Pre-configured organizations
+[[orgs]]
+id = "$orgId"
+name = "Test Organization"
+slug = "$orgSlug"
+tier = "FREE"
+
+# Authentication configuration
+[auth]
+enabled = true
+
+# Static API keys
+[auth.static_api_key]
+keys = [
+    { key = "$apiKey", org_id = "$orgId", principal_type = "User", principal_id = "api:test", role = "ADMIN" },
+    { key = "$workerToken", org_id = "$orgId", principal_type = "Worker", principal_id = "worker:test" }
+]
+
+# Endpoint authentication
+[auth.endpoints.http]
+authenticators = ["static_api_key"]
+authorizer = "cedar"
+
+[auth.endpoints.grpc]
+authenticators = ["static_api_key"]
+authorizer = "cedar"
+"""
 
     companion object {
         @Volatile
@@ -273,7 +221,7 @@ class TestHarness private constructor() {
                 it.start()
                 instance = it
 
-                // Register shutdown hook
+                // Register shutdown hook for cleanup
                 Runtime.getRuntime().addShutdownHook(Thread {
                     it.stop()
                 })
