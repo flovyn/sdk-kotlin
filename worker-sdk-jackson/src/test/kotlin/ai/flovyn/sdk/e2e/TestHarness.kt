@@ -89,10 +89,11 @@ class TestHarness private constructor() {
 
         // Start Flovyn Server container
         // Matches Rust configuration exactly
-        val serverImage = System.getenv("FLOVYN_SERVER_IMAGE") ?: "rg.fr-par.scw.cloud/flovyn/flovyn-server"
+        // FLOVYN_SERVER_IMAGE should include the tag, e.g., rg.fr-par.scw.cloud/flovyn/flovyn-server:main
+        val serverImage = System.getenv("FLOVYN_SERVER_IMAGE") ?: "rg.fr-par.scw.cloud/flovyn/flovyn-server:latest"
         val verboseLogging = System.getenv("FLOVYN_E2E_VERBOSE") == "1"
 
-        server = GenericContainer(DockerImageName.parse("$serverImage:latest"))
+        server = GenericContainer(DockerImageName.parse(serverImage))
             .withExposedPorts(8000, 9090)
             .withLabel("flovyn-test", "true")
             // Add host.docker.internal mapping for Linux (required for container to reach host ports)
