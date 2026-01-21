@@ -784,6 +784,64 @@ internal interface UniffiForeignFutureCompleteVoid : com.sun.jna.Callback {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // A JNA Library to expose the extern-C FFI definitions.
 // This is an implementation detail which will be called internally by the public API.
 
@@ -829,17 +887,77 @@ internal interface UniffiLib : Library {
     ): Unit
     fun uniffi_flovyn_worker_ffi_fn_method_coreworker_complete_workflow_activation(`ptr`: Pointer,`context`: Pointer,`status`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_connection_info(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_max_concurrent_tasks(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_max_concurrent_workflows(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_metrics(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_org_id(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_pause_reason(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_queue(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_registration_info(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_server_url(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_started_at_ms(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
     fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_status(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_uptime_ms(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_worker_id(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_get_worker_identity(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_coreworker_initiate_shutdown(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_is_paused(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_is_running(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
     fun uniffi_flovyn_worker_ffi_fn_method_coreworker_is_shutdown_requested(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_pause(`ptr`: Pointer,`reason`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_pending_lifecycle_event_count(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_poll_lifecycle_events(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_coreworker_poll_task_activation(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_coreworker_poll_workflow_activation(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_coreworker_register(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreworker_resume(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_flovyn_worker_ffi_fn_clone_ffitaskcontext(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Pointer
+    fun uniffi_flovyn_worker_ffi_fn_free_ffitaskcontext(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_attempt(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
+    fun uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_is_cancelled(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    fun uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_stream(`ptr`: Pointer,`event`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    fun uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_stream_data(`ptr`: Pointer,`data`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    fun uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_stream_error(`ptr`: Pointer,`message`: RustBuffer.ByValue,`code`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    fun uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_stream_progress(`ptr`: Pointer,`progress`: Double,`details`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    fun uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_stream_token(`ptr`: Pointer,`text`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    fun uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_task_execution_id(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_workflow_execution_id(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_clone_ffiworkflowcontext(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Pointer
@@ -1007,17 +1125,73 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_complete_workflow_activation(
     ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_connection_info(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_max_concurrent_tasks(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_max_concurrent_workflows(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_metrics(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_org_id(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_pause_reason(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_queue(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_registration_info(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_server_url(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_started_at_ms(
+    ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_status(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_uptime_ms(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_worker_id(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_worker_identity(
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_initiate_shutdown(
     ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_is_paused(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_is_running(
+    ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_is_shutdown_requested(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_pause(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_pending_lifecycle_event_count(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_poll_lifecycle_events(
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_poll_task_activation(
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_poll_workflow_activation(
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_register(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_resume(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_attempt(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_is_cancelled(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_stream(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_stream_data(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_stream_error(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_stream_progress(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_stream_token(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_task_execution_id(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_workflow_execution_id(
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_clear_state(
     ): Short
@@ -1097,13 +1271,67 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_complete_workflow_activation() != 19979.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_connection_info() != 13771.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_max_concurrent_tasks() != 64320.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_max_concurrent_workflows() != 43894.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_metrics() != 43755.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_org_id() != 12658.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_pause_reason() != 57959.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_queue() != 9508.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_registration_info() != 53811.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_server_url() != 61456.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_started_at_ms() != 37224.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_status() != 13286.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_uptime_ms() != 20157.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_worker_id() != 3385.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_get_worker_identity() != 11464.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_initiate_shutdown() != 32789.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_is_paused() != 55999.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_is_running() != 22464.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_is_shutdown_requested() != 53388.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_pause() != 59092.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_pending_lifecycle_event_count() != 12728.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_poll_lifecycle_events() != 37423.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_poll_task_activation() != 13630.toShort()) {
@@ -1113,6 +1341,36 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_register() != 36828.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreworker_resume() != 24860.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_attempt() != 55703.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_is_cancelled() != 35105.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_stream() != 8842.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_stream_data() != 61427.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_stream_error() != 9512.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_stream_progress() != 51678.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_stream_token() != 45142.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_task_execution_id() != 6942.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_workflow_execution_id() != 43823.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_clear_state() != 41051.toShort()) {
@@ -1265,6 +1523,29 @@ public object FfiConverterInt: FfiConverter<Int, Int> {
 
     override fun write(value: Int, buf: ByteBuffer) {
         buf.putInt(value)
+    }
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterULong: FfiConverter<ULong, Long> {
+    override fun lift(value: Long): ULong {
+        return value.toULong()
+    }
+
+    override fun read(buf: ByteBuffer): ULong {
+        return lift(buf.getLong())
+    }
+
+    override fun lower(value: ULong): Long {
+        return value.toLong()
+    }
+
+    override fun allocationSize(value: ULong) = 8UL
+
+    override fun write(value: ULong, buf: ByteBuffer) {
+        buf.putLong(value.toLong())
     }
 }
 
@@ -2035,9 +2316,82 @@ public interface CoreWorkerInterface {
     fun `completeWorkflowActivation`(`context`: FfiWorkflowContext, `status`: WorkflowCompletionStatus)
     
     /**
+     * Get connection information.
+     *
+     * Returns information about the worker's connection to the server.
+     */
+    fun `getConnectionInfo`(): FfiConnectionInfo
+    
+    /**
+     * Get the maximum concurrent tasks setting.
+     */
+    fun `getMaxConcurrentTasks`(): kotlin.UInt
+    
+    /**
+     * Get the maximum concurrent workflows setting.
+     */
+    fun `getMaxConcurrentWorkflows`(): kotlin.UInt
+    
+    /**
+     * Get worker metrics.
+     *
+     * Returns a record containing various worker metrics.
+     */
+    fun `getMetrics`(): WorkerMetrics
+    
+    /**
+     * Get the org ID.
+     */
+    fun `getOrgId`(): kotlin.String
+    
+    /**
+     * Get the pause reason (if paused).
+     */
+    fun `getPauseReason`(): kotlin.String?
+    
+    /**
+     * Get the queue name.
+     */
+    fun `getQueue`(): kotlin.String
+    
+    /**
+     * Get registration information.
+     *
+     * Returns information about the worker's registration with the server.
+     */
+    fun `getRegistrationInfo`(): FfiRegistrationInfo?
+    
+    /**
+     * Get the server URL.
+     */
+    fun `getServerUrl`(): kotlin.String
+    
+    /**
+     * Get the worker start time in milliseconds since Unix epoch.
+     */
+    fun `getStartedAtMs`(): kotlin.Long
+    
+    /**
      * Get the current worker status as a string.
      */
     fun `getStatus`(): kotlin.String
+    
+    /**
+     * Get the worker uptime in milliseconds.
+     *
+     * Returns the number of milliseconds since the worker was created.
+     */
+    fun `getUptimeMs`(): kotlin.Long
+    
+    /**
+     * Get the server-assigned worker ID (if registered).
+     */
+    fun `getWorkerId`(): kotlin.String?
+    
+    /**
+     * Get the worker identity.
+     */
+    fun `getWorkerIdentity`(): kotlin.String?
     
     /**
      * Initiate graceful shutdown of the worker.
@@ -2048,9 +2402,42 @@ public interface CoreWorkerInterface {
     fun `initiateShutdown`()
     
     /**
+     * Check if the worker is paused.
+     */
+    fun `isPaused`(): kotlin.Boolean
+    
+    /**
+     * Check if the worker is running (not paused and not shutting down).
+     */
+    fun `isRunning`(): kotlin.Boolean
+    
+    /**
      * Check if shutdown has been requested.
      */
     fun `isShutdownRequested`(): kotlin.Boolean
+    
+    /**
+     * Pause the worker.
+     *
+     * When paused, the worker will not poll for new work but will continue
+     * processing any in-flight work.
+     *
+     * Returns an error if the worker is not in Running state.
+     */
+    fun `pause`(`reason`: kotlin.String)
+    
+    /**
+     * Get the count of pending lifecycle events.
+     */
+    fun `pendingLifecycleEventCount`(): kotlin.UInt
+    
+    /**
+     * Poll for lifecycle events.
+     *
+     * Returns all events that have occurred since the last poll.
+     * Events are cleared after being returned.
+     */
+    fun `pollLifecycleEvents`(): List<LifecycleEvent>
     
     /**
      * Poll for the next task activation.
@@ -2079,6 +2466,13 @@ public interface CoreWorkerInterface {
      * Returns the server-assigned worker ID.
      */
     fun `register`(): kotlin.String
+    
+    /**
+     * Resume the worker.
+     *
+     * Returns an error if the worker is not in Paused state.
+     */
+    fun `resume`()
     
     companion object
 }
@@ -2233,12 +2627,215 @@ open class CoreWorker: Disposable, AutoCloseable, CoreWorkerInterface {
 
     
     /**
+     * Get connection information.
+     *
+     * Returns information about the worker's connection to the server.
+     */override fun `getConnectionInfo`(): FfiConnectionInfo {
+            return FfiConverterTypeFfiConnectionInfo.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_connection_info(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the maximum concurrent tasks setting.
+     */override fun `getMaxConcurrentTasks`(): kotlin.UInt {
+            return FfiConverterUInt.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_max_concurrent_tasks(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the maximum concurrent workflows setting.
+     */override fun `getMaxConcurrentWorkflows`(): kotlin.UInt {
+            return FfiConverterUInt.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_max_concurrent_workflows(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get worker metrics.
+     *
+     * Returns a record containing various worker metrics.
+     */override fun `getMetrics`(): WorkerMetrics {
+            return FfiConverterTypeWorkerMetrics.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_metrics(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the org ID.
+     */override fun `getOrgId`(): kotlin.String {
+            return FfiConverterString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_org_id(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the pause reason (if paused).
+     */override fun `getPauseReason`(): kotlin.String? {
+            return FfiConverterOptionalString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_pause_reason(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the queue name.
+     */override fun `getQueue`(): kotlin.String {
+            return FfiConverterString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_queue(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get registration information.
+     *
+     * Returns information about the worker's registration with the server.
+     */override fun `getRegistrationInfo`(): FfiRegistrationInfo? {
+            return FfiConverterOptionalTypeFfiRegistrationInfo.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_registration_info(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the server URL.
+     */override fun `getServerUrl`(): kotlin.String {
+            return FfiConverterString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_server_url(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the worker start time in milliseconds since Unix epoch.
+     */override fun `getStartedAtMs`(): kotlin.Long {
+            return FfiConverterLong.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_started_at_ms(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
      * Get the current worker status as a string.
      */override fun `getStatus`(): kotlin.String {
             return FfiConverterString.lift(
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_status(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the worker uptime in milliseconds.
+     *
+     * Returns the number of milliseconds since the worker was created.
+     */override fun `getUptimeMs`(): kotlin.Long {
+            return FfiConverterLong.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_uptime_ms(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the server-assigned worker ID (if registered).
+     */override fun `getWorkerId`(): kotlin.String? {
+            return FfiConverterOptionalString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_worker_id(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the worker identity.
+     */override fun `getWorkerIdentity`(): kotlin.String? {
+            return FfiConverterOptionalString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_get_worker_identity(
         it, _status)
 }
     }
@@ -2265,12 +2862,95 @@ open class CoreWorker: Disposable, AutoCloseable, CoreWorkerInterface {
 
     
     /**
+     * Check if the worker is paused.
+     */override fun `isPaused`(): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_is_paused(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Check if the worker is running (not paused and not shutting down).
+     */override fun `isRunning`(): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_is_running(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
      * Check if shutdown has been requested.
      */override fun `isShutdownRequested`(): kotlin.Boolean {
             return FfiConverterBoolean.lift(
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_is_shutdown_requested(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Pause the worker.
+     *
+     * When paused, the worker will not poll for new work but will continue
+     * processing any in-flight work.
+     *
+     * Returns an error if the worker is not in Running state.
+     */
+    @Throws(FfiException::class)override fun `pause`(`reason`: kotlin.String)
+        = 
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_pause(
+        it, FfiConverterString.lower(`reason`),_status)
+}
+    }
+    
+    
+
+    
+    /**
+     * Get the count of pending lifecycle events.
+     */override fun `pendingLifecycleEventCount`(): kotlin.UInt {
+            return FfiConverterUInt.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_pending_lifecycle_event_count(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Poll for lifecycle events.
+     *
+     * Returns all events that have occurred since the last poll.
+     * Events are cleared after being returned.
+     */override fun `pollLifecycleEvents`(): List<LifecycleEvent> {
+            return FfiConverterSequenceTypeLifecycleEvent.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_poll_lifecycle_events(
         it, _status)
 }
     }
@@ -2340,6 +3020,23 @@ open class CoreWorker: Disposable, AutoCloseable, CoreWorkerInterface {
     
 
     
+    /**
+     * Resume the worker.
+     *
+     * Returns an error if the worker is not in Paused state.
+     */
+    @Throws(FfiException::class)override fun `resume`()
+        = 
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreworker_resume(
+        it, _status)
+}
+    }
+    
+    
+
+    
 
     
     
@@ -2369,6 +3066,452 @@ public object FfiConverterTypeCoreWorker: FfiConverter<CoreWorker, Pointer> {
     override fun allocationSize(value: CoreWorker) = 8UL
 
     override fun write(value: CoreWorker, buf: ByteBuffer) {
+        // The Rust code always expects pointers written as 8 bytes,
+        // and will fail to compile if they don't fit.
+        buf.putLong(Pointer.nativeValue(lower(value)))
+    }
+}
+
+
+// This template implements a class for working with a Rust struct via a Pointer/Arc<T>
+// to the live Rust struct on the other side of the FFI.
+//
+// Each instance implements core operations for working with the Rust `Arc<T>` and the
+// Kotlin Pointer to work with the live Rust struct on the other side of the FFI.
+//
+// There's some subtlety here, because we have to be careful not to operate on a Rust
+// struct after it has been dropped, and because we must expose a public API for freeing
+// theq Kotlin wrapper object in lieu of reliable finalizers. The core requirements are:
+//
+//   * Each instance holds an opaque pointer to the underlying Rust struct.
+//     Method calls need to read this pointer from the object's state and pass it in to
+//     the Rust FFI.
+//
+//   * When an instance is no longer needed, its pointer should be passed to a
+//     special destructor function provided by the Rust FFI, which will drop the
+//     underlying Rust struct.
+//
+//   * Given an instance, calling code is expected to call the special
+//     `destroy` method in order to free it after use, either by calling it explicitly
+//     or by using a higher-level helper like the `use` method. Failing to do so risks
+//     leaking the underlying Rust struct.
+//
+//   * We can't assume that calling code will do the right thing, and must be prepared
+//     to handle Kotlin method calls executing concurrently with or even after a call to
+//     `destroy`, and to handle multiple (possibly concurrent!) calls to `destroy`.
+//
+//   * We must never allow Rust code to operate on the underlying Rust struct after
+//     the destructor has been called, and must never call the destructor more than once.
+//     Doing so may trigger memory unsafety.
+//
+//   * To mitigate many of the risks of leaking memory and use-after-free unsafety, a `Cleaner`
+//     is implemented to call the destructor when the Kotlin object becomes unreachable.
+//     This is done in a background thread. This is not a panacea, and client code should be aware that
+//      1. the thread may starve if some there are objects that have poorly performing
+//     `drop` methods or do significant work in their `drop` methods.
+//      2. the thread is shared across the whole library. This can be tuned by using `android_cleaner = true`,
+//         or `android = true` in the [`kotlin` section of the `uniffi.toml` file](https://mozilla.github.io/uniffi-rs/kotlin/configuration.html).
+//
+// If we try to implement this with mutual exclusion on access to the pointer, there is the
+// possibility of a race between a method call and a concurrent call to `destroy`:
+//
+//    * Thread A starts a method call, reads the value of the pointer, but is interrupted
+//      before it can pass the pointer over the FFI to Rust.
+//    * Thread B calls `destroy` and frees the underlying Rust struct.
+//    * Thread A resumes, passing the already-read pointer value to Rust and triggering
+//      a use-after-free.
+//
+// One possible solution would be to use a `ReadWriteLock`, with each method call taking
+// a read lock (and thus allowed to run concurrently) and the special `destroy` method
+// taking a write lock (and thus blocking on live method calls). However, we aim not to
+// generate methods with any hidden blocking semantics, and a `destroy` method that might
+// block if called incorrectly seems to meet that bar.
+//
+// So, we achieve our goals by giving each instance an associated `AtomicLong` counter to track
+// the number of in-flight method calls, and an `AtomicBoolean` flag to indicate whether `destroy`
+// has been called. These are updated according to the following rules:
+//
+//    * The initial value of the counter is 1, indicating a live object with no in-flight calls.
+//      The initial value for the flag is false.
+//
+//    * At the start of each method call, we atomically check the counter.
+//      If it is 0 then the underlying Rust struct has already been destroyed and the call is aborted.
+//      If it is nonzero them we atomically increment it by 1 and proceed with the method call.
+//
+//    * At the end of each method call, we atomically decrement and check the counter.
+//      If it has reached zero then we destroy the underlying Rust struct.
+//
+//    * When `destroy` is called, we atomically flip the flag from false to true.
+//      If the flag was already true we silently fail.
+//      Otherwise we atomically decrement and check the counter.
+//      If it has reached zero then we destroy the underlying Rust struct.
+//
+// Astute readers may observe that this all sounds very similar to the way that Rust's `Arc<T>` works,
+// and indeed it is, with the addition of a flag to guard against multiple calls to `destroy`.
+//
+// The overall effect is that the underlying Rust struct is destroyed only when `destroy` has been
+// called *and* all in-flight method calls have completed, avoiding violating any of the expectations
+// of the underlying Rust code.
+//
+// This makes a cleaner a better alternative to _not_ calling `destroy()` as
+// and when the object is finished with, but the abstraction is not perfect: if the Rust object's `drop`
+// method is slow, and/or there are many objects to cleanup, and it's on a low end Android device, then the cleaner
+// thread may be starved, and the app will leak memory.
+//
+// In this case, `destroy`ing manually may be a better solution.
+//
+// The cleaner can live side by side with the manual calling of `destroy`. In the order of responsiveness, uniffi objects
+// with Rust peers are reclaimed:
+//
+// 1. By calling the `destroy` method of the object, which calls `rustObject.free()`. If that doesn't happen:
+// 2. When the object becomes unreachable, AND the Cleaner thread gets to call `rustObject.free()`. If the thread is starved then:
+// 3. The memory is reclaimed when the process terminates.
+//
+// [1] https://stackoverflow.com/questions/24376768/can-java-finalize-an-object-when-it-is-still-in-scope/24380219
+//
+
+
+/**
+ * Task context for FFI, providing streaming and lifecycle APIs.
+ *
+ * This context is created for each task activation and allows:
+ * - Streaming tokens, progress, data, and errors to connected clients
+ * - Checking cancellation status
+ * - Reporting persisted progress
+ */
+public interface FfiTaskContextInterface {
+    
+    /**
+     * Get the current attempt number (1-indexed).
+     */
+    fun `attempt`(): kotlin.UInt
+    
+    /**
+     * Check if the task has been cancelled.
+     */
+    fun `isCancelled`(): kotlin.Boolean
+    
+    /**
+     * Stream a generic event to connected clients.
+     *
+     * Events are ephemeral (not persisted) and delivered via SSE.
+     * This method is fire-and-forget; delivery failures are logged but not returned.
+     */
+    fun `stream`(`event`: FfiStreamEvent): kotlin.Boolean
+    
+    /**
+     * Stream data (convenience method).
+     *
+     * Data is provided as JSON bytes.
+     */
+    fun `streamData`(`data`: kotlin.ByteArray): kotlin.Boolean
+    
+    /**
+     * Stream an error notification (convenience method).
+     *
+     * Use to notify clients of recoverable errors during execution.
+     * For fatal errors, let the task fail normally.
+     */
+    fun `streamError`(`message`: kotlin.String, `code`: kotlin.String?): kotlin.Boolean
+    
+    /**
+     * Stream progress (convenience method).
+     *
+     * Progress values are clamped to 0.0-1.0 during serialization.
+     */
+    fun `streamProgress`(`progress`: kotlin.Double, `details`: kotlin.String?): kotlin.Boolean
+    
+    /**
+     * Stream a token (convenience method).
+     *
+     * Use for streaming text generation from language models.
+     */
+    fun `streamToken`(`text`: kotlin.String): kotlin.Boolean
+    
+    /**
+     * Get the task execution ID.
+     */
+    fun `taskExecutionId`(): kotlin.String
+    
+    /**
+     * Get the workflow execution ID (if any).
+     */
+    fun `workflowExecutionId`(): kotlin.String?
+    
+    companion object
+}
+
+/**
+ * Task context for FFI, providing streaming and lifecycle APIs.
+ *
+ * This context is created for each task activation and allows:
+ * - Streaming tokens, progress, data, and errors to connected clients
+ * - Checking cancellation status
+ * - Reporting persisted progress
+ */
+open class FfiTaskContext: Disposable, AutoCloseable, FfiTaskContextInterface {
+
+    constructor(pointer: Pointer) {
+        this.pointer = pointer
+        this.cleanable = UniffiLib.CLEANER.register(this, UniffiCleanAction(pointer))
+    }
+
+    /**
+     * This constructor can be used to instantiate a fake object. Only used for tests. Any
+     * attempt to actually use an object constructed this way will fail as there is no
+     * connected Rust object.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    constructor(noPointer: NoPointer) {
+        this.pointer = null
+        this.cleanable = UniffiLib.CLEANER.register(this, UniffiCleanAction(pointer))
+    }
+
+    protected val pointer: Pointer?
+    protected val cleanable: UniffiCleaner.Cleanable
+
+    private val wasDestroyed = AtomicBoolean(false)
+    private val callCounter = AtomicLong(1)
+
+    override fun destroy() {
+        // Only allow a single call to this method.
+        // TODO: maybe we should log a warning if called more than once?
+        if (this.wasDestroyed.compareAndSet(false, true)) {
+            // This decrement always matches the initial count of 1 given at creation time.
+            if (this.callCounter.decrementAndGet() == 0L) {
+                cleanable.clean()
+            }
+        }
+    }
+
+    @Synchronized
+    override fun close() {
+        this.destroy()
+    }
+
+    internal inline fun <R> callWithPointer(block: (ptr: Pointer) -> R): R {
+        // Check and increment the call counter, to keep the object alive.
+        // This needs a compare-and-set retry loop in case of concurrent updates.
+        do {
+            val c = this.callCounter.get()
+            if (c == 0L) {
+                throw IllegalStateException("${this.javaClass.simpleName} object has already been destroyed")
+            }
+            if (c == Long.MAX_VALUE) {
+                throw IllegalStateException("${this.javaClass.simpleName} call counter would overflow")
+            }
+        } while (! this.callCounter.compareAndSet(c, c + 1L))
+        // Now we can safely do the method call without the pointer being freed concurrently.
+        try {
+            return block(this.uniffiClonePointer())
+        } finally {
+            // This decrement always matches the increment we performed above.
+            if (this.callCounter.decrementAndGet() == 0L) {
+                cleanable.clean()
+            }
+        }
+    }
+
+    // Use a static inner class instead of a closure so as not to accidentally
+    // capture `this` as part of the cleanable's action.
+    private class UniffiCleanAction(private val pointer: Pointer?) : Runnable {
+        override fun run() {
+            pointer?.let { ptr ->
+                uniffiRustCall { status ->
+                    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_free_ffitaskcontext(ptr, status)
+                }
+            }
+        }
+    }
+
+    fun uniffiClonePointer(): Pointer {
+        return uniffiRustCall() { status ->
+            UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_clone_ffitaskcontext(pointer!!, status)
+        }
+    }
+
+    
+    /**
+     * Get the current attempt number (1-indexed).
+     */override fun `attempt`(): kotlin.UInt {
+            return FfiConverterUInt.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_attempt(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Check if the task has been cancelled.
+     */override fun `isCancelled`(): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_is_cancelled(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Stream a generic event to connected clients.
+     *
+     * Events are ephemeral (not persisted) and delivered via SSE.
+     * This method is fire-and-forget; delivery failures are logged but not returned.
+     */
+    @Throws(FfiException::class)override fun `stream`(`event`: FfiStreamEvent): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_stream(
+        it, FfiConverterTypeFfiStreamEvent.lower(`event`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Stream data (convenience method).
+     *
+     * Data is provided as JSON bytes.
+     */
+    @Throws(FfiException::class)override fun `streamData`(`data`: kotlin.ByteArray): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_stream_data(
+        it, FfiConverterByteArray.lower(`data`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Stream an error notification (convenience method).
+     *
+     * Use to notify clients of recoverable errors during execution.
+     * For fatal errors, let the task fail normally.
+     */
+    @Throws(FfiException::class)override fun `streamError`(`message`: kotlin.String, `code`: kotlin.String?): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_stream_error(
+        it, FfiConverterString.lower(`message`),FfiConverterOptionalString.lower(`code`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Stream progress (convenience method).
+     *
+     * Progress values are clamped to 0.0-1.0 during serialization.
+     */
+    @Throws(FfiException::class)override fun `streamProgress`(`progress`: kotlin.Double, `details`: kotlin.String?): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_stream_progress(
+        it, FfiConverterDouble.lower(`progress`),FfiConverterOptionalString.lower(`details`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Stream a token (convenience method).
+     *
+     * Use for streaming text generation from language models.
+     */
+    @Throws(FfiException::class)override fun `streamToken`(`text`: kotlin.String): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_stream_token(
+        it, FfiConverterString.lower(`text`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the task execution ID.
+     */override fun `taskExecutionId`(): kotlin.String {
+            return FfiConverterString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_task_execution_id(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the workflow execution ID (if any).
+     */override fun `workflowExecutionId`(): kotlin.String? {
+            return FfiConverterOptionalString.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffitaskcontext_workflow_execution_id(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+
+    
+    
+    companion object
+    
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiTaskContext: FfiConverter<FfiTaskContext, Pointer> {
+
+    override fun lower(value: FfiTaskContext): Pointer {
+        return value.uniffiClonePointer()
+    }
+
+    override fun lift(value: Pointer): FfiTaskContext {
+        return FfiTaskContext(value)
+    }
+
+    override fun read(buf: ByteBuffer): FfiTaskContext {
+        // The Rust code always writes pointers as 8 bytes, and will
+        // fail to compile if they don't fit.
+        return lift(Pointer(buf.getLong()))
+    }
+
+    override fun allocationSize(value: FfiTaskContext) = 8UL
+
+    override fun write(value: FfiTaskContext, buf: ByteBuffer) {
         // The Rust code always expects pointers written as 8 bytes,
         // and will fail to compile if they don't fit.
         buf.putLong(Pointer.nativeValue(lower(value)))
@@ -3097,6 +4240,144 @@ public object FfiConverterTypeClientConfig: FfiConverterRustBuffer<ClientConfig>
 
 
 /**
+ * Connection information for FFI.
+ */
+data class FfiConnectionInfo (
+    /**
+     * Whether currently connected.
+     */
+    var `connected`: kotlin.Boolean, 
+    /**
+     * Time of last successful heartbeat (ms since epoch, if any).
+     */
+    var `lastHeartbeatMs`: kotlin.Long?, 
+    /**
+     * Time of last successful poll (ms since epoch, if any).
+     */
+    var `lastPollMs`: kotlin.Long?, 
+    /**
+     * Number of consecutive heartbeat failures.
+     */
+    var `heartbeatFailures`: kotlin.UInt, 
+    /**
+     * Number of consecutive poll failures.
+     */
+    var `pollFailures`: kotlin.UInt, 
+    /**
+     * Current reconnection attempt (if reconnecting).
+     */
+    var `reconnectAttempt`: kotlin.UInt?
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiConnectionInfo: FfiConverterRustBuffer<FfiConnectionInfo> {
+    override fun read(buf: ByteBuffer): FfiConnectionInfo {
+        return FfiConnectionInfo(
+            FfiConverterBoolean.read(buf),
+            FfiConverterOptionalLong.read(buf),
+            FfiConverterOptionalLong.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterOptionalUInt.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: FfiConnectionInfo) = (
+            FfiConverterBoolean.allocationSize(value.`connected`) +
+            FfiConverterOptionalLong.allocationSize(value.`lastHeartbeatMs`) +
+            FfiConverterOptionalLong.allocationSize(value.`lastPollMs`) +
+            FfiConverterUInt.allocationSize(value.`heartbeatFailures`) +
+            FfiConverterUInt.allocationSize(value.`pollFailures`) +
+            FfiConverterOptionalUInt.allocationSize(value.`reconnectAttempt`)
+    )
+
+    override fun write(value: FfiConnectionInfo, buf: ByteBuffer) {
+            FfiConverterBoolean.write(value.`connected`, buf)
+            FfiConverterOptionalLong.write(value.`lastHeartbeatMs`, buf)
+            FfiConverterOptionalLong.write(value.`lastPollMs`, buf)
+            FfiConverterUInt.write(value.`heartbeatFailures`, buf)
+            FfiConverterUInt.write(value.`pollFailures`, buf)
+            FfiConverterOptionalUInt.write(value.`reconnectAttempt`, buf)
+    }
+}
+
+
+
+/**
+ * Registration information for FFI.
+ */
+data class FfiRegistrationInfo (
+    /**
+     * Server-assigned worker ID.
+     */
+    var `workerId`: kotlin.String, 
+    /**
+     * Whether registration was successful.
+     */
+    var `success`: kotlin.Boolean, 
+    /**
+     * When the worker was registered (ms since epoch).
+     */
+    var `registeredAtMs`: kotlin.Long, 
+    /**
+     * Registered workflow kinds.
+     */
+    var `workflowKinds`: List<kotlin.String>, 
+    /**
+     * Registered task kinds.
+     */
+    var `taskKinds`: List<kotlin.String>, 
+    /**
+     * Whether there are any registration conflicts.
+     */
+    var `hasConflicts`: kotlin.Boolean
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiRegistrationInfo: FfiConverterRustBuffer<FfiRegistrationInfo> {
+    override fun read(buf: ByteBuffer): FfiRegistrationInfo {
+        return FfiRegistrationInfo(
+            FfiConverterString.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterLong.read(buf),
+            FfiConverterSequenceString.read(buf),
+            FfiConverterSequenceString.read(buf),
+            FfiConverterBoolean.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: FfiRegistrationInfo) = (
+            FfiConverterString.allocationSize(value.`workerId`) +
+            FfiConverterBoolean.allocationSize(value.`success`) +
+            FfiConverterLong.allocationSize(value.`registeredAtMs`) +
+            FfiConverterSequenceString.allocationSize(value.`workflowKinds`) +
+            FfiConverterSequenceString.allocationSize(value.`taskKinds`) +
+            FfiConverterBoolean.allocationSize(value.`hasConflicts`)
+    )
+
+    override fun write(value: FfiRegistrationInfo, buf: ByteBuffer) {
+            FfiConverterString.write(value.`workerId`, buf)
+            FfiConverterBoolean.write(value.`success`, buf)
+            FfiConverterLong.write(value.`registeredAtMs`, buf)
+            FfiConverterSequenceString.write(value.`workflowKinds`, buf)
+            FfiConverterSequenceString.write(value.`taskKinds`, buf)
+            FfiConverterBoolean.write(value.`hasConflicts`, buf)
+    }
+}
+
+
+
+/**
  * Replay event for FFI.
  */
 data class FfiReplayEvent (
@@ -3146,6 +4427,54 @@ public object FfiConverterTypeFfiReplayEvent: FfiConverterRustBuffer<FfiReplayEv
             FfiConverterTypeFfiEventType.write(value.`eventType`, buf)
             FfiConverterByteArray.write(value.`data`, buf)
             FfiConverterLong.write(value.`timestampMs`, buf)
+    }
+}
+
+
+
+/**
+ * Lifecycle event for worker status changes.
+ */
+data class LifecycleEvent (
+    /**
+     * Event name (e.g., "starting", "registered", "ready", "paused", "resumed", "stopped")
+     */
+    var `eventName`: kotlin.String, 
+    /**
+     * Timestamp in milliseconds since Unix epoch
+     */
+    var `timestampMs`: kotlin.Long, 
+    /**
+     * Optional additional data as JSON string
+     */
+    var `data`: kotlin.String?
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeLifecycleEvent: FfiConverterRustBuffer<LifecycleEvent> {
+    override fun read(buf: ByteBuffer): LifecycleEvent {
+        return LifecycleEvent(
+            FfiConverterString.read(buf),
+            FfiConverterLong.read(buf),
+            FfiConverterOptionalString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: LifecycleEvent) = (
+            FfiConverterString.allocationSize(value.`eventName`) +
+            FfiConverterLong.allocationSize(value.`timestampMs`) +
+            FfiConverterOptionalString.allocationSize(value.`data`)
+    )
+
+    override fun write(value: LifecycleEvent, buf: ByteBuffer) {
+            FfiConverterString.write(value.`eventName`, buf)
+            FfiConverterLong.write(value.`timestampMs`, buf)
+            FfiConverterOptionalString.write(value.`data`, buf)
     }
 }
 
@@ -3300,6 +4629,13 @@ public object FfiConverterTypeStateEntry: FfiConverterRustBuffer<StateEntry> {
  */
 data class TaskActivation (
     /**
+     * The task context for streaming and lifecycle APIs.
+     *
+     * Use this context to stream tokens, progress, data, and errors.
+     * Also provides access to task metadata like attempt number.
+     */
+    var `context`: FfiTaskContext, 
+    /**
      * The task execution ID.
      */
     var `taskExecutionId`: kotlin.String, 
@@ -3327,7 +4663,28 @@ data class TaskActivation (
      * Timeout in milliseconds (if set).
      */
     var `timeoutMs`: kotlin.Long?
-) {
+) : Disposable {
+    
+    @Suppress("UNNECESSARY_SAFE_CALL") // codegen is much simpler if we unconditionally emit safe calls here
+    override fun destroy() {
+        
+        Disposable.destroy(this.`context`)
+    
+        Disposable.destroy(this.`taskExecutionId`)
+    
+        Disposable.destroy(this.`taskKind`)
+    
+        Disposable.destroy(this.`input`)
+    
+        Disposable.destroy(this.`workflowExecutionId`)
+    
+        Disposable.destroy(this.`attempt`)
+    
+        Disposable.destroy(this.`maxRetries`)
+    
+        Disposable.destroy(this.`timeoutMs`)
+    
+    }
     
     companion object
 }
@@ -3338,6 +4695,7 @@ data class TaskActivation (
 public object FfiConverterTypeTaskActivation: FfiConverterRustBuffer<TaskActivation> {
     override fun read(buf: ByteBuffer): TaskActivation {
         return TaskActivation(
+            FfiConverterTypeFfiTaskContext.read(buf),
             FfiConverterString.read(buf),
             FfiConverterString.read(buf),
             FfiConverterByteArray.read(buf),
@@ -3349,6 +4707,7 @@ public object FfiConverterTypeTaskActivation: FfiConverterRustBuffer<TaskActivat
     }
 
     override fun allocationSize(value: TaskActivation) = (
+            FfiConverterTypeFfiTaskContext.allocationSize(value.`context`) +
             FfiConverterString.allocationSize(value.`taskExecutionId`) +
             FfiConverterString.allocationSize(value.`taskKind`) +
             FfiConverterByteArray.allocationSize(value.`input`) +
@@ -3359,6 +4718,7 @@ public object FfiConverterTypeTaskActivation: FfiConverterRustBuffer<TaskActivat
     )
 
     override fun write(value: TaskActivation, buf: ByteBuffer) {
+            FfiConverterTypeFfiTaskContext.write(value.`context`, buf)
             FfiConverterString.write(value.`taskExecutionId`, buf)
             FfiConverterString.write(value.`taskKind`, buf)
             FfiConverterByteArray.write(value.`input`, buf)
@@ -3556,6 +4916,82 @@ public object FfiConverterTypeWorkerConfig: FfiConverterRustBuffer<WorkerConfig>
             FfiConverterOptionalUInt.write(value.`maxConcurrentTasks`, buf)
             FfiConverterSequenceTypeWorkflowMetadataFfi.write(value.`workflowMetadata`, buf)
             FfiConverterSequenceTypeTaskMetadataFfi.write(value.`taskMetadata`, buf)
+    }
+}
+
+
+
+/**
+ * Worker metrics for FFI.
+ */
+data class WorkerMetrics (
+    /**
+     * Uptime in milliseconds.
+     */
+    var `uptimeMs`: kotlin.Long, 
+    /**
+     * Current worker status.
+     */
+    var `status`: kotlin.String, 
+    /**
+     * Server-assigned worker ID (if registered).
+     */
+    var `workerId`: kotlin.String?, 
+    /**
+     * Total workflows processed.
+     */
+    var `workflowsProcessed`: kotlin.ULong, 
+    /**
+     * Total tasks processed.
+     */
+    var `tasksProcessed`: kotlin.ULong, 
+    /**
+     * Currently active workflows.
+     */
+    var `activeWorkflows`: kotlin.UInt, 
+    /**
+     * Currently active tasks.
+     */
+    var `activeTasks`: kotlin.UInt
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeWorkerMetrics: FfiConverterRustBuffer<WorkerMetrics> {
+    override fun read(buf: ByteBuffer): WorkerMetrics {
+        return WorkerMetrics(
+            FfiConverterLong.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: WorkerMetrics) = (
+            FfiConverterLong.allocationSize(value.`uptimeMs`) +
+            FfiConverterString.allocationSize(value.`status`) +
+            FfiConverterOptionalString.allocationSize(value.`workerId`) +
+            FfiConverterULong.allocationSize(value.`workflowsProcessed`) +
+            FfiConverterULong.allocationSize(value.`tasksProcessed`) +
+            FfiConverterUInt.allocationSize(value.`activeWorkflows`) +
+            FfiConverterUInt.allocationSize(value.`activeTasks`)
+    )
+
+    override fun write(value: WorkerMetrics, buf: ByteBuffer) {
+            FfiConverterLong.write(value.`uptimeMs`, buf)
+            FfiConverterString.write(value.`status`, buf)
+            FfiConverterOptionalString.write(value.`workerId`, buf)
+            FfiConverterULong.write(value.`workflowsProcessed`, buf)
+            FfiConverterULong.write(value.`tasksProcessed`, buf)
+            FfiConverterUInt.write(value.`activeWorkflows`, buf)
+            FfiConverterUInt.write(value.`activeTasks`, buf)
     }
 }
 
@@ -4000,6 +5436,20 @@ sealed class FfiException: kotlin.Exception() {
     }
     
     /**
+     * Invalid state for the requested operation.
+     */
+    class InvalidState(
+        
+        /**
+         * Description of why the state is invalid.
+         */
+        val `msg`: kotlin.String
+        ) : FfiException() {
+        override val message
+            get() = "msg=${ `msg` }"
+    }
+    
+    /**
      * No work available (poll returned empty).
      */
     class NoWorkAvailable(
@@ -4056,8 +5506,11 @@ public object FfiConverterTypeFfiError : FfiConverterRustBuffer<FfiException> {
                 )
             6 -> FfiException.Cancelled()
             7 -> FfiException.ShuttingDown()
-            8 -> FfiException.NoWorkAvailable()
-            9 -> FfiException.Other(
+            8 -> FfiException.InvalidState(
+                FfiConverterString.read(buf),
+                )
+            9 -> FfiException.NoWorkAvailable()
+            10 -> FfiException.Other(
                 FfiConverterString.read(buf),
                 )
             else -> throw RuntimeException("invalid error enum value, something is very wrong!!")
@@ -4099,6 +5552,11 @@ public object FfiConverterTypeFfiError : FfiConverterRustBuffer<FfiException> {
             is FfiException.ShuttingDown -> (
                 // Add the size for the Int that specifies the variant plus the size needed for all fields
                 4UL
+            )
+            is FfiException.InvalidState -> (
+                // Add the size for the Int that specifies the variant plus the size needed for all fields
+                4UL
+                + FfiConverterString.allocationSize(value.`msg`)
             )
             is FfiException.NoWorkAvailable -> (
                 // Add the size for the Int that specifies the variant plus the size needed for all fields
@@ -4148,12 +5606,17 @@ public object FfiConverterTypeFfiError : FfiConverterRustBuffer<FfiException> {
                 buf.putInt(7)
                 Unit
             }
-            is FfiException.NoWorkAvailable -> {
+            is FfiException.InvalidState -> {
                 buf.putInt(8)
+                FfiConverterString.write(value.`msg`, buf)
+                Unit
+            }
+            is FfiException.NoWorkAvailable -> {
+                buf.putInt(9)
                 Unit
             }
             is FfiException.Other -> {
-                buf.putInt(9)
+                buf.putInt(10)
                 FfiConverterString.write(value.`msg`, buf)
                 Unit
             }
@@ -4531,6 +5994,157 @@ public object FfiConverterTypeFfiStopReason : FfiConverterRustBuffer<FfiStopReas
             is FfiStopReason.Error -> {
                 buf.putInt(4)
                 FfiConverterString.write(value.`msg`, buf)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+}
+
+
+
+
+
+/**
+ * Stream event types for FFI.
+ */
+sealed class FfiStreamEvent {
+    
+    /**
+     * LLM token or text chunk.
+     */
+    data class Token(
+        /**
+         * The token or text chunk.
+         */
+        val `text`: kotlin.String) : FfiStreamEvent() {
+        companion object
+    }
+    
+    /**
+     * Progress update with optional details.
+     */
+    data class Progress(
+        /**
+         * Progress value (0.0 to 1.0).
+         */
+        val `progress`: kotlin.Double, 
+        /**
+         * Optional progress details.
+         */
+        val `details`: kotlin.String?) : FfiStreamEvent() {
+        companion object
+    }
+    
+    /**
+     * Arbitrary structured data.
+     */
+    data class Data(
+        /**
+         * Data payload as JSON bytes.
+         */
+        val `data`: kotlin.ByteArray) : FfiStreamEvent() {
+        companion object
+    }
+    
+    /**
+     * Error notification.
+     */
+    data class Error(
+        /**
+         * Error message.
+         */
+        val `message`: kotlin.String, 
+        /**
+         * Optional error code.
+         */
+        val `code`: kotlin.String?) : FfiStreamEvent() {
+        companion object
+    }
+    
+
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiStreamEvent : FfiConverterRustBuffer<FfiStreamEvent>{
+    override fun read(buf: ByteBuffer): FfiStreamEvent {
+        return when(buf.getInt()) {
+            1 -> FfiStreamEvent.Token(
+                FfiConverterString.read(buf),
+                )
+            2 -> FfiStreamEvent.Progress(
+                FfiConverterDouble.read(buf),
+                FfiConverterOptionalString.read(buf),
+                )
+            3 -> FfiStreamEvent.Data(
+                FfiConverterByteArray.read(buf),
+                )
+            4 -> FfiStreamEvent.Error(
+                FfiConverterString.read(buf),
+                FfiConverterOptionalString.read(buf),
+                )
+            else -> throw RuntimeException("invalid enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: FfiStreamEvent) = when(value) {
+        is FfiStreamEvent.Token -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`text`)
+            )
+        }
+        is FfiStreamEvent.Progress -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterDouble.allocationSize(value.`progress`)
+                + FfiConverterOptionalString.allocationSize(value.`details`)
+            )
+        }
+        is FfiStreamEvent.Data -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterByteArray.allocationSize(value.`data`)
+            )
+        }
+        is FfiStreamEvent.Error -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`message`)
+                + FfiConverterOptionalString.allocationSize(value.`code`)
+            )
+        }
+    }
+
+    override fun write(value: FfiStreamEvent, buf: ByteBuffer) {
+        when(value) {
+            is FfiStreamEvent.Token -> {
+                buf.putInt(1)
+                FfiConverterString.write(value.`text`, buf)
+                Unit
+            }
+            is FfiStreamEvent.Progress -> {
+                buf.putInt(2)
+                FfiConverterDouble.write(value.`progress`, buf)
+                FfiConverterOptionalString.write(value.`details`, buf)
+                Unit
+            }
+            is FfiStreamEvent.Data -> {
+                buf.putInt(3)
+                FfiConverterByteArray.write(value.`data`, buf)
+                Unit
+            }
+            is FfiStreamEvent.Error -> {
+                buf.putInt(4)
+                FfiConverterString.write(value.`message`, buf)
+                FfiConverterOptionalString.write(value.`code`, buf)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
@@ -6455,6 +8069,38 @@ public object FfiConverterOptionalByteArray: FfiConverterRustBuffer<kotlin.ByteA
 /**
  * @suppress
  */
+public object FfiConverterOptionalTypeFfiRegistrationInfo: FfiConverterRustBuffer<FfiRegistrationInfo?> {
+    override fun read(buf: ByteBuffer): FfiRegistrationInfo? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterTypeFfiRegistrationInfo.read(buf)
+    }
+
+    override fun allocationSize(value: FfiRegistrationInfo?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterTypeFfiRegistrationInfo.allocationSize(value)
+        }
+    }
+
+    override fun write(value: FfiRegistrationInfo?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterTypeFfiRegistrationInfo.write(value, buf)
+        }
+    }
+}
+
+
+
+
+/**
+ * @suppress
+ */
 public object FfiConverterOptionalTypeOAuth2Credentials: FfiConverterRustBuffer<OAuth2Credentials?> {
     override fun read(buf: ByteBuffer): OAuth2Credentials? {
         if (buf.get().toInt() == 0) {
@@ -6569,6 +8215,34 @@ public object FfiConverterSequenceString: FfiConverterRustBuffer<List<kotlin.Str
         buf.putInt(value.size)
         value.iterator().forEach {
             FfiConverterString.write(it, buf)
+        }
+    }
+}
+
+
+
+
+/**
+ * @suppress
+ */
+public object FfiConverterSequenceTypeLifecycleEvent: FfiConverterRustBuffer<List<LifecycleEvent>> {
+    override fun read(buf: ByteBuffer): List<LifecycleEvent> {
+        val len = buf.getInt()
+        return List<LifecycleEvent>(len) {
+            FfiConverterTypeLifecycleEvent.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<LifecycleEvent>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeLifecycleEvent.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<LifecycleEvent>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeLifecycleEvent.write(it, buf)
         }
     }
 }

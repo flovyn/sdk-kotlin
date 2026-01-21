@@ -1,11 +1,11 @@
 package ai.flovyn.sdk.e2e
 
-import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
+import org.testcontainers.utility.MountableFile
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.Duration
@@ -103,8 +103,8 @@ class TestHarness private constructor() {
             .withEnv("NATS__URL", "nats://host.docker.internal:$natsPort")
             .withEnv("SERVER_PORT", "8000")
             .withEnv("GRPC_SERVER_PORT", "9090")
-            // Mount config file and point to it
-            .withFileSystemBind(configFile.absolutePath, "/app/config.toml", BindMode.READ_ONLY)
+            // Copy config file to container (works with Podman, unlike bind mounts)
+            .withCopyFileToContainer(MountableFile.forHostPath(configFile.absolutePath), "/app/config.toml")
             .withEnv("CONFIG_FILE", "/app/config.toml")
             .withStartupTimeout(Duration.ofSeconds(120))
             .apply {
@@ -211,6 +211,7 @@ authorizer = "cedar"
     companion object {
         @Volatile
         private var instance: TestHarness? = null
+        private val instanceLogger = LoggerFactory.getLogger("TestHarness.Companion")
 
         /**
          * Get the singleton test harness instance.
@@ -218,9 +219,17 @@ authorizer = "cedar"
          */
         @Synchronized
         fun getInstance(): TestHarness {
-            return instance ?: TestHarness().also {
+            val existing = instance
+            if (existing != null) {
+                instanceLogger.info("[HARNESS] Reusing existing harness instance (ports: HTTP=${existing.serverHttpPort}, gRPC=${existing.serverGrpcPort})")
+                return existing
+            }
+
+            instanceLogger.info("[HARNESS] Creating NEW harness instance...")
+            return TestHarness().also {
                 it.start()
                 instance = it
+                instanceLogger.info("[HARNESS] New harness created (ports: HTTP=${it.serverHttpPort}, gRPC=${it.serverGrpcPort})")
 
                 // Register shutdown hook for cleanup
                 Runtime.getRuntime().addShutdownHook(Thread {

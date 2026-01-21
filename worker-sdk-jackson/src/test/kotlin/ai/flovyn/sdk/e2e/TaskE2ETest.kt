@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.slf4j.LoggerFactory
 import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.seconds
@@ -15,7 +14,6 @@ import kotlin.time.Duration.Companion.seconds
  * These tests require Docker and a running Flovyn server stack.
  * Run with: ./gradlew :worker-sdk-jackson:e2eTest
  */
-@EnabledIfSystemProperty(named = "FLOVYN_E2E_USE_DEV_INFRA", matches = "1")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TaskE2ETest {
 

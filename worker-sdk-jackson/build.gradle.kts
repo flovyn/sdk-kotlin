@@ -73,6 +73,5 @@ tasks.register<Test>("e2eTest") {
     }
 
     // Pass environment variables
-    systemProperty("FLOVYN_E2E_USE_DEV_INFRA", System.getenv("FLOVYN_E2E_USE_DEV_INFRA") ?: "1")
     systemProperty("FLOVYN_TEST_KEEP_CONTAINERS", System.getenv("FLOVYN_TEST_KEEP_CONTAINERS") ?: "0")
 }

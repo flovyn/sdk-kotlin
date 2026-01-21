@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.Disabled
 import org.slf4j.LoggerFactory
 import kotlin.test.assertNotNull
@@ -17,25 +16,28 @@ import kotlin.time.Duration.Companion.seconds
  * These tests require Docker and a running Flovyn server stack.
  * Run with: ./gradlew :worker-sdk-jackson:e2eTest
  */
-@EnabledIfSystemProperty(named = "FLOVYN_E2E_USE_DEV_INFRA", matches = "1")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class WorkflowE2ETest {
 
     private val logger = LoggerFactory.getLogger(WorkflowE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
+    private lateinit var testPrefix: String
 
     @BeforeAll
     fun setUp(): Unit = runBlocking {
-        env = E2ETestEnvironment.builder()
-            .registerWorkflow(EchoWorkflow())
+        val builder = E2ETestEnvironment.builder("WorkflowE2ETest")
+        testPrefix = builder.testPrefix
+
+        env = builder
+            .registerWorkflow(EchoWorkflow(testPrefix))
             .registerWorkflow(DoublerWorkflow())
-            .registerWorkflow(StatefulWorkflow())
-            .registerWorkflow(FailingWorkflow())
-            .registerWorkflow(RunOperationWorkflow())
-            .registerWorkflow(RandomWorkflow())
-            .registerWorkflow(SleepWorkflow())
-            .registerWorkflow(PromiseWorkflow())
-            .registerWorkflow(AwaitPromiseWorkflow())
+            .registerWorkflow(StatefulWorkflow(testPrefix))
+            .registerWorkflow(FailingWorkflow(testPrefix))
+            .registerWorkflow(RunOperationWorkflow(testPrefix))
+            .registerWorkflow(RandomWorkflow(testPrefix))
+            .registerWorkflow(SleepWorkflow(testPrefix))
+            .registerWorkflow(PromiseWorkflow(testPrefix))
+            .registerWorkflow(AwaitPromiseWorkflow(testPrefix))
             .buildAndStart()
     }
 
@@ -48,7 +50,7 @@ class WorkflowE2ETest {
     fun `test simple echo workflow execution`(): Unit = runBlocking {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
-                workflowKind = "echo-workflow",
+                workflowKind = env.workflowKind("echo-workflow"),
                 input = EchoInput(message = "Hello, World!")
             )
 
@@ -71,7 +73,8 @@ class WorkflowE2ETest {
             assertNotNull(executionId)
             logger.debug("Started doubler workflow: {}", executionId)
 
-            env.awaitCompletion(executionId, 10.seconds)
+            val result = env.awaitCompletion(executionId, 10.seconds)
+            kotlin.test.assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
         }
     }
 
@@ -79,7 +82,7 @@ class WorkflowE2ETest {
     fun `test stateful workflow execution`(): Unit = runBlocking {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
-                workflowKind = "stateful-workflow",
+                workflowKind = env.workflowKind("stateful-workflow"),
                 input = StatefulInput(key = "testKey", value = "testValue")
             )
 
@@ -94,7 +97,7 @@ class WorkflowE2ETest {
     fun `test run operation workflow`(): Unit = runBlocking {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
-                workflowKind = "run-operation-workflow",
+                workflowKind = env.workflowKind("run-operation-workflow"),
                 input = EchoInput(message = "hello world")
             )
 
@@ -110,7 +113,7 @@ class WorkflowE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionIds = (1..5).map { i ->
                 env.startWorkflow(
-                    workflowKind = "echo-workflow",
+                    workflowKind = env.workflowKind("echo-workflow"),
                     input = EchoInput(message = "Message $i")
                 )
             }
@@ -130,7 +133,7 @@ class WorkflowE2ETest {
     fun `test random workflow generates deterministic values`(): Unit = runBlocking {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
-                workflowKind = "random-workflow",
+                workflowKind = env.workflowKind("random-workflow"),
                 input = RandomInput(count = 5)
             )
 
@@ -145,7 +148,7 @@ class WorkflowE2ETest {
     fun `test sleep workflow with timer`(): Unit = runBlocking {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
-                workflowKind = "sleep-workflow",
+                workflowKind = env.workflowKind("sleep-workflow"),
                 input = SleepInput(durationMs = 100)
             )
 
@@ -161,7 +164,7 @@ class WorkflowE2ETest {
     fun `test promise workflow creates promise`(): Unit = runBlocking {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
-                workflowKind = "promise-workflow",
+                workflowKind = env.workflowKind("promise-workflow"),
                 input = PromiseInput(promiseName = "test-promise")
             )
 
@@ -181,7 +184,7 @@ class WorkflowE2ETest {
 
             // Start workflow that waits for a promise
             val executionId = env.startWorkflow(
-                workflowKind = "await-promise-workflow",
+                workflowKind = env.workflowKind("await-promise-workflow"),
                 input = AwaitPromiseInput(promiseName = promiseName)
             )
 

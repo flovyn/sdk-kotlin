@@ -4,6 +4,9 @@ import ai.flovyn.core.CoreBridge
 import ai.flovyn.sdk.client.WorkflowHook
 import ai.flovyn.sdk.serialization.JsonSerializer
 import ai.flovyn.sdk.workflow.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import uniffi.flovyn_worker_ffi.*
 import java.util.UUID
 
@@ -22,12 +25,21 @@ internal class WorkflowWorker(
     suspend fun run() {
         while (!coreBridge.isShutdownRequested()) {
             try {
-                val activation = coreBridge.pollWorkflowActivation() ?: continue
+                // Use IO dispatcher for blocking FFI call
+                val activation = withContext(Dispatchers.IO) {
+                    coreBridge.pollWorkflowActivation()
+                }
+
+                if (activation == null) {
+                    delay(10) // Small delay when no work available
+                    continue
+                }
+
                 processActivation(activation)
             } catch (e: Exception) {
                 if (coreBridge.isShutdownRequested()) break
-                // Log error and continue
                 e.printStackTrace()
+                delay(100)
             }
         }
     }
