@@ -55,16 +55,17 @@ class ChildWorkflowE2ETest {
                 timeout = 30.seconds
             )
 
+            // Log result for debugging in CI
+            logger.info("Parent workflow result: status={}, output={}, error={}", result.status, result.output, result.error)
+
             // Verify workflow completed
-            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete successfully")
+            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete successfully. Got: ${result.status}, error: ${result.error}")
 
             // Verify output
             assertNotNull(result.output, "Output should not be null")
-            assertEquals(21, result.output!!["originalValue"], "Original value should be preserved")
+            assertEquals(21, result.output!!["originalValue"], "Original value should be preserved. Got: ${result.output}")
             // Child doubles the value: 21 * 2 = 42
-            assertEquals(42, result.output!!["childResult"], "Child should double the value")
-
-            logger.debug("Parent workflow completed with output: {}", result.output)
+            assertEquals(42, result.output!!["childResult"], "Child should double the value. Got: ${result.output}")
         }
     }
 
@@ -124,19 +125,22 @@ class ChildWorkflowE2ETest {
                 timeout = 60.seconds
             )
 
+            // Log result for debugging in CI
+            logger.info("Nested workflow result: status={}, output={}, error={}", result.status, result.output, result.error)
+
             // Verify workflow completed
-            assertEquals(WorkflowStatus.COMPLETED, result.status, "Nested workflow should complete successfully")
+            assertEquals(WorkflowStatus.COMPLETED, result.status, "Nested workflow should complete successfully. Got: ${result.status}, error: ${result.error}")
 
             // Verify output
-            assertNotNull(result.output, "Output should not be null")
+            assertNotNull(result.output, "Output should not be null. status=${result.status}, error=${result.error}")
 
             // Result should contain "leaf:nested" from the deepest level
             val resultStr = result.output!!["result"] as? String
-            assertNotNull(resultStr, "Result string should be present")
-            assertTrue(resultStr.contains("leaf:nested"), "Result should contain 'leaf:nested'")
+            assertNotNull(resultStr, "Result string should be present. output=${result.output}")
+            assertTrue(resultStr.contains("leaf:nested"), "Result should contain 'leaf:nested'. Got: $resultStr")
 
             // Verify levels count matches depth
-            assertEquals(3, result.output!!["levels"], "Levels should be 3")
+            assertEquals(3, result.output!!["levels"], "Levels should be 3. Got output: ${result.output}")
 
             logger.debug("Nested child workflows completed with output: {}", result.output)
         }

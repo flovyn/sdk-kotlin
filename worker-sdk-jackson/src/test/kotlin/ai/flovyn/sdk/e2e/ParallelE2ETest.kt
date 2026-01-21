@@ -214,18 +214,21 @@ class ParallelE2ETest {
      */
     @Test
     fun `test mixed parallel operations`(): Unit = runBlocking {
-        withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
+        withTimeout(90.seconds) {
             val result = env.startAndAwait(
                 workflowKind = "mixed-parallel-workflow",
                 input = MixedParallelInput(),
                 timeout = 60.seconds
             )
 
-            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
-            assertNotNull(result.output, "Output should not be null")
+            // Log result for debugging in CI
+            logger.info("Mixed parallel workflow result: status={}, output={}, error={}", result.status, result.output, result.error)
+
+            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete. Got: ${result.status}, error: ${result.error}")
+            assertNotNull(result.output, "Output should not be null. status=${result.status}, error=${result.error}")
 
             // Verify success flag
-            assertEquals(true, result.output!!["success"], "Workflow should succeed")
+            assertEquals(true, result.output!!["success"], "Workflow should succeed. Got output: ${result.output}")
 
             // Phase 1: Two echo results
             @Suppress("UNCHECKED_CAST")

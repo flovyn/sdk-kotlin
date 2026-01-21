@@ -239,7 +239,7 @@ class E2ETestEnvironment internal constructor(
 
     companion object {
         val DEFAULT_AWAIT_TIMEOUT = 30.seconds
-        val WORKER_REGISTRATION_DELAY = 2.seconds
+        val WORKER_REGISTRATION_DELAY = 3.seconds
         val TEST_TIMEOUT = 60.seconds
 
         /**

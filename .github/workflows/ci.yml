@@ -70,6 +70,6 @@ jobs:
         run: docker pull rg.fr-par.scw.cloud/flovyn/flovyn-server:latest
 
       - name: Run E2E tests
-        run: ./gradlew :worker-sdk-jackson:e2eTest
+        run: ./gradlew :worker-sdk-jackson:e2eTest --info
         env:
           FLOVYN_SERVER_IMAGE: rg.fr-par.scw.cloud/flovyn/flovyn-server

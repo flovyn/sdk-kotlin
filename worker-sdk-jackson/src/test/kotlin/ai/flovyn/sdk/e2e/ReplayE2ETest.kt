@@ -95,7 +95,7 @@ class ReplayE2ETest {
      */
     @Test
     fun `test sequential tasks in loop`(): Unit = runBlocking {
-        withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
+        withTimeout(90.seconds) {
             val numbers = listOf(1, 2, 3, 4, 5)
             val result = env.startAndAwait(
                 workflowKind = "task-scheduling-workflow",
@@ -103,11 +103,15 @@ class ReplayE2ETest {
                 timeout = 60.seconds
             )
 
-            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
+            // Log result for debugging in CI
+            logger.info("Task scheduling workflow result: status={}, output={}, error={}", result.status, result.output, result.error)
+
+            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete. Got: ${result.status}, error: ${result.error}")
             assertNotNull(result.output, "Output should not be null")
 
             // Sum: 0+1=1, 1+2=3, 3+3=6, 6+4=10, 10+5=15
-            assertEquals(15, result.output!!["sum"], "Sum should be 15")
+            assertNotNull(result.output, "Output should not be null. status=${result.status}, error=${result.error}")
+            assertEquals(15, result.output!!["sum"], "Sum should be 15. Got output: ${result.output}")
 
             logger.debug("Sequential task loop completed with sum: {}", result.output!!["sum"])
         }

@@ -425,9 +425,11 @@ class NestedChildWorkflow : WorkflowDefinition<NestedInput, NestedOutput>() {
             kind = "nested-child-workflow",
             input = NestedInput(depth = input.depth - 1, value = input.value)
         )
+        val childResult = childOutput["result"] as String
+        val childLevels = (childOutput["levels"] as Number).toInt()
         return NestedOutput(
-            result = "level${input.depth}:${childOutput["result"]}",
-            levels = (childOutput["levels"] as Number).toInt() + 1
+            result = "level${input.depth}:$childResult",
+            levels = childLevels + 1
         )
     }
 }
