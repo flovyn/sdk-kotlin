@@ -31,6 +31,17 @@ class ChildWorkflowE2ETest {
             .registerWorkflow(ParentWithFailingChildWorkflow())
             .registerWorkflow(NestedChildWorkflow())
             .buildAndStart()
+
+        // Warmup: run a simple workflow to ensure worker is fully registered
+        // Child workflow tests are sensitive to timing - this ensures the server
+        // has fully processed the worker registration before we test child workflows
+        logger.info("Running warmup workflow...")
+        val warmup = env.startAndAwait(
+            workflowKind = "child-workflow",
+            input = ChildInput(value = 1),
+            timeout = 30.seconds
+        )
+        logger.info("Warmup complete: status={}", warmup.status)
     }
 
     @AfterAll
