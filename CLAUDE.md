@@ -4,22 +4,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build Commands
 
+Use [mise](https://mise.jdx.dev/) for all development tasks:
+
 ```bash
 # Build all modules
-./gradlew build
+mise run build
 
 # Run unit tests (excludes E2E tests)
-./gradlew test
+mise run test
 
 # Run E2E tests (requires Flovyn server or dev infrastructure)
-FLOVYN_E2E_USE_DEV_INFRA=1 ./gradlew :worker-sdk-jackson:e2eTest
+mise run test:e2e
 
-# Run a single test class
-./gradlew :worker-sdk:test --tests "ai.flovyn.sdk.workflow.SomeTest"
+# Check code
+mise run check
+
+# Clean build artifacts
+mise run clean
 
 # Run examples
-./gradlew :examples:runHelloWorld
-./gradlew :examples:runOrderProcessing
+mise run example:hello        # Hello world
+mise run example:order        # Order processing
+
+# Run a single test class (use gradlew directly)
+./gradlew :worker-sdk:test --tests "ai.flovyn.sdk.workflow.SomeTest"
 ```
 
 ## Architecture

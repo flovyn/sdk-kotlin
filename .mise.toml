@@ -1,2 +1,33 @@
+# Flovyn Kotlin SDK Development Tasks
+# Usage: mise run <task>
+
 [tools]
 java = "temurin-17"
+
+[tasks.build]
+description = "Build all modules"
+run = "./gradlew build"
+
+[tasks.test]
+description = "Run unit tests"
+run = "./gradlew test"
+
+[tasks."test:e2e"]
+description = "Run E2E tests (requires server)"
+run = "FLOVYN_E2E_USE_DEV_INFRA=1 ./gradlew :worker-sdk-jackson:e2eTest"
+
+[tasks.check]
+description = "Check code without building"
+run = "./gradlew check"
+
+[tasks.clean]
+description = "Clean build artifacts"
+run = "./gradlew clean"
+
+[tasks."example:hello"]
+description = "Run hello-world example"
+run = "./gradlew :examples:runHelloWorld"
+
+[tasks."example:order"]
+description = "Run order-processing example"
+run = "./gradlew :examples:runOrderProcessing"
