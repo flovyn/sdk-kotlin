@@ -73,3 +73,4 @@ jobs:
         run: ./gradlew :worker-sdk-jackson:e2eTest --info
         env:
           FLOVYN_SERVER_IMAGE: rg.fr-par.scw.cloud/flovyn/flovyn-server
+          FLOVYN_E2E_VERBOSE: "1"

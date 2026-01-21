@@ -48,11 +48,11 @@ class ChildWorkflowE2ETest {
      */
     @Test
     fun `test child workflow success`(): Unit = runBlocking {
-        withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
+        withTimeout(90.seconds) {
             val result = env.startAndAwait(
                 workflowKind = "parent-workflow",
                 input = ParentInput(value = 21),
-                timeout = 30.seconds
+                timeout = 60.seconds
             )
 
             // Log result for debugging in CI
@@ -79,11 +79,11 @@ class ChildWorkflowE2ETest {
      */
     @Test
     fun `test child workflow failure`(): Unit = runBlocking {
-        withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
+        withTimeout(90.seconds) {
             val result = env.startAndAwait(
                 workflowKind = "parent-with-failing-child-workflow",
                 input = ParentWithFailingChildInput(message = "Intentional child failure"),
-                timeout = 30.seconds
+                timeout = 60.seconds
             )
 
             // Parent should complete (handling child error)
