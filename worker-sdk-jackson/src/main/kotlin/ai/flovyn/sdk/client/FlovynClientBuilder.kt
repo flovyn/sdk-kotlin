@@ -41,6 +41,7 @@ class FlovynClientBuilder {
 
     @PublishedApi
     internal val workflowRegistry = WorkflowRegistry()
+
     @PublishedApi
     internal val taskRegistry = TaskRegistry()
     private val hooks = mutableListOf<WorkflowHook>()
@@ -79,19 +80,15 @@ class FlovynClientBuilder {
      * @param tokenEndpoint Token endpoint URL (e.g., "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/token")
      * @param scopes Optional scopes (space-separated)
      */
-    fun oauth2ClientCredentials(
-        clientId: String,
-        clientSecret: String,
-        tokenEndpoint: String,
-        scopes: String? = null
-    ) = apply {
-        this.oauth2Credentials = OAuth2Credentials(
-            clientId = clientId,
-            clientSecret = clientSecret,
-            tokenEndpoint = tokenEndpoint,
-            scopes = scopes
-        )
-    }
+    fun oauth2ClientCredentials(clientId: String, clientSecret: String, tokenEndpoint: String, scopes: String? = null) =
+        apply {
+            this.oauth2Credentials = OAuth2Credentials(
+                clientId = clientId,
+                clientSecret = clientSecret,
+                tokenEndpoint = tokenEndpoint,
+                scopes = scopes,
+            )
+        }
 
     /**
      * Set the worker ID.
@@ -138,9 +135,7 @@ class FlovynClientBuilder {
     /**
      * Register a typed workflow definition.
      */
-    inline fun <reified INPUT, reified OUTPUT> registerWorkflow(
-        workflow: WorkflowDefinition<INPUT, OUTPUT>
-    ) = apply {
+    inline fun <reified INPUT, reified OUTPUT> registerWorkflow(workflow: WorkflowDefinition<INPUT, OUTPUT>) = apply {
         workflowRegistry.register(workflow)
     }
 
@@ -155,9 +150,7 @@ class FlovynClientBuilder {
     /**
      * Register a typed task definition.
      */
-    inline fun <reified INPUT, reified OUTPUT> registerTask(
-        task: TaskDefinition<INPUT, OUTPUT>
-    ) = apply {
+    inline fun <reified INPUT, reified OUTPUT> registerTask(task: TaskDefinition<INPUT, OUTPUT>) = apply {
         taskRegistry.register(task)
     }
 
@@ -197,14 +190,14 @@ class FlovynClientBuilder {
             workerToken = workerToken,
             oauth2Credentials = oauth2Credentials,
             orgId = orgId,
-            workerId = workerId,
+            workerIdentity = workerId,
             queue = queue,
-            maxConcurrentWorkflows = maxConcurrentWorkflows,
-            maxConcurrentTasks = maxConcurrentTasks,
+            maxConcurrentWorkflowsConfig = maxConcurrentWorkflows,
+            maxConcurrentTasksConfig = maxConcurrentTasks,
             workflowRegistry = workflowRegistry,
             taskRegistry = taskRegistry,
             workflowHook = compositeHook,
-            serializer = serializer
+            serializer = serializer,
         )
     }
 }

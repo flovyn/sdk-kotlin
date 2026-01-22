@@ -13,8 +13,8 @@ description = "Run unit tests"
 run = "./gradlew test"
 
 [tasks."test:e2e"]
-description = "Run E2E tests (requires server)"
-run = "FLOVYN_E2E_USE_DEV_INFRA=1 ./gradlew :worker-sdk-jackson:e2eTest"
+description = "Run E2E tests (uses Testcontainers)"
+run = "./gradlew :worker-sdk-jackson:e2eTest"
 
 [tasks.check]
 description = "Check code without building"

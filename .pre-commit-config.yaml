@@ -1,0 +1,19 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ktlint
+        name: ktlint
+        description: Check Kotlin code style with ktlint
+        entry: ./gradlew ktlintCheck
+        language: system
+        types: [kotlin]
+        pass_filenames: false
+
+      - id: ktlint-format
+        name: ktlint-format
+        description: Auto-format Kotlin code with ktlint
+        entry: ./gradlew ktlintFormat
+        language: system
+        types: [kotlin]
+        pass_filenames: false
+        stages: [manual]

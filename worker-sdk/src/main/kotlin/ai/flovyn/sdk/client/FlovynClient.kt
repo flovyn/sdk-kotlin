@@ -4,9 +4,9 @@ import ai.flovyn.core.CoreBridge
 import ai.flovyn.core.CoreClientBridge
 import ai.flovyn.sdk.serialization.JsonSerializer
 import ai.flovyn.sdk.worker.TaskRegistry
+import ai.flovyn.sdk.worker.TaskWorker
 import ai.flovyn.sdk.worker.WorkflowRegistry
 import ai.flovyn.sdk.worker.WorkflowWorker
-import ai.flovyn.sdk.worker.TaskWorker
 import kotlinx.coroutines.*
 import uniffi.flovyn_worker_ffi.ClientConfig
 import uniffi.flovyn_worker_ffi.OAuth2Credentials
@@ -41,25 +41,75 @@ class FlovynClient(
     private val workerToken: String?,
     private val oauth2Credentials: OAuth2Credentials?,
     private val orgId: UUID?,
-    private val workerId: String,
+    private val workerIdentity: String,
     private val queue: String,
-    private val maxConcurrentWorkflows: Int,
-    private val maxConcurrentTasks: Int,
+    private val maxConcurrentWorkflowsConfig: Int,
+    private val maxConcurrentTasksConfig: Int,
     internal val workflowRegistry: WorkflowRegistry,
     internal val taskRegistry: TaskRegistry,
     private val workflowHook: WorkflowHook?,
-    private val serializer: JsonSerializer
+    private val serializer: JsonSerializer,
 ) : AutoCloseable {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var coreBridge: CoreBridge? = null
+
     @PublishedApi
     internal var coreClient: CoreClientBridge? = null
+        private set
     private var workflowWorker: WorkflowWorker? = null
     private var taskWorker: TaskWorker? = null
     private var started = false
+
     @PublishedApi
     internal val internalSerializer: JsonSerializer = serializer
+
+    // Lifecycle tracking
+    private var startedAtMs: Long = 0
+    private var registeredWorkerId: String? = null
+
+    /**
+     * Get the current worker status.
+     * Returns "running", "initializing", "shutting_down", etc.
+     */
+    val workerStatus: String
+        get() = coreBridge?.getStatus() ?: "not_started"
+
+    /**
+     * Get the time when the worker started, in milliseconds since Unix epoch.
+     */
+    val workerStartedAtMs: Long
+        get() = startedAtMs
+
+    /**
+     * Get the worker uptime in milliseconds.
+     */
+    val workerUptimeMs: Long
+        get() = if (startedAtMs > 0) System.currentTimeMillis() - startedAtMs else 0
+
+    /**
+     * Get the server-assigned worker ID (available after registration).
+     */
+    val workerId: String?
+        get() = registeredWorkerId
+
+    /**
+     * Check if the worker is currently running.
+     */
+    val isRunning: Boolean
+        get() = started && workerStatus == "running"
+
+    /**
+     * Maximum concurrent workflows setting.
+     */
+    val maxConcurrentWorkflows: Int
+        get() = maxConcurrentWorkflowsConfig
+
+    /**
+     * Maximum concurrent tasks setting.
+     */
+    val maxConcurrentTasks: Int
+        get() = maxConcurrentTasksConfig
 
     /**
      * Check if a workflow is registered.
@@ -98,7 +148,7 @@ class FlovynClient(
                 cancellable = def.cancellable,
                 timeoutSeconds = def.timeoutSeconds?.toUInt(),
                 inputSchema = def.inputSchema,
-                outputSchema = def.outputSchema
+                outputSchema = def.outputSchema,
             )
         }
 
@@ -113,8 +163,9 @@ class FlovynClient(
                 tags = def.tags,
                 cancellable = def.cancellable,
                 timeoutSeconds = def.timeoutSeconds?.toUInt(),
-                inputSchema = null, // Task schema support deferred
-                outputSchema = null
+                // Task schema support deferred
+                inputSchema = null,
+                outputSchema = null,
             )
         }
 
@@ -125,11 +176,11 @@ class FlovynClient(
             oauth2Credentials = oauth2Credentials,
             orgId = orgIdStr,
             queue = queue,
-            workerIdentity = workerId,
-            maxConcurrentWorkflowTasks = maxConcurrentWorkflows.toUInt(),
-            maxConcurrentTasks = maxConcurrentTasks.toUInt(),
+            workerIdentity = workerIdentity,
+            maxConcurrentWorkflowTasks = maxConcurrentWorkflowsConfig.toUInt(),
+            maxConcurrentTasks = maxConcurrentTasksConfig.toUInt(),
             workflowMetadata = workflowMetadata,
-            taskMetadata = taskMetadata
+            taskMetadata = taskMetadata,
         )
 
         // Create client configuration
@@ -138,28 +189,29 @@ class FlovynClient(
             serverUrl = serverUrl,
             clientToken = workerToken,
             oauth2Credentials = oauth2Credentials,
-            orgId = orgIdStr
+            orgId = orgIdStr,
         )
 
         // Initialize bridges
         coreBridge = CoreBridge.create(workerConfig)
         coreClient = CoreClientBridge.create(clientConfig)
 
-        // Register with server
-        coreBridge!!.register()
+        // Register with server and capture worker ID
+        registeredWorkerId = coreBridge!!.register()
+        startedAtMs = System.currentTimeMillis()
 
         // Create and start workers
         workflowWorker = WorkflowWorker(
             coreBridge = coreBridge!!,
             registry = workflowRegistry,
             hook = workflowHook,
-            serializer = serializer
+            serializer = serializer,
         )
 
         taskWorker = TaskWorker(
             coreBridge = coreBridge!!,
             registry = taskRegistry,
-            serializer = serializer
+            serializer = serializer,
         )
 
         // Start worker loops
@@ -167,6 +219,31 @@ class FlovynClient(
         scope.launch { taskWorker!!.run() }
 
         started = true
+    }
+
+    /**
+     * Wait for the worker to be ready and polling.
+     * This should be called after start() to ensure workers are ready
+     * before scheduling workflows.
+     *
+     * @param timeoutMs Maximum time to wait for ready state (default 30 seconds)
+     * @param pollIntervalMs Interval between status checks (default 50ms)
+     */
+    suspend fun awaitReady(timeoutMs: Long = 30_000, pollIntervalMs: Long = 50) {
+        if (!started) {
+            throw IllegalStateException("Client not started")
+        }
+
+        val startTime = System.currentTimeMillis()
+        while (System.currentTimeMillis() - startTime < timeoutMs) {
+            val status = workerStatus
+            if (status == "running") {
+                return
+            }
+            kotlinx.coroutines.delay(pollIntervalMs)
+        }
+
+        throw IllegalStateException("Worker did not become ready within ${timeoutMs}ms, status: $workerStatus")
     }
 
     /**
@@ -180,7 +257,7 @@ class FlovynClient(
     suspend fun startWorkflow(
         workflowKind: String,
         input: Any? = null,
-        options: StartWorkflowOptions = StartWorkflowOptions()
+        options: StartWorkflowOptions = StartWorkflowOptions(),
     ): UUID {
         val client = coreClient ?: throw IllegalStateException("Client not started")
 
@@ -189,7 +266,7 @@ class FlovynClient(
             input = serializer.serialize(input),
             queue = options.queue ?: queue,
             workflowVersion = options.workflowVersion,
-            idempotencyKey = options.idempotencyKey
+            idempotencyKey = options.idempotencyKey,
         )
 
         return UUID.fromString(response.workflowExecutionId)
@@ -207,20 +284,27 @@ class FlovynClient(
      * @param params Optional query parameters
      * @return The query result deserialized to type T
      */
-    inline fun <reified T> query(
-        workflowExecutionId: UUID,
-        queryName: String,
-        params: Any? = null
-    ): T {
+    inline fun <reified T> query(workflowExecutionId: UUID, queryName: String, params: Any? = null): T {
         val client = coreClient ?: throw IllegalStateException("Client not started")
 
         val resultBytes = client.queryWorkflow(
             workflowExecutionId = workflowExecutionId.toString(),
             queryName = queryName,
-            params = internalSerializer.serialize(params)
+            params = internalSerializer.serialize(params),
         )
 
         return internalSerializer.deserialize(resultBytes, T::class.java)
+    }
+
+    /**
+     * Get workflow events for a workflow execution.
+     *
+     * @param workflowExecutionId The workflow execution ID
+     * @return List of workflow event records
+     */
+    fun getWorkflowEvents(workflowExecutionId: UUID): List<uniffi.flovyn_worker_ffi.WorkflowEventRecord> {
+        val client = coreClient ?: throw IllegalStateException("Client not started")
+        return client.getWorkflowEvents(workflowExecutionId.toString())
     }
 
     /**
@@ -262,11 +346,7 @@ class FlovynClient(
      * @param promiseName The name of the promise (as passed to ctx.promise())
      * @param value The value to resolve the promise with
      */
-    fun resolvePromise(
-        workflowExecutionId: UUID,
-        promiseName: String,
-        value: Any?
-    ) {
+    fun resolvePromise(workflowExecutionId: UUID, promiseName: String, value: Any?) {
         val client = coreClient ?: throw IllegalStateException("Client not started")
 
         val promiseId = getPromiseId(workflowExecutionId, promiseName)
@@ -283,11 +363,7 @@ class FlovynClient(
      * @param promiseName The name of the promise (as passed to ctx.promise())
      * @param error The error message
      */
-    fun rejectPromise(
-        workflowExecutionId: UUID,
-        promiseName: String,
-        error: String
-    ) {
+    fun rejectPromise(workflowExecutionId: UUID, promiseName: String, error: String) {
         val client = coreClient ?: throw IllegalStateException("Client not started")
 
         val promiseId = getPromiseId(workflowExecutionId, promiseName)
@@ -310,7 +386,6 @@ class FlovynClient(
     override fun close() {
         stop()
     }
-
 }
 
 /**
@@ -319,5 +394,5 @@ class FlovynClient(
 data class StartWorkflowOptions(
     val queue: String? = null,
     val workflowVersion: String? = null,
-    val idempotencyKey: String? = null
+    val idempotencyKey: String? = null,
 )

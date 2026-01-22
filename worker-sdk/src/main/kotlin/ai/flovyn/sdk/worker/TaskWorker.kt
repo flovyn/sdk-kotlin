@@ -3,6 +3,9 @@ package ai.flovyn.sdk.worker
 import ai.flovyn.core.CoreBridge
 import ai.flovyn.sdk.serialization.JsonSerializer
 import ai.flovyn.sdk.task.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import uniffi.flovyn_worker_ffi.*
 
 /**
@@ -11,7 +14,7 @@ import uniffi.flovyn_worker_ffi.*
 internal class TaskWorker(
     private val coreBridge: CoreBridge,
     private val registry: TaskRegistry,
-    private val serializer: JsonSerializer
+    private val serializer: JsonSerializer,
 ) {
     /**
      * Run the task worker loop.
@@ -19,12 +22,21 @@ internal class TaskWorker(
     suspend fun run() {
         while (!coreBridge.isShutdownRequested()) {
             try {
-                val activation = coreBridge.pollTaskActivation() ?: continue
+                // Use IO dispatcher for blocking FFI call
+                val activation = withContext(Dispatchers.IO) {
+                    coreBridge.pollTaskActivation()
+                }
+
+                if (activation == null) {
+                    delay(10) // Small delay when no work available
+                    continue
+                }
+
                 processActivation(activation)
             } catch (e: Exception) {
                 if (coreBridge.isShutdownRequested()) break
-                // Log error and continue
                 e.printStackTrace()
+                delay(100) // Delay after error
             }
         }
     }
@@ -39,7 +51,7 @@ internal class TaskWorker(
             inputBytes = activation.input,
             attempt = activation.attempt.toInt(),
             maxRetries = activation.maxRetries.toInt(),
-            serializer = serializer
+            serializer = serializer,
         )
 
         try {
@@ -47,31 +59,25 @@ internal class TaskWorker(
 
             val completion = TaskCompletion.Completed(
                 taskExecutionId = activation.taskExecutionId,
-                output = serializer.serialize(result)
+                output = serializer.serialize(result),
             )
 
             coreBridge.completeTask(completion)
-
         } catch (e: TaskCancelledException) {
             val completion = TaskCompletion.Cancelled(
-                taskExecutionId = activation.taskExecutionId
+                taskExecutionId = activation.taskExecutionId,
             )
             coreBridge.completeTask(completion)
-
         } catch (e: Exception) {
             failTask(activation, e.message ?: "Unknown error", isRetryable(e, task.definition))
         }
     }
 
-    private fun failTask(
-        activation: TaskActivation,
-        error: String,
-        retryable: Boolean = true
-    ) {
+    private fun failTask(activation: TaskActivation, error: String, retryable: Boolean = true) {
         val completion = TaskCompletion.Failed(
             taskExecutionId = activation.taskExecutionId,
             error = error,
-            retryable = retryable
+            retryable = retryable,
         )
         coreBridge.completeTask(completion)
     }
@@ -80,7 +86,7 @@ internal class TaskWorker(
     private suspend fun executeTask(
         registered: RegisteredTask<*, *>,
         context: TaskContextImpl,
-        inputBytes: ByteArray
+        inputBytes: ByteArray,
     ): Any? {
         val task = registered.definition as TaskDefinition<Any?, Any?>
         val input = if (registered.inputType == Map::class.java) {
@@ -91,6 +97,7 @@ internal class TaskWorker(
         return task.execute(input, context)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun isRetryable(e: Exception, task: TaskDefinition<*, *>): Boolean {
         // By default, all exceptions are retryable
         // Specific non-retryable exceptions can be marked

@@ -1,12 +1,12 @@
 package ai.flovyn.sdk.e2e
 
-import org.testcontainers.containers.BindMode
+import org.slf4j.LoggerFactory
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
-import org.slf4j.LoggerFactory
+import org.testcontainers.utility.MountableFile
 import java.io.File
 import java.time.Duration
 import java.util.*
@@ -43,9 +43,11 @@ class TestHarness private constructor() {
         private set
     var orgSlug: String = "test-${UUID.randomUUID().toString().substring(0, 8)}"
         private set
+
     // Matches Rust: format!("flovyn_sk_test_{}", &Uuid::new_v4().to_string()[..16])
     var apiKey: String = "flovyn_sk_test_${UUID.randomUUID().toString().substring(0, 16)}"
         private set
+
     // Matches Rust: format!("flovyn_wk_test_{}", &Uuid::new_v4().to_string()[..16])
     var workerToken: String = "flovyn_wk_test_${UUID.randomUUID().toString().substring(0, 16)}"
         private set
@@ -103,8 +105,8 @@ class TestHarness private constructor() {
             .withEnv("NATS__URL", "nats://host.docker.internal:$natsPort")
             .withEnv("SERVER_PORT", "8000")
             .withEnv("GRPC_SERVER_PORT", "9090")
-            // Mount config file and point to it
-            .withFileSystemBind(configFile.absolutePath, "/app/config.toml", BindMode.READ_ONLY)
+            // Copy config file to container (works with Podman, unlike bind mounts)
+            .withCopyFileToContainer(MountableFile.forHostPath(configFile.absolutePath), "/app/config.toml")
             .withEnv("CONFIG_FILE", "/app/config.toml")
             .withStartupTimeout(Duration.ofSeconds(120))
             .apply {
@@ -171,7 +173,7 @@ class TestHarness private constructor() {
         }
 
         throw RuntimeException(
-            "Server health check timed out after 30 seconds.\nCheck logs with: docker logs ${server.containerId}"
+            "Server health check timed out after 30 seconds.\nCheck logs with: docker logs ${server.containerId}",
         )
     }
 
@@ -211,6 +213,7 @@ authorizer = "cedar"
     companion object {
         @Volatile
         private var instance: TestHarness? = null
+        private val instanceLogger = LoggerFactory.getLogger("TestHarness.Companion")
 
         /**
          * Get the singleton test harness instance.
@@ -218,14 +221,28 @@ authorizer = "cedar"
          */
         @Synchronized
         fun getInstance(): TestHarness {
-            return instance ?: TestHarness().also {
+            val existing = instance
+            if (existing != null) {
+                val httpPort = existing.serverHttpPort
+                val grpcPort = existing.serverGrpcPort
+                instanceLogger.info("[HARNESS] Reusing existing harness (HTTP=$httpPort, gRPC=$grpcPort)")
+                return existing
+            }
+
+            instanceLogger.info("[HARNESS] Creating NEW harness instance...")
+            return TestHarness().also {
                 it.start()
                 instance = it
+                instanceLogger.info(
+                    "[HARNESS] New harness created (ports: HTTP=${it.serverHttpPort}, gRPC=${it.serverGrpcPort})",
+                )
 
                 // Register shutdown hook for cleanup
-                Runtime.getRuntime().addShutdownHook(Thread {
-                    it.stop()
-                })
+                Runtime.getRuntime().addShutdownHook(
+                    Thread {
+                        it.stop()
+                    },
+                )
             }
         }
     }

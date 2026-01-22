@@ -10,7 +10,7 @@ import uniffi.flovyn_worker_ffi.*
  * for interacting with the Rust core.
  */
 class CoreBridge private constructor(
-    private val ffiWorker: CoreWorker
+    private val ffiWorker: CoreWorker,
 ) : AutoCloseable {
 
     /**

@@ -9,7 +9,7 @@ on:
 env:
   # Pin to specific sdk-rust release version
   # Update this when upgrading to a new FFI version
-  FFI_VERSION: v0.1.5
+  FFI_VERSION: v0.1.7
 
 jobs:
   build:
@@ -31,6 +31,9 @@ jobs:
 
       - name: Download native libraries from sdk-rust release
         run: ./bin/download-ffi.sh ${{ env.FFI_VERSION }} linux-x86_64 linux-aarch64 windows-x86_64
+
+      - name: Check code formatting (ktlint)
+        run: ./gradlew ktlintCheck
 
       - name: Build
         run: ./gradlew build
@@ -72,5 +75,4 @@ jobs:
       - name: Run E2E tests
         run: ./gradlew :worker-sdk-jackson:e2eTest
         env:
-          FLOVYN_E2E_USE_DEV_INFRA: "1"
           FLOVYN_SERVER_IMAGE: rg.fr-par.scw.cloud/flovyn/flovyn-server

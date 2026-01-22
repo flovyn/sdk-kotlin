@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.9.22" apply false
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
 allprojects {
@@ -13,6 +14,18 @@ allprojects {
 
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        version.set("1.1.1")
+        android.set(false)
+        outputToConsole.set(true)
+        ignoreFailures.set(false)
+        filter {
+            exclude("**/generated/**")
+            exclude("**/uniffi/**")
+        }
+    }
 
     configure<JavaPluginExtension> {
         toolchain {

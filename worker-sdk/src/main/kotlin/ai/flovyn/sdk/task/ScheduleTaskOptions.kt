@@ -26,7 +26,7 @@ data class ScheduleTaskOptions(
      * Priority offset in seconds.
      * Higher values = lower priority (executed later).
      */
-    val prioritySeconds: Int = 0
+    val prioritySeconds: Int = 0,
 ) {
     companion object {
         val DEFAULT = ScheduleTaskOptions()

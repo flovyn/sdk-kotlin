@@ -10,7 +10,7 @@ import uniffi.flovyn_worker_ffi.*
  * for client operations like starting workflows.
  */
 class CoreClientBridge private constructor(
-    private val ffiClient: CoreClient
+    private val ffiClient: CoreClient,
 ) : AutoCloseable {
 
     /**
@@ -28,14 +28,14 @@ class CoreClientBridge private constructor(
         input: ByteArray,
         queue: String,
         workflowVersion: String? = null,
-        idempotencyKey: String? = null
+        idempotencyKey: String? = null,
     ): StartWorkflowResponse {
         return ffiClient.startWorkflow(
             workflowKind = workflowKind,
             input = input,
             queue = queue,
             workflowVersion = workflowVersion,
-            idempotencyKey = idempotencyKey
+            idempotencyKey = idempotencyKey,
         )
     }
 
@@ -57,11 +57,7 @@ class CoreClientBridge private constructor(
      * @param params Query parameters as JSON bytes
      * @return The query result as JSON bytes
      */
-    fun queryWorkflow(
-        workflowExecutionId: String,
-        queryName: String,
-        params: ByteArray
-    ): ByteArray {
+    fun queryWorkflow(workflowExecutionId: String, queryName: String, params: ByteArray): ByteArray {
         return ffiClient.queryWorkflow(workflowExecutionId, queryName, params)
     }
 

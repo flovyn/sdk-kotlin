@@ -13,7 +13,7 @@ mise run build
 # Run unit tests (excludes E2E tests)
 mise run test
 
-# Run E2E tests (requires Flovyn server or dev infrastructure)
+# Run E2E tests (uses Testcontainers - requires Docker and native library)
 mise run test:e2e
 
 # Check code
@@ -28,6 +28,10 @@ mise run example:order        # Order processing
 
 # Run a single test class (use gradlew directly)
 ./gradlew :worker-sdk:test --tests "ai.flovyn.sdk.workflow.SomeTest"
+
+# Code formatting with ktlint
+./gradlew ktlintCheck              # Check code style
+./gradlew ktlintFormat             # Auto-format code
 ```
 
 ## Architecture
@@ -65,9 +69,27 @@ This is the official Kotlin SDK for Flovyn, a workflow orchestration platform wi
 
 ## Native Library Development
 
-Native binaries come from the `flovyn/sdk-rust` repository and are downloaded during CI. To develop locally with custom bindings:
-1. Build the Rust FFI library
-2. Place platform binaries in `worker-native/src/main/resources/natives/{platform}/`
-3. Copy Kotlin bindings to `worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi/`
+Native binaries come from the `flovyn/sdk-rust` repository. Use the provided scripts to get or build the native library:
 
-Alternatively, set `uniffi.component.flovyn_worker_ffi.libraryOverride` or `jna.library.path` system properties.
+```bash
+# Option 1: Build from local sdk-rust (requires sdk-rust at ../sdk-rust)
+./bin/dev/update-native.sh
+
+# Option 2: Download from GitHub releases (Linux/Windows only)
+./bin/dev/update-native.sh --download         # Latest release
+./bin/dev/update-native.sh --download v0.1.7  # Specific version
+
+# Option 3: Regenerate Kotlin bindings only (if you already have the library)
+./bin/dev/update-native.sh --bindings
+
+# Option 4: Direct download from GitHub releases
+./bin/download-ffi.sh v0.1.7 linux-x86_64
+```
+
+The scripts place:
+- Native libraries in `worker-native/src/main/resources/natives/{platform}/`
+- Kotlin bindings in `worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi/`
+
+Supported platforms: `linux-x86_64`, `linux-aarch64`, `macos-x86_64`, `macos-aarch64`, `windows-x86_64`
+
+**Note**: macOS builds are not available from GitHub releases and must be built locally from sdk-rust.

@@ -29,11 +29,7 @@ interface WorkflowHook {
      * @param workflowKind The kind of workflow
      * @param input The workflow input
      */
-    suspend fun onWorkflowStarted(
-        workflowExecutionId: UUID,
-        workflowKind: String,
-        input: Map<String, Any?>
-    ) {}
+    suspend fun onWorkflowStarted(workflowExecutionId: UUID, workflowKind: String, input: Map<String, Any?>) {}
 
     /**
      * Called when a workflow execution completes successfully.
@@ -42,11 +38,7 @@ interface WorkflowHook {
      * @param workflowKind The kind of workflow
      * @param result The workflow result
      */
-    suspend fun onWorkflowCompleted(
-        workflowExecutionId: UUID,
-        workflowKind: String,
-        result: Any?
-    ) {}
+    suspend fun onWorkflowCompleted(workflowExecutionId: UUID, workflowKind: String, result: Any?) {}
 
     /**
      * Called when a workflow execution fails.
@@ -55,11 +47,7 @@ interface WorkflowHook {
      * @param workflowKind The kind of workflow
      * @param error The exception that caused the failure
      */
-    suspend fun onWorkflowFailed(
-        workflowExecutionId: UUID,
-        workflowKind: String,
-        error: Throwable
-    ) {}
+    suspend fun onWorkflowFailed(workflowExecutionId: UUID, workflowKind: String, error: Throwable) {}
 
     /**
      * Called when a task is scheduled from a workflow.
@@ -69,57 +57,35 @@ interface WorkflowHook {
      * @param kind The type of task
      * @param input The task input
      */
-    suspend fun onTaskScheduled(
-        workflowExecutionId: UUID,
-        taskId: String,
-        kind: String,
-        input: Any?
-    ) {}
+    suspend fun onTaskScheduled(workflowExecutionId: UUID, taskId: String, kind: String, input: Any?) {}
 }
 
 /**
  * Composite hook that delegates to multiple hooks.
  */
 class CompositeWorkflowHook(
-    private val hooks: List<WorkflowHook>
+    private val hooks: List<WorkflowHook>,
 ) : WorkflowHook {
 
-    override suspend fun onWorkflowStarted(
-        workflowExecutionId: UUID,
-        workflowKind: String,
-        input: Map<String, Any?>
-    ) {
+    override suspend fun onWorkflowStarted(workflowExecutionId: UUID, workflowKind: String, input: Map<String, Any?>) {
         hooks.forEach { hook ->
             runCatching { hook.onWorkflowStarted(workflowExecutionId, workflowKind, input) }
         }
     }
 
-    override suspend fun onWorkflowCompleted(
-        workflowExecutionId: UUID,
-        workflowKind: String,
-        result: Any?
-    ) {
+    override suspend fun onWorkflowCompleted(workflowExecutionId: UUID, workflowKind: String, result: Any?) {
         hooks.forEach { hook ->
             runCatching { hook.onWorkflowCompleted(workflowExecutionId, workflowKind, result) }
         }
     }
 
-    override suspend fun onWorkflowFailed(
-        workflowExecutionId: UUID,
-        workflowKind: String,
-        error: Throwable
-    ) {
+    override suspend fun onWorkflowFailed(workflowExecutionId: UUID, workflowKind: String, error: Throwable) {
         hooks.forEach { hook ->
             runCatching { hook.onWorkflowFailed(workflowExecutionId, workflowKind, error) }
         }
     }
 
-    override suspend fun onTaskScheduled(
-        workflowExecutionId: UUID,
-        taskId: String,
-        kind: String,
-        input: Any?
-    ) {
+    override suspend fun onTaskScheduled(workflowExecutionId: UUID, taskId: String, kind: String, input: Any?) {
         hooks.forEach { hook ->
             runCatching { hook.onTaskScheduled(workflowExecutionId, taskId, kind, input) }
         }

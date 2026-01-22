@@ -4,6 +4,9 @@ import ai.flovyn.core.CoreBridge
 import ai.flovyn.sdk.client.WorkflowHook
 import ai.flovyn.sdk.serialization.JsonSerializer
 import ai.flovyn.sdk.workflow.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import uniffi.flovyn_worker_ffi.*
 import java.util.UUID
 
@@ -14,7 +17,7 @@ internal class WorkflowWorker(
     private val coreBridge: CoreBridge,
     private val registry: WorkflowRegistry,
     private val hook: WorkflowHook?,
-    private val serializer: JsonSerializer
+    private val serializer: JsonSerializer,
 ) {
     /**
      * Run the workflow worker loop.
@@ -22,12 +25,21 @@ internal class WorkflowWorker(
     suspend fun run() {
         while (!coreBridge.isShutdownRequested()) {
             try {
-                val activation = coreBridge.pollWorkflowActivation() ?: continue
+                // Use IO dispatcher for blocking FFI call
+                val activation = withContext(Dispatchers.IO) {
+                    coreBridge.pollWorkflowActivation()
+                }
+
+                if (activation == null) {
+                    delay(10) // Small delay when no work available
+                    continue
+                }
+
                 processActivation(activation)
             } catch (e: Exception) {
                 if (coreBridge.isShutdownRequested()) break
-                // Log error and continue
                 e.printStackTrace()
+                delay(100)
             }
         }
     }
@@ -54,7 +66,7 @@ internal class WorkflowWorker(
             hook?.onWorkflowStarted(
                 workflowExecutionId,
                 activation.workflowKind,
-                inputMap
+                inputMap,
             )
 
             // Execute workflow
@@ -63,51 +75,44 @@ internal class WorkflowWorker(
             // Complete workflow - FFI context has accumulated commands
             coreBridge.completeWorkflowActivation(
                 ffiContext,
-                WorkflowCompletionStatus.Completed(serializer.serialize(result))
+                WorkflowCompletionStatus.Completed(serializer.serialize(result)),
             )
 
             hook?.onWorkflowCompleted(workflowExecutionId, activation.workflowKind, result)
-
         } catch (e: WorkflowSuspendedException) {
             // Workflow needs to suspend - FFI context has accumulated commands
             coreBridge.completeWorkflowActivation(
                 ffiContext,
-                WorkflowCompletionStatus.Suspended
+                WorkflowCompletionStatus.Suspended,
             )
-
         } catch (e: WorkflowCancelledException) {
             // Workflow was cancelled
             coreBridge.completeWorkflowActivation(
                 ffiContext,
-                WorkflowCompletionStatus.Cancelled(e.message ?: "Workflow cancelled")
+                WorkflowCompletionStatus.Cancelled(e.message ?: "Workflow cancelled"),
             )
-
         } catch (e: DeterminismViolationException) {
             // Determinism violation detected by FFI context
             val workflowExecutionId = UUID.fromString(ffiContext.workflowExecutionId())
             hook?.onWorkflowFailed(workflowExecutionId, activation.workflowKind, e)
             coreBridge.completeWorkflowActivation(
                 ffiContext,
-                WorkflowCompletionStatus.Failed("Determinism violation: ${e.message}")
+                WorkflowCompletionStatus.Failed("Determinism violation: ${e.message}"),
             )
-
         } catch (e: Exception) {
             val workflowExecutionId = UUID.fromString(ffiContext.workflowExecutionId())
             hook?.onWorkflowFailed(workflowExecutionId, activation.workflowKind, e)
             coreBridge.completeWorkflowActivation(
                 ffiContext,
-                WorkflowCompletionStatus.Failed(e.message ?: "Unknown error")
+                WorkflowCompletionStatus.Failed(e.message ?: "Unknown error"),
             )
         }
     }
 
-    private fun failActivation(
-        activation: WorkflowActivation,
-        error: String
-    ) {
+    private fun failActivation(activation: WorkflowActivation, error: String) {
         coreBridge.completeWorkflowActivation(
             activation.context,
-            WorkflowCompletionStatus.Failed(error)
+            WorkflowCompletionStatus.Failed(error),
         )
     }
 
@@ -115,7 +120,7 @@ internal class WorkflowWorker(
     private suspend fun executeWorkflow(
         registered: RegisteredWorkflow<*, *>,
         context: WorkflowContextImpl,
-        inputMap: Map<String, Any?>
+        inputMap: Map<String, Any?>,
     ): Any? {
         val workflow = registered.definition as WorkflowDefinition<Any?, Any?>
         val input = if (registered.inputType == Map::class.java) {
@@ -123,7 +128,7 @@ internal class WorkflowWorker(
         } else {
             serializer.deserialize(
                 serializer.serialize(inputMap),
-                registered.inputType
+                registered.inputType,
             )
         }
         return workflow.execute(context, input)

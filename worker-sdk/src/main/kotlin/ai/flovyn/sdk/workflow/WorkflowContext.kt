@@ -71,7 +71,7 @@ interface WorkflowContext {
         kind: String,
         input: Any?,
         outputClass: KClass<T>,
-        options: ScheduleTaskOptions = ScheduleTaskOptions.DEFAULT
+        options: ScheduleTaskOptions = ScheduleTaskOptions.DEFAULT,
     ): T
 
     /**
@@ -82,11 +82,7 @@ interface WorkflowContext {
      * @param outputClass The class of the expected output type
      * @return A Deferred that resolves to the task output
      */
-    suspend fun <T : Any> scheduleAsync(
-        kind: String,
-        input: Any?,
-        outputClass: KClass<T>
-    ): Deferred<T>
+    suspend fun <T : Any> scheduleAsync(kind: String, input: Any?, outputClass: KClass<T>): Deferred<T>
 
     /**
      * Schedule a child workflow for execution.
@@ -103,7 +99,7 @@ interface WorkflowContext {
         kind: String,
         input: Any? = null,
         queue: String = "",
-        prioritySeconds: Int = 0
+        prioritySeconds: Int = 0,
     ): T
 
     /**
@@ -121,7 +117,7 @@ interface WorkflowContext {
         kind: String,
         input: Any? = null,
         queue: String = "",
-        prioritySeconds: Int = 0
+        prioritySeconds: Int = 0,
     ): Deferred<T>
 
     // --- State Management ---
@@ -187,14 +183,12 @@ interface WorkflowContext {
 /**
  * Await all deferreds and return their results.
  */
-suspend fun <T> awaitAll(vararg deferreds: Deferred<T>): List<T> =
-    deferreds.map { it.await() }
+suspend fun <T> awaitAll(vararg deferreds: Deferred<T>): List<T> = deferreds.map { it.await() }
 
 /**
  * Await all deferreds and return their results.
  */
-suspend fun <T> awaitAll(deferreds: List<Deferred<T>>): List<T> =
-    deferreds.map { it.await() }
+suspend fun <T> awaitAll(deferreds: List<Deferred<T>>): List<T> = deferreds.map { it.await() }
 
 /**
  * Schedule a task for execution with reified type parameter.
@@ -202,22 +196,17 @@ suspend fun <T> awaitAll(deferreds: List<Deferred<T>>): List<T> =
 suspend inline fun <reified T : Any> WorkflowContext.schedule(
     kind: String,
     input: Any?,
-    options: ScheduleTaskOptions = ScheduleTaskOptions.DEFAULT
+    options: ScheduleTaskOptions = ScheduleTaskOptions.DEFAULT,
 ): T = schedule(kind, input, T::class, options)
 
 /**
  * Schedule a task for execution with maxRetries parameter.
  */
-suspend inline fun <reified T : Any> WorkflowContext.schedule(
-    kind: String,
-    input: Any?,
-    maxRetries: Int
-): T = schedule(kind, input, T::class, ScheduleTaskOptions(maxRetries = maxRetries))
+suspend inline fun <reified T : Any> WorkflowContext.schedule(kind: String, input: Any?, maxRetries: Int): T =
+    schedule(kind, input, T::class, ScheduleTaskOptions(maxRetries = maxRetries))
 
 /**
  * Schedule a task for async execution with reified type parameter.
  */
-suspend inline fun <reified T : Any> WorkflowContext.scheduleAsync(
-    kind: String,
-    input: Any?
-): Deferred<T> = scheduleAsync(kind, input, T::class)
+suspend inline fun <reified T : Any> WorkflowContext.scheduleAsync(kind: String, input: Any?): Deferred<T> =
+    scheduleAsync(kind, input, T::class)

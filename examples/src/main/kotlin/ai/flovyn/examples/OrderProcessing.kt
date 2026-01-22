@@ -15,53 +15,53 @@ import java.util.UUID
 data class OrderInput(
     val customerId: String,
     val items: List<OrderItem>,
-    val shippingAddress: String
+    val shippingAddress: String,
 )
 
 data class OrderItem(
     val productId: String,
     val quantity: Int,
-    val pricePerUnit: Double
+    val pricePerUnit: Double,
 )
 
 data class OrderOutput(
     val orderId: String,
     val status: String,
     val totalAmount: Double,
-    val trackingNumber: String?
+    val trackingNumber: String?,
 )
 
 data class PaymentInput(
     val orderId: String,
     val amount: Double,
-    val customerId: String
+    val customerId: String,
 )
 
 data class PaymentResult(
     val success: Boolean,
     val transactionId: String?,
-    val errorMessage: String?
+    val errorMessage: String?,
 )
 
 data class InventoryInput(
     val orderId: String,
-    val items: List<OrderItem>
+    val items: List<OrderItem>,
 )
 
 data class InventoryResult(
     val reserved: Boolean,
-    val failedItems: List<String>
+    val failedItems: List<String>,
 )
 
 data class ShippingInput(
     val orderId: String,
     val items: List<OrderItem>,
-    val shippingAddress: String
+    val shippingAddress: String,
 )
 
 data class ShippingResult(
     val trackingNumber: String,
-    val estimatedDelivery: String
+    val estimatedDelivery: String,
 )
 
 // --- Tasks ---
@@ -79,7 +79,7 @@ class ProcessPaymentTask : TaskDefinition<PaymentInput, PaymentResult>() {
         maxAttempts = 3,
         initialDelayMs = 1000,
         maxDelayMs = 10000,
-        backoffMultiplier = 2.0
+        backoffMultiplier = 2.0,
     )
 
     override suspend fun execute(input: PaymentInput, context: TaskContext): PaymentResult {
@@ -96,7 +96,7 @@ class ProcessPaymentTask : TaskDefinition<PaymentInput, PaymentResult>() {
         return PaymentResult(
             success = true,
             transactionId = "txn-${UUID.randomUUID()}",
-            errorMessage = null
+            errorMessage = null,
         )
     }
 }
@@ -119,13 +119,13 @@ class ReserveInventoryTask : TaskDefinition<InventoryInput, InventoryResult>() {
         input.items.forEachIndexed { index, item ->
             context.reportProgress(
                 (index + 1.0) / totalItems,
-                "Checking item ${item.productId}"
+                "Checking item ${item.productId}",
             )
         }
 
         return InventoryResult(
             reserved = true,
-            failedItems = emptyList()
+            failedItems = emptyList(),
         )
     }
 }
@@ -149,7 +149,7 @@ class ArrangeShippingTask : TaskDefinition<ShippingInput, ShippingResult>() {
 
         return ShippingResult(
             trackingNumber = "TRK-${UUID.randomUUID().toString().take(8).uppercase()}",
-            estimatedDelivery = "3-5 business days"
+            estimatedDelivery = "3-5 business days",
         )
     }
 }
@@ -191,8 +191,8 @@ class OrderProcessingWorkflow : WorkflowDefinition<OrderInput, OrderOutput>() {
             kind = "reserve-inventory",
             input = InventoryInput(
                 orderId = orderId,
-                items = input.items
-            )
+                items = input.items,
+            ),
         )
 
         if (!inventoryResult.reserved) {
@@ -201,7 +201,7 @@ class OrderProcessingWorkflow : WorkflowDefinition<OrderInput, OrderOutput>() {
                 orderId = orderId,
                 status = "failed",
                 totalAmount = totalAmount,
-                trackingNumber = null
+                trackingNumber = null,
             )
         }
 
@@ -212,11 +212,11 @@ class OrderProcessingWorkflow : WorkflowDefinition<OrderInput, OrderOutput>() {
             input = PaymentInput(
                 orderId = orderId,
                 amount = totalAmount,
-                customerId = input.customerId
+                customerId = input.customerId,
             ),
             options = ScheduleTaskOptions(
-                timeoutSeconds = 60
-            )
+                timeoutSeconds = 60,
+            ),
         )
 
         if (!paymentResult.success) {
@@ -225,7 +225,7 @@ class OrderProcessingWorkflow : WorkflowDefinition<OrderInput, OrderOutput>() {
                 orderId = orderId,
                 status = "payment-failed",
                 totalAmount = totalAmount,
-                trackingNumber = null
+                trackingNumber = null,
             )
         }
 
@@ -238,8 +238,8 @@ class OrderProcessingWorkflow : WorkflowDefinition<OrderInput, OrderOutput>() {
             input = ShippingInput(
                 orderId = orderId,
                 items = input.items,
-                shippingAddress = input.shippingAddress
-            )
+                shippingAddress = input.shippingAddress,
+            ),
         )
 
         // Update final status
@@ -250,7 +250,7 @@ class OrderProcessingWorkflow : WorkflowDefinition<OrderInput, OrderOutput>() {
             orderId = orderId,
             status = "completed",
             totalAmount = totalAmount,
-            trackingNumber = shippingResult.trackingNumber
+            trackingNumber = shippingResult.trackingNumber,
         )
     }
 }
@@ -278,7 +278,7 @@ fun main() {
     val tasks = listOf(
         ProcessPaymentTask(),
         ReserveInventoryTask(),
-        ArrangeShippingTask()
+        ArrangeShippingTask(),
     )
 
     println("Tasks:")

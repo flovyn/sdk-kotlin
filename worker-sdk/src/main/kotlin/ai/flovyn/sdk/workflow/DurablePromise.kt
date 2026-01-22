@@ -30,12 +30,12 @@ interface DurablePromise<T> {
  */
 class PromiseRejectedException(
     val promiseName: String,
-    val reason: String
+    val reason: String,
 ) : Exception("Promise '$promiseName' was rejected: $reason")
 
 /**
  * Exception thrown when a promise times out.
  */
 class PromiseTimeoutException(
-    val promiseName: String
+    val promiseName: String,
 ) : Exception("Promise '$promiseName' timed out")

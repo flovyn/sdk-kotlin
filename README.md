@@ -314,8 +314,8 @@ The SDK includes native libraries for FFI communication with the Flovyn core. Su
 # Run unit tests
 ./gradlew test
 
-# Run E2E tests (requires Flovyn server)
-FLOVYN_E2E_USE_DEV_INFRA=1 ./gradlew :worker-sdk-jackson:e2eTest
+# Run E2E tests (uses Testcontainers)
+./gradlew :worker-sdk-jackson:e2eTest
 
 # Run examples
 ./gradlew :examples:run

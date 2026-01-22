@@ -96,7 +96,7 @@ data class RetryConfig(
     val maxAttempts: Int = 3,
     val initialDelayMs: Long = 1000,
     val maxDelayMs: Long = 60000,
-    val backoffMultiplier: Double = 2.0
+    val backoffMultiplier: Double = 2.0,
 ) {
     companion object {
         val DEFAULT = RetryConfig()
