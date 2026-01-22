@@ -28,6 +28,10 @@ mise run example:order        # Order processing
 
 # Run a single test class (use gradlew directly)
 ./gradlew :worker-sdk:test --tests "ai.flovyn.sdk.workflow.SomeTest"
+
+# Code formatting with ktlint
+./gradlew ktlintCheck              # Check code style
+./gradlew ktlintFormat             # Auto-format code
 ```
 
 ## Architecture

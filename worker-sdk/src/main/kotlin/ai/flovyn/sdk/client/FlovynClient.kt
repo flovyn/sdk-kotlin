@@ -4,9 +4,9 @@ import ai.flovyn.core.CoreBridge
 import ai.flovyn.core.CoreClientBridge
 import ai.flovyn.sdk.serialization.JsonSerializer
 import ai.flovyn.sdk.worker.TaskRegistry
+import ai.flovyn.sdk.worker.TaskWorker
 import ai.flovyn.sdk.worker.WorkflowRegistry
 import ai.flovyn.sdk.worker.WorkflowWorker
-import ai.flovyn.sdk.worker.TaskWorker
 import kotlinx.coroutines.*
 import uniffi.flovyn_worker_ffi.ClientConfig
 import uniffi.flovyn_worker_ffi.OAuth2Credentials
@@ -48,17 +48,19 @@ class FlovynClient(
     internal val workflowRegistry: WorkflowRegistry,
     internal val taskRegistry: TaskRegistry,
     private val workflowHook: WorkflowHook?,
-    private val serializer: JsonSerializer
+    private val serializer: JsonSerializer,
 ) : AutoCloseable {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var coreBridge: CoreBridge? = null
+
     @PublishedApi
     internal var coreClient: CoreClientBridge? = null
         private set
     private var workflowWorker: WorkflowWorker? = null
     private var taskWorker: TaskWorker? = null
     private var started = false
+
     @PublishedApi
     internal val internalSerializer: JsonSerializer = serializer
 
@@ -146,7 +148,7 @@ class FlovynClient(
                 cancellable = def.cancellable,
                 timeoutSeconds = def.timeoutSeconds?.toUInt(),
                 inputSchema = def.inputSchema,
-                outputSchema = def.outputSchema
+                outputSchema = def.outputSchema,
             )
         }
 
@@ -161,8 +163,9 @@ class FlovynClient(
                 tags = def.tags,
                 cancellable = def.cancellable,
                 timeoutSeconds = def.timeoutSeconds?.toUInt(),
-                inputSchema = null, // Task schema support deferred
-                outputSchema = null
+                // Task schema support deferred
+                inputSchema = null,
+                outputSchema = null,
             )
         }
 
@@ -177,7 +180,7 @@ class FlovynClient(
             maxConcurrentWorkflowTasks = maxConcurrentWorkflowsConfig.toUInt(),
             maxConcurrentTasks = maxConcurrentTasksConfig.toUInt(),
             workflowMetadata = workflowMetadata,
-            taskMetadata = taskMetadata
+            taskMetadata = taskMetadata,
         )
 
         // Create client configuration
@@ -186,7 +189,7 @@ class FlovynClient(
             serverUrl = serverUrl,
             clientToken = workerToken,
             oauth2Credentials = oauth2Credentials,
-            orgId = orgIdStr
+            orgId = orgIdStr,
         )
 
         // Initialize bridges
@@ -202,13 +205,13 @@ class FlovynClient(
             coreBridge = coreBridge!!,
             registry = workflowRegistry,
             hook = workflowHook,
-            serializer = serializer
+            serializer = serializer,
         )
 
         taskWorker = TaskWorker(
             coreBridge = coreBridge!!,
             registry = taskRegistry,
-            serializer = serializer
+            serializer = serializer,
         )
 
         // Start worker loops
@@ -254,7 +257,7 @@ class FlovynClient(
     suspend fun startWorkflow(
         workflowKind: String,
         input: Any? = null,
-        options: StartWorkflowOptions = StartWorkflowOptions()
+        options: StartWorkflowOptions = StartWorkflowOptions(),
     ): UUID {
         val client = coreClient ?: throw IllegalStateException("Client not started")
 
@@ -263,7 +266,7 @@ class FlovynClient(
             input = serializer.serialize(input),
             queue = options.queue ?: queue,
             workflowVersion = options.workflowVersion,
-            idempotencyKey = options.idempotencyKey
+            idempotencyKey = options.idempotencyKey,
         )
 
         return UUID.fromString(response.workflowExecutionId)
@@ -281,17 +284,13 @@ class FlovynClient(
      * @param params Optional query parameters
      * @return The query result deserialized to type T
      */
-    inline fun <reified T> query(
-        workflowExecutionId: UUID,
-        queryName: String,
-        params: Any? = null
-    ): T {
+    inline fun <reified T> query(workflowExecutionId: UUID, queryName: String, params: Any? = null): T {
         val client = coreClient ?: throw IllegalStateException("Client not started")
 
         val resultBytes = client.queryWorkflow(
             workflowExecutionId = workflowExecutionId.toString(),
             queryName = queryName,
-            params = internalSerializer.serialize(params)
+            params = internalSerializer.serialize(params),
         )
 
         return internalSerializer.deserialize(resultBytes, T::class.java)
@@ -347,11 +346,7 @@ class FlovynClient(
      * @param promiseName The name of the promise (as passed to ctx.promise())
      * @param value The value to resolve the promise with
      */
-    fun resolvePromise(
-        workflowExecutionId: UUID,
-        promiseName: String,
-        value: Any?
-    ) {
+    fun resolvePromise(workflowExecutionId: UUID, promiseName: String, value: Any?) {
         val client = coreClient ?: throw IllegalStateException("Client not started")
 
         val promiseId = getPromiseId(workflowExecutionId, promiseName)
@@ -368,11 +363,7 @@ class FlovynClient(
      * @param promiseName The name of the promise (as passed to ctx.promise())
      * @param error The error message
      */
-    fun rejectPromise(
-        workflowExecutionId: UUID,
-        promiseName: String,
-        error: String
-    ) {
+    fun rejectPromise(workflowExecutionId: UUID, promiseName: String, error: String) {
         val client = coreClient ?: throw IllegalStateException("Client not started")
 
         val promiseId = getPromiseId(workflowExecutionId, promiseName)
@@ -395,7 +386,6 @@ class FlovynClient(
     override fun close() {
         stop()
     }
-
 }
 
 /**
@@ -404,5 +394,5 @@ class FlovynClient(
 data class StartWorkflowOptions(
     val queue: String? = null,
     val workflowVersion: String? = null,
-    val idempotencyKey: String? = null
+    val idempotencyKey: String? = null,
 )

@@ -1,7 +1,7 @@
 package ai.flovyn.sdk.workflow
 
-import ai.flovyn.sdk.task.ScheduleTaskOptions
 import ai.flovyn.sdk.serialization.JsonSerializer
+import ai.flovyn.sdk.task.ScheduleTaskOptions
 import uniffi.flovyn_worker_ffi.*
 import java.time.Duration
 import java.util.UUID
@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
  */
 internal class WorkflowContextImpl(
     private val ffiContext: FfiWorkflowContext,
-    private val serializer: JsonSerializer
+    private val serializer: JsonSerializer,
 ) : WorkflowContext {
 
     override val workflowExecutionId: UUID
@@ -62,16 +62,18 @@ internal class WorkflowContextImpl(
         kind: String,
         input: Any?,
         outputClass: KClass<T>,
-        options: ScheduleTaskOptions
+        options: ScheduleTaskOptions,
     ): T {
         val inputBytes = serializer.serialize(input)
 
-        return when (val result = ffiContext.scheduleTask(
-            kind = kind,
-            input = inputBytes,
-            queue = null,
-            timeoutMs = options.timeoutSeconds?.let { it * 1000L }
-        )) {
+        return when (
+            val result = ffiContext.scheduleTask(
+                kind = kind,
+                input = inputBytes,
+                queue = null,
+                timeoutMs = options.timeoutSeconds?.let { it * 1000L },
+            )
+        ) {
             is FfiTaskResult.Completed -> {
                 serializer.deserialize(result.output, outputClass.java)
             }
@@ -84,19 +86,17 @@ internal class WorkflowContextImpl(
         }
     }
 
-    override suspend fun <T : Any> scheduleAsync(
-        kind: String,
-        input: Any?,
-        outputClass: KClass<T>
-    ): Deferred<T> {
+    override suspend fun <T : Any> scheduleAsync(kind: String, input: Any?, outputClass: KClass<T>): Deferred<T> {
         val inputBytes = serializer.serialize(input)
 
-        return when (val result = ffiContext.scheduleTask(
-            kind = kind,
-            input = inputBytes,
-            queue = null,
-            timeoutMs = null
-        )) {
+        return when (
+            val result = ffiContext.scheduleTask(
+                kind = kind,
+                input = inputBytes,
+                queue = null,
+                timeoutMs = null,
+            )
+        ) {
             is FfiTaskResult.Completed -> {
                 val value = serializer.deserialize(result.output, outputClass.java)
                 DeferredImpl<T>().apply { complete(value) }
@@ -115,17 +115,19 @@ internal class WorkflowContextImpl(
         kind: String,
         input: Any?,
         queue: String,
-        prioritySeconds: Int
+        prioritySeconds: Int,
     ): T {
         val inputBytes = serializer.serialize(input)
 
-        return when (val result = ffiContext.scheduleChildWorkflow(
-            name = name,
-            kind = kind,
-            input = inputBytes,
-            queue = queue.ifEmpty { null },
-            prioritySeconds = prioritySeconds
-        )) {
+        return when (
+            val result = ffiContext.scheduleChildWorkflow(
+                name = name,
+                kind = kind,
+                input = inputBytes,
+                queue = queue.ifEmpty { null },
+                prioritySeconds = prioritySeconds,
+            )
+        ) {
             is FfiChildWorkflowResult.Completed -> {
                 @Suppress("UNCHECKED_CAST")
                 serializer.deserialize(result.output, Any::class.java) as T
@@ -144,17 +146,19 @@ internal class WorkflowContextImpl(
         kind: String,
         input: Any?,
         queue: String,
-        prioritySeconds: Int
+        prioritySeconds: Int,
     ): Deferred<T> {
         val inputBytes = serializer.serialize(input)
 
-        return when (val result = ffiContext.scheduleChildWorkflow(
-            name = name,
-            kind = kind,
-            input = inputBytes,
-            queue = queue.ifEmpty { null },
-            prioritySeconds = prioritySeconds
-        )) {
+        return when (
+            val result = ffiContext.scheduleChildWorkflow(
+                name = name,
+                kind = kind,
+                input = inputBytes,
+                queue = queue.ifEmpty { null },
+                prioritySeconds = prioritySeconds,
+            )
+        ) {
             is FfiChildWorkflowResult.Completed -> {
                 @Suppress("UNCHECKED_CAST")
                 val value = serializer.deserialize(result.output, Any::class.java) as T
@@ -300,7 +304,10 @@ private class ResolvedDurablePromise<T>(private val promiseName: String, private
 /**
  * Rejected durable promise.
  */
-private class RejectedDurablePromise<T>(private val promiseName: String, private val error: String) : DurablePromise<T> {
+private class RejectedDurablePromise<T>(
+    private val promiseName: String,
+    private val error: String,
+) : DurablePromise<T> {
     override val name: String = promiseName
     override suspend fun await(): T = throw PromiseRejectedException(promiseName, error)
     override fun isCompleted(): Boolean = true
@@ -330,7 +337,7 @@ class WorkflowCancelledException(message: String) : Exception(message)
  */
 class TaskFailedException(
     val taskId: String,
-    message: String
+    message: String,
 ) : Exception("Task '$taskId' failed: $message")
 
 /**
@@ -338,9 +345,8 @@ class TaskFailedException(
  */
 class ChildWorkflowFailedException(
     val childExecutionId: String,
-    message: String
+    message: String,
 ) : Exception("Child workflow '$childExecutionId' failed: $message")
-
 
 /**
  * Exception thrown when a determinism violation is detected.

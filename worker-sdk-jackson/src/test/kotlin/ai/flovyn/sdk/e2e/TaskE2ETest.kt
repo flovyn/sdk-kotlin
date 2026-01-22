@@ -40,7 +40,7 @@ class TaskE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
                 workflowKind = "task-scheduling-workflow",
-                input = TaskSchedulingInput(numbers = listOf(1, 2, 3, 4, 5))
+                input = TaskSchedulingInput(numbers = listOf(1, 2, 3, 4, 5)),
             )
 
             assertNotNull(executionId)
@@ -55,7 +55,7 @@ class TaskE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
                 workflowKind = "task-scheduling-workflow",
-                input = TaskSchedulingInput(numbers = (1..10).toList())
+                input = TaskSchedulingInput(numbers = (1..10).toList()),
             )
 
             assertNotNull(executionId)

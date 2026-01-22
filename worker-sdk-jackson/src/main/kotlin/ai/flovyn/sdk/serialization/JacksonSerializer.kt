@@ -13,7 +13,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
  * Provides serialization/deserialization using Jackson with Kotlin and Java Time support.
  */
 class JacksonSerializer(
-    private val objectMapper: ObjectMapper = createDefaultObjectMapper()
+    private val objectMapper: ObjectMapper = createDefaultObjectMapper(),
 ) : JsonSerializer {
 
     override fun serialize(value: Any?): ByteArray {

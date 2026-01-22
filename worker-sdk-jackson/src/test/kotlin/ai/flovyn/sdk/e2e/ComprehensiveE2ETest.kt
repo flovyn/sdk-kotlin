@@ -56,7 +56,7 @@ class ComprehensiveE2ETest {
             val result = env.startAndAwait(
                 workflowKind = env.workflowKind("comprehensive-workflow"),
                 input = ComprehensiveInput(value = 21),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             // Verify workflow completed
@@ -66,26 +66,26 @@ class ComprehensiveE2ETest {
             assertNotNull(result.output, "Output should not be null")
 
             // Test 1: Basic input is preserved
-            assertEquals(21, result.output!!["inputValue"], "Input value should be preserved")
+            assertEquals(21, result.output["inputValue"], "Input value should be preserved")
 
             // Test 2: ctx.run result (21 * 2 = 42)
-            assertEquals(42, result.output!!["runResult"], "ctx.run should double the value")
+            assertEquals(42, result.output["runResult"], "ctx.run should double the value")
 
             // Test 3: State was set
-            assertEquals(true, result.output!!["stateSet"], "State should be set")
+            assertEquals(true, result.output["stateSet"], "State should be set")
 
             // Test 4: State was retrieved correctly
-            assertEquals(true, result.output!!["stateMatches"], "Retrieved state should match set state")
+            assertEquals(true, result.output["stateMatches"], "Retrieved state should match set state")
 
             // Test 5: Multiple operations (21 * 3 = 63)
-            assertEquals(63, result.output!!["tripleResult"], "Triple result should be correct")
+            assertEquals(63, result.output["tripleResult"], "Triple result should be correct")
 
             // Test 6: All tests passed
-            assertEquals(5, result.output!!["testsPassedCount"], "All 5 tests should pass")
+            assertEquals(5, result.output["testsPassedCount"], "All 5 tests should pass")
 
             // Verify specific state content (matching Python SDK assertions)
             @Suppress("UNCHECKED_CAST")
-            val stateRetrieved = result.output!!["stateRetrieved"] as? Map<String, Any?>
+            val stateRetrieved = result.output["stateRetrieved"] as? Map<String, Any?>
             assertNotNull(stateRetrieved, "State retrieved should not be null")
             assertEquals(21, stateRetrieved["counter"], "State counter should equal input value")
             assertEquals("state test", stateRetrieved["message"], "State message should match")
@@ -107,12 +107,12 @@ class ComprehensiveE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "doubler-workflow",
                 input = DoublerInput(value = 21),
-                timeout = 10.seconds
+                timeout = 10.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
             assertNotNull(result.output, "Output should not be null")
-            assertEquals(42, result.output!!["result"], "Result should be doubled")
+            assertEquals(42, result.output["result"], "Result should be doubled")
         }
     }
 
@@ -126,13 +126,13 @@ class ComprehensiveE2ETest {
             val result = env.startAndAwait(
                 workflowKind = env.workflowKind("echo-workflow"),
                 input = EchoInput(message = testMessage),
-                timeout = 10.seconds
+                timeout = 10.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
             assertNotNull(result.output, "Output should not be null")
-            assertEquals(testMessage, result.output!!["message"], "Message should be echoed")
-            assertNotNull(result.output!!["timestamp"], "Timestamp should be present")
+            assertEquals(testMessage, result.output["message"], "Message should be echoed")
+            assertNotNull(result.output["timestamp"], "Timestamp should be present")
         }
     }
 
@@ -145,15 +145,15 @@ class ComprehensiveE2ETest {
             val result = env.startAndAwait(
                 workflowKind = env.workflowKind("stateful-workflow"),
                 input = StatefulInput(key = "comprehensive-key", value = "comprehensive-value"),
-                timeout = 10.seconds
+                timeout = 10.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
             assertNotNull(result.output, "Output should not be null")
-            assertEquals("comprehensive-value", result.output!!["retrievedValue"], "Retrieved value should match")
+            assertEquals("comprehensive-value", result.output["retrievedValue"], "Retrieved value should match")
 
             @Suppress("UNCHECKED_CAST")
-            val allKeys = result.output!!["allKeys"] as? List<String>
+            val allKeys = result.output["allKeys"] as? List<String>
             assertNotNull(allKeys, "allKeys should be present")
             assertTrue(allKeys.contains("comprehensive-key"), "allKeys should contain the set key")
         }
@@ -168,15 +168,15 @@ class ComprehensiveE2ETest {
             val result = env.startAndAwait(
                 workflowKind = env.workflowKind("failing-workflow"),
                 input = FailingInput(shouldFail = true, message = "Expected failure in comprehensive test"),
-                timeout = 10.seconds
+                timeout = 10.seconds,
             )
 
             // Workflow should fail
             assertEquals(WorkflowStatus.FAILED, result.status, "Workflow should fail")
             assertNotNull(result.error, "Error should be present")
             assertTrue(
-                result.error!!.contains("Expected failure", ignoreCase = true),
-                "Error should contain the failure message"
+                result.error.contains("Expected failure", ignoreCase = true),
+                "Error should contain the failure message",
             )
         }
     }
@@ -190,7 +190,7 @@ class ComprehensiveE2ETest {
             val result = env.startAndAwait(
                 workflowKind = env.workflowKind("failing-workflow"),
                 input = FailingInput(shouldFail = false),
-                timeout = 10.seconds
+                timeout = 10.seconds,
             )
 
             // Workflow should complete (not fail since shouldFail = false)
@@ -209,23 +209,23 @@ class ComprehensiveE2ETest {
             val result = env.startAndAwait(
                 workflowKind = env.workflowKind("comprehensive-workflow"),
                 input = ComprehensiveInput(value = 50),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
             assertNotNull(result.output, "Output should not be null")
 
             // Validate all features with input value 50
-            assertEquals(50, result.output!!["inputValue"], "Input value should be 50")
-            assertEquals(100, result.output!!["runResult"], "ctx.run should double value (50*2=100)")
-            assertEquals(true, result.output!!["stateSet"], "State should be set")
-            assertEquals(true, result.output!!["stateMatches"], "State get should return what was set")
-            assertEquals(150, result.output!!["tripleResult"], "Triple operation should work (50*3=150)")
-            assertEquals(5, result.output!!["testsPassedCount"], "All 5 tests should pass")
+            assertEquals(50, result.output["inputValue"], "Input value should be 50")
+            assertEquals(100, result.output["runResult"], "ctx.run should double value (50*2=100)")
+            assertEquals(true, result.output["stateSet"], "State should be set")
+            assertEquals(true, result.output["stateMatches"], "State get should return what was set")
+            assertEquals(150, result.output["tripleResult"], "Triple operation should work (50*3=150)")
+            assertEquals(5, result.output["testsPassedCount"], "All 5 tests should pass")
 
             // Verify state content with value 50
             @Suppress("UNCHECKED_CAST")
-            val stateRetrieved = result.output!!["stateRetrieved"] as? Map<String, Any?>
+            val stateRetrieved = result.output["stateRetrieved"] as? Map<String, Any?>
             assertNotNull(stateRetrieved, "State retrieved should not be null")
             assertEquals(50, stateRetrieved["counter"], "State counter should equal input value")
         }
@@ -241,7 +241,7 @@ class ComprehensiveE2ETest {
             val result = env.startAndAwait(
                 workflowKind = env.workflowKind("random-workflow"),
                 input = RandomInput(count = 1),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
@@ -249,14 +249,14 @@ class ComprehensiveE2ETest {
 
             // Verify UUID is generated
             @Suppress("UNCHECKED_CAST")
-            val uuids = result.output!!["uuids"] as? List<String>
+            val uuids = result.output["uuids"] as? List<String>
             assertNotNull(uuids, "UUIDs should be present")
             assertTrue(uuids.isNotEmpty(), "At least one UUID should be generated")
             assertTrue(uuids[0].isNotBlank(), "UUID should not be blank")
 
             // Verify random float is in range [0, 1)
             @Suppress("UNCHECKED_CAST")
-            val randomDoubles = result.output!!["randomDoubles"] as? List<Double>
+            val randomDoubles = result.output["randomDoubles"] as? List<Double>
             assertNotNull(randomDoubles, "Random doubles should be present")
             assertTrue(randomDoubles.isNotEmpty(), "At least one random double should be generated")
             val randomFloat = randomDoubles[0]
@@ -276,14 +276,14 @@ class ComprehensiveE2ETest {
             val result = env.startAndAwait(
                 workflowKind = env.workflowKind("sleep-workflow"),
                 input = SleepInput(durationMs = durationMs),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
             assertNotNull(result.output, "Output should not be null")
 
             // Verify sleep duration matches input (Python SDK pattern)
-            val sleptMs = (result.output!!["sleptMs"] as? Number)?.toLong()
+            val sleptMs = (result.output["sleptMs"] as? Number)?.toLong()
             assertNotNull(sleptMs, "Slept duration should be present")
             assertEquals(durationMs, sleptMs, "Slept duration should match input")
         }

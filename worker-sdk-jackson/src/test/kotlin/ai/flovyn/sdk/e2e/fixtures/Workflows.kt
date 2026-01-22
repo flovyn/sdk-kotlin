@@ -1,14 +1,12 @@
 package ai.flovyn.sdk.e2e.fixtures
 
 import ai.flovyn.sdk.common.SemanticVersion
-import ai.flovyn.sdk.workflow.Deferred
 import ai.flovyn.sdk.workflow.WorkflowContext
 import ai.flovyn.sdk.workflow.WorkflowDefinition
 import ai.flovyn.sdk.workflow.awaitAll
 import ai.flovyn.sdk.workflow.schedule
 import ai.flovyn.sdk.workflow.scheduleAsync
 import java.time.Duration
-import java.util.UUID
 
 /**
  * Test workflow fixtures for E2E tests.
@@ -44,7 +42,7 @@ class EchoWorkflow(kindSuffix: String = "") : WorkflowDefinition<EchoInput, Echo
     override suspend fun execute(ctx: WorkflowContext, input: EchoInput): EchoOutput {
         return EchoOutput(
             message = input.message,
-            timestamp = ctx.currentTimeMillis()
+            timestamp = ctx.currentTimeMillis(),
         )
     }
 }
@@ -96,7 +94,7 @@ class StatefulWorkflow(kindSuffix: String = "") : WorkflowDefinition<StatefulInp
 
         return StatefulOutput(
             retrievedValue = retrieved,
-            allKeys = keys
+            allKeys = keys,
         )
     }
 }
@@ -108,7 +106,7 @@ class StatefulWorkflow(kindSuffix: String = "") : WorkflowDefinition<StatefulInp
  */
 class TaskSchedulingWorkflow(
     kindSuffix: String = "",
-    private val taskKindSuffix: String = ""
+    private val taskKindSuffix: String = "",
 ) : WorkflowDefinition<TaskSchedulingInput, TaskSchedulingOutput>() {
     override val kind = if (kindSuffix.isEmpty()) "task-scheduling-workflow" else "task-scheduling-workflow:$kindSuffix"
     override val version = SemanticVersion(1, 0, 0)
@@ -120,7 +118,7 @@ class TaskSchedulingWorkflow(
         for (num in input.numbers) {
             val result = ctx.schedule<AddTaskOutput>(
                 kind = addTaskKind,
-                input = AddTaskInput(a = sum, b = num)
+                input = AddTaskInput(a = sum, b = num),
             )
             sum = result.result
         }
@@ -144,7 +142,7 @@ class RunOperationWorkflow(kindSuffix: String = "") : WorkflowDefinition<EchoInp
 
         return EchoOutput(
             message = uppercased,
-            timestamp = ctx.currentTimeMillis()
+            timestamp = ctx.currentTimeMillis(),
         )
     }
 }
@@ -155,7 +153,7 @@ data class RandomInput(val count: Int)
 data class RandomOutput(
     val uuids: List<String>,
     val randomInts: List<Int>,
-    val randomDoubles: List<Double>
+    val randomDoubles: List<Double>,
 )
 
 data class SleepInput(val durationMs: Long)
@@ -194,7 +192,7 @@ class RandomWorkflow(kindSuffix: String = "") : WorkflowDefinition<RandomInput, 
         return RandomOutput(
             uuids = uuids,
             randomInts = randomInts,
-            randomDoubles = randomDoubles
+            randomDoubles = randomDoubles,
         )
     }
 }
@@ -230,7 +228,7 @@ class PromiseWorkflow(kindSuffix: String = "") : WorkflowDefinition<PromiseInput
 
         return PromiseOutput(
             promiseName = input.promiseName,
-            created = true
+            created = true,
         )
     }
 }
@@ -251,7 +249,7 @@ class AwaitPromiseWorkflow(kindSuffix: String = "") : WorkflowDefinition<AwaitPr
 
         return AwaitPromiseOutput(
             promiseName = input.promiseName,
-            resolvedValue = resolvedValue
+            resolvedValue = resolvedValue,
         )
     }
 }
@@ -264,7 +262,7 @@ class AwaitPromiseWorkflow(kindSuffix: String = "") : WorkflowDefinition<AwaitPr
 data class SchemaTestInput(
     val orderId: String,
     val amount: Double,
-    val customerEmail: String? = null
+    val customerEmail: String? = null,
 )
 
 /**
@@ -272,7 +270,7 @@ data class SchemaTestInput(
  */
 data class SchemaTestOutput(
     val success: Boolean,
-    val transactionId: String?
+    val transactionId: String?,
 )
 
 /**
@@ -313,7 +311,7 @@ class SchemaTestWorkflow : WorkflowDefinition<SchemaTestInput, SchemaTestOutput>
     override suspend fun execute(ctx: WorkflowContext, input: SchemaTestInput): SchemaTestOutput {
         return SchemaTestOutput(
             success = true,
-            transactionId = "txn-${input.orderId}"
+            transactionId = "txn-${input.orderId}",
         )
     }
 }
@@ -334,7 +332,7 @@ class ChildWorkflow : WorkflowDefinition<ChildInput, ChildOutput>() {
     override suspend fun execute(ctx: WorkflowContext, input: ChildInput): ChildOutput {
         return ChildOutput(
             result = input.value * 2,
-            workflowId = ctx.workflowExecutionId.toString()
+            workflowId = ctx.workflowExecutionId.toString(),
         )
     }
 }
@@ -354,12 +352,12 @@ class ParentWorkflow : WorkflowDefinition<ParentInput, ParentOutput>() {
         val childOutput: Map<String, Any?> = ctx.scheduleWorkflow(
             name = "child-execution-${input.value}",
             kind = "child-workflow",
-            input = ChildInput(value = input.value)
+            input = ChildInput(value = input.value),
         )
         return ParentOutput(
             originalValue = input.value,
             childResult = (childOutput["result"] as Number).toInt(),
-            parentWorkflowId = ctx.workflowExecutionId.toString()
+            parentWorkflowId = ctx.workflowExecutionId.toString(),
         )
     }
 }
@@ -389,12 +387,15 @@ class ParentWithFailingChildWorkflow : WorkflowDefinition<ParentWithFailingChild
     override val kind = "parent-with-failing-child-workflow"
     override val version = SemanticVersion(1, 0, 0)
 
-    override suspend fun execute(ctx: WorkflowContext, input: ParentWithFailingChildInput): ParentWithFailingChildOutput {
+    override suspend fun execute(
+        ctx: WorkflowContext,
+        input: ParentWithFailingChildInput,
+    ): ParentWithFailingChildOutput {
         return try {
             ctx.scheduleWorkflow<Unit>(
                 name = "failing-child-execution",
                 kind = "failing-child-workflow",
-                input = FailingChildInput(message = input.message)
+                input = FailingChildInput(message = input.message),
             )
             ParentWithFailingChildOutput(errorCaught = false, errorMessage = null)
         } catch (e: Exception) {
@@ -423,13 +424,13 @@ class NestedChildWorkflow : WorkflowDefinition<NestedInput, NestedOutput>() {
         val childOutput: Map<String, Any?> = ctx.scheduleWorkflow(
             name = "nested-child-depth-${input.depth - 1}",
             kind = "nested-child-workflow",
-            input = NestedInput(depth = input.depth - 1, value = input.value)
+            input = NestedInput(depth = input.depth - 1, value = input.value),
         )
         val childResult = childOutput["result"] as String
         val childLevels = (childOutput["levels"] as Number).toInt()
         return NestedOutput(
             result = "level${input.depth}:$childResult",
-            levels = childLevels + 1
+            levels = childLevels + 1,
         )
     }
 }
@@ -444,7 +445,7 @@ data class ComprehensiveOutput(
     val stateMatches: Boolean,
     val stateRetrieved: Map<String, Any?>,
     val tripleResult: Int,
-    val testsPassedCount: Int
+    val testsPassedCount: Int,
 )
 
 /**
@@ -473,7 +474,7 @@ class ComprehensiveWorkflow(kindSuffix: String = "") : WorkflowDefinition<Compre
         val stateData = mapOf(
             "counter" to input.value,
             "message" to "state test",
-            "nested" to mapOf("a" to 1, "b" to 2)
+            "nested" to mapOf("a" to 1, "b" to 2),
         )
         ctx.set("test-state", stateData)
         testsPassed++
@@ -496,7 +497,7 @@ class ComprehensiveWorkflow(kindSuffix: String = "") : WorkflowDefinition<Compre
             stateMatches = stateMatches,
             stateRetrieved = retrieved ?: emptyMap(),
             tripleResult = tripleResult,
-            testsPassedCount = testsPassed
+            testsPassedCount = testsPassed,
         )
     }
 }
@@ -529,7 +530,7 @@ data class FanOutFanInOutput(
     val inputCount: Int,
     val outputCount: Int,
     val processedItems: List<String>,
-    val totalLength: Int
+    val totalLength: Int,
 )
 
 /**
@@ -546,7 +547,7 @@ class FanOutFanInWorkflow : WorkflowDefinition<FanOutFanInInput, FanOutFanInOutp
             ctx.scheduleAsync(
                 kind = "echo-task",
                 input = EchoTaskInput(message = item),
-                outputClass = EchoTaskOutput::class
+                outputClass = EchoTaskOutput::class,
             )
         }
 
@@ -558,7 +559,7 @@ class FanOutFanInWorkflow : WorkflowDefinition<FanOutFanInInput, FanOutFanInOutp
             inputCount = input.items.size,
             outputCount = results.size,
             processedItems = processedItems,
-            totalLength = processedItems.sumOf { it.length }
+            totalLength = processedItems.sumOf { it.length },
         )
     }
 }
@@ -568,7 +569,7 @@ data class LargeBatchOutput(
     val taskCount: Int,
     val total: Int,
     val minValue: Int,
-    val maxValue: Int
+    val maxValue: Int,
 )
 
 /**
@@ -584,10 +585,11 @@ class LargeBatchWorkflow : WorkflowDefinition<LargeBatchInput, LargeBatchOutput>
         // Schedule batch of tasks: each computes (i + 1) for i in 0..count-1
         // Results are [1, 2, 3, ..., count]
         val deferreds = (0 until input.count).map { i ->
+            // i + 1
             ctx.scheduleAsync(
                 kind = "add-task",
-                input = AddTaskInput(a = i, b = 1),  // i + 1
-                outputClass = AddTaskOutput::class
+                input = AddTaskInput(a = i, b = 1),
+                outputClass = AddTaskOutput::class,
             )
         }
 
@@ -595,11 +597,12 @@ class LargeBatchWorkflow : WorkflowDefinition<LargeBatchInput, LargeBatchOutput>
         val results = awaitAll(deferreds)
         val values = results.map { it.result }
 
+        // sum(1..count) = count*(count+1)/2
         return LargeBatchOutput(
             taskCount = results.size,
-            total = values.sum(),  // sum(1..count) = count*(count+1)/2
+            total = values.sum(),
             minValue = values.minOrNull() ?: 0,
-            maxValue = values.maxOrNull() ?: 0
+            maxValue = values.maxOrNull() ?: 0,
         )
     }
 }
@@ -609,7 +612,7 @@ data class MixedParallelOutput(
     val success: Boolean,
     val phase1Results: List<String>,
     val timerFired: Boolean,
-    val phase3Results: List<Int>
+    val phase3Results: List<Int>,
 )
 
 /**
@@ -630,7 +633,7 @@ class MixedParallelWorkflow : WorkflowDefinition<MixedParallelInput, MixedParall
             ctx.scheduleAsync(
                 kind = "echo-task",
                 input = EchoTaskInput(message = item),
-                outputClass = EchoTaskOutput::class
+                outputClass = EchoTaskOutput::class,
             )
         }
         val phase1Results = awaitAll(phase1Deferreds).map { it.message }
@@ -644,7 +647,7 @@ class MixedParallelWorkflow : WorkflowDefinition<MixedParallelInput, MixedParall
             ctx.scheduleAsync(
                 kind = "add-task",
                 input = AddTaskInput(a = i, b = i),
-                outputClass = AddTaskOutput::class
+                outputClass = AddTaskOutput::class,
             )
         }
         val phase3Results = awaitAll(phase3Deferreds).map { it.result }
@@ -653,7 +656,7 @@ class MixedParallelWorkflow : WorkflowDefinition<MixedParallelInput, MixedParall
             success = true,
             phase1Results = phase1Results,
             timerFired = timerFired,
-            phase3Results = phase3Results
+            phase3Results = phase3Results,
         )
     }
 }
@@ -682,7 +685,7 @@ data class MixedCommandsOutput(
     val runResults: List<Int>,
     val timerFired: Boolean,
     val taskResult: Int,
-    val finalValue: Int
+    val finalValue: Int,
 )
 
 /**
@@ -712,7 +715,7 @@ class MixedCommandsWorkflow : WorkflowDefinition<MixedCommandsInput, MixedComman
         // Task
         val taskResult = ctx.schedule<AddTaskOutput>(
             kind = "add-task",
-            input = AddTaskInput(a = currentValue, b = 10)
+            input = AddTaskInput(a = currentValue, b = 10),
         )
 
         return MixedCommandsOutput(
@@ -720,7 +723,7 @@ class MixedCommandsWorkflow : WorkflowDefinition<MixedCommandsInput, MixedComman
             runResults = runResults,
             timerFired = true,
             taskResult = taskResult.result,
-            finalValue = taskResult.result
+            finalValue = taskResult.result,
         )
     }
 }
@@ -729,11 +732,11 @@ class MixedCommandsWorkflow : WorkflowDefinition<MixedCommandsInput, MixedComman
 
 data class TaskSchedulerInput(
     val taskName: String,
-    val taskInput: Map<String, Any?>
+    val taskInput: Map<String, Any?>,
 )
 data class TaskSchedulerOutput(
     val taskCompleted: Boolean,
-    val taskResult: Map<String, Any?>?
+    val taskResult: Map<String, Any?>?,
 )
 
 /**

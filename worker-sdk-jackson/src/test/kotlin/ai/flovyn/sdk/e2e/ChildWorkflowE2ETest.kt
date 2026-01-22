@@ -50,7 +50,7 @@ class ChildWorkflowE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "parent-workflow",
                 input = ParentInput(value = 21),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             // Verify workflow completed
@@ -58,9 +58,9 @@ class ChildWorkflowE2ETest {
 
             // Verify output
             assertNotNull(result.output, "Output should not be null")
-            assertEquals(21, result.output!!["originalValue"], "Original value should be preserved")
+            assertEquals(21, result.output["originalValue"], "Original value should be preserved")
             // Child doubles the value: 21 * 2 = 42
-            assertEquals(42, result.output!!["childResult"], "Child should double the value")
+            assertEquals(42, result.output["childResult"], "Child should double the value")
         }
     }
 
@@ -78,7 +78,7 @@ class ChildWorkflowE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "parent-with-failing-child-workflow",
                 input = ParentWithFailingChildInput(message = "Intentional child failure"),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             // Parent should complete (handling child error)
@@ -86,15 +86,15 @@ class ChildWorkflowE2ETest {
 
             // Verify output shows error was caught
             assertNotNull(result.output, "Output should not be null")
-            assertEquals(true, result.output!!["errorCaught"], "Parent should have caught the child error")
+            assertEquals(true, result.output["errorCaught"], "Parent should have caught the child error")
 
             // Error message should contain the original error
-            val errorMessage = result.output!!["errorMessage"] as? String
+            val errorMessage = result.output["errorMessage"] as? String
             assertNotNull(errorMessage, "Error message should be present")
             assertTrue(
                 errorMessage.contains("Intentional child failure", ignoreCase = true) ||
-                errorMessage.contains("child", ignoreCase = true),
-                "Error message should contain relevant information"
+                    errorMessage.contains("child", ignoreCase = true),
+                "Error message should contain relevant information",
             )
         }
     }
@@ -115,7 +115,7 @@ class ChildWorkflowE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "nested-child-workflow",
                 input = NestedInput(depth = 3, value = "nested"),
-                timeout = 60.seconds
+                timeout = 60.seconds,
             )
 
             // Verify workflow completed
@@ -125,12 +125,12 @@ class ChildWorkflowE2ETest {
             assertNotNull(result.output, "Output should not be null")
 
             // Result should contain "leaf:nested" from the deepest level
-            val resultStr = result.output!!["result"] as? String
+            val resultStr = result.output["result"] as? String
             assertNotNull(resultStr, "Result string should be present")
             assertTrue(resultStr.contains("leaf:nested"), "Result should contain 'leaf:nested'")
 
             // Verify levels count matches depth
-            assertEquals(3, result.output!!["levels"], "Levels should be 3")
+            assertEquals(3, result.output["levels"], "Levels should be 3")
         }
     }
 }

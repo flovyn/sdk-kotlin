@@ -18,15 +18,11 @@ class TaskRegistry {
      * @param inputType The input type class
      * @param outputType The output type class
      */
-    fun <INPUT, OUTPUT> register(
-        task: TaskDefinition<INPUT, OUTPUT>,
-        inputType: Class<*>,
-        outputType: Class<*>
-    ) {
+    fun <INPUT, OUTPUT> register(task: TaskDefinition<INPUT, OUTPUT>, inputType: Class<*>, outputType: Class<*>) {
         tasks[task.kind] = RegisteredTask(
             definition = task,
             inputType = inputType,
-            outputType = outputType
+            outputType = outputType,
         )
     }
 
@@ -37,7 +33,7 @@ class TaskRegistry {
         tasks[task.kind] = RegisteredTask(
             definition = task,
             inputType = Map::class.java,
-            outputType = Map::class.java
+            outputType = Map::class.java,
         )
     }
 
@@ -68,7 +64,7 @@ class TaskRegistry {
 data class RegisteredTask<INPUT, OUTPUT>(
     val definition: TaskDefinition<INPUT, OUTPUT>,
     val inputType: Class<*>,
-    val outputType: Class<*>
+    val outputType: Class<*>,
 ) {
     val kind: String get() = definition.kind
     val name: String get() = definition.name
@@ -78,6 +74,5 @@ data class RegisteredTask<INPUT, OUTPUT>(
 /**
  * Inline extension for registering typed tasks with reified generics.
  */
-inline fun <reified INPUT, reified OUTPUT> TaskRegistry.register(
-    task: TaskDefinition<INPUT, OUTPUT>
-) = register(task, INPUT::class.java, OUTPUT::class.java)
+inline fun <reified INPUT, reified OUTPUT> TaskRegistry.register(task: TaskDefinition<INPUT, OUTPUT>) =
+    register(task, INPUT::class.java, OUTPUT::class.java)

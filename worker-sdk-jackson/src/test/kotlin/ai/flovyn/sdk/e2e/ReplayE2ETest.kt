@@ -56,29 +56,29 @@ class ReplayE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "mixed-commands-workflow",
                 input = MixedCommandsInput(value = initialValue, runCount = runCount),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
             assertNotNull(result.output, "Output should not be null")
 
             // Verify initial value
-            assertEquals(initialValue, result.output!!["initialValue"], "Initial value should be preserved")
+            assertEquals(initialValue, result.output["initialValue"], "Initial value should be preserved")
 
             // Verify run results
             // value=10, run-1: 10+1=11, run-2: 11+2=13, run-3: 13+3=16
             @Suppress("UNCHECKED_CAST")
-            val runResults = result.output!!["runResults"] as? List<Int>
+            val runResults = result.output["runResults"] as? List<Int>
             assertNotNull(runResults, "Run results should be present")
             assertEquals(3, runResults.size, "Should have 3 run results")
             assertEquals(listOf(11, 13, 16), runResults, "Run results should be calculated correctly")
 
             // Verify timer fired
-            assertEquals(true, result.output!!["timerFired"], "Timer should fire")
+            assertEquals(true, result.output["timerFired"], "Timer should fire")
 
             // Verify task result: 16 + 10 = 26
-            assertEquals(26, result.output!!["taskResult"], "Task result should be 26")
-            assertEquals(26, result.output!!["finalValue"], "Final value should be 26")
+            assertEquals(26, result.output["taskResult"], "Task result should be 26")
+            assertEquals(26, result.output["finalValue"], "Final value should be 26")
         }
     }
 
@@ -96,14 +96,14 @@ class ReplayE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "task-scheduling-workflow",
                 input = TaskSchedulingInput(numbers = numbers),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
             assertNotNull(result.output, "Output should not be null")
 
             // Sum: 0+1=1, 1+2=3, 3+3=6, 6+4=10, 10+5=15
-            assertEquals(15, result.output!!["sum"], "Sum should be 15")
+            assertEquals(15, result.output["sum"], "Sum should be 15")
         }
     }
 
@@ -122,7 +122,7 @@ class ReplayE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "random-workflow",
                 input = RandomInput(count = count),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
@@ -130,21 +130,21 @@ class ReplayE2ETest {
 
             // Verify UUIDs generated
             @Suppress("UNCHECKED_CAST")
-            val uuids = result.output!!["uuids"] as? List<String>
+            val uuids = result.output["uuids"] as? List<String>
             assertNotNull(uuids, "UUIDs should be present")
             assertEquals(count, uuids.size, "Should have $count UUIDs")
             assertTrue(uuids.all { it.isNotBlank() }, "All UUIDs should be non-empty")
 
             // Verify random integers generated
             @Suppress("UNCHECKED_CAST")
-            val randomInts = result.output!!["randomInts"] as? List<Int>
+            val randomInts = result.output["randomInts"] as? List<Int>
             assertNotNull(randomInts, "Random ints should be present")
             assertEquals(count, randomInts.size, "Should have $count random ints")
             assertTrue(randomInts.all { it in 0..999 }, "All random ints should be in range")
 
             // Verify random doubles generated
             @Suppress("UNCHECKED_CAST")
-            val randomDoubles = result.output!!["randomDoubles"] as? List<Double>
+            val randomDoubles = result.output["randomDoubles"] as? List<Double>
             assertNotNull(randomDoubles, "Random doubles should be present")
             assertEquals(count, randomDoubles.size, "Should have $count random doubles")
             assertTrue(randomDoubles.all { it in 0.0..1.0 }, "All random doubles should be in [0,1)")
@@ -165,7 +165,7 @@ class ReplayE2ETest {
                 env.startAndAwait(
                     workflowKind = "mixed-commands-workflow",
                     input = MixedCommandsInput(value = 5, runCount = 2),
-                    timeout = 30.seconds
+                    timeout = 30.seconds,
                 )
             }
 
@@ -173,10 +173,10 @@ class ReplayE2ETest {
             results.forEach { result ->
                 assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
                 assertNotNull(result.output, "Output should not be null")
-                assertEquals(5, result.output!!["initialValue"], "Initial value should be 5")
-                assertEquals(true, result.output!!["timerFired"], "Timer should fire")
-                assertNotNull(result.output!!["runResults"], "Run results should be present")
-                assertNotNull(result.output!!["taskResult"], "Task result should be present")
+                assertEquals(5, result.output["initialValue"], "Initial value should be 5")
+                assertEquals(true, result.output["timerFired"], "Timer should fire")
+                assertNotNull(result.output["runResults"], "Run results should be present")
+                assertNotNull(result.output["taskResult"], "Task result should be present")
             }
         }
     }

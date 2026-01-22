@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Disabled
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
@@ -49,7 +48,7 @@ class WorkflowE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
                 workflowKind = env.workflowKind("echo-workflow"),
-                input = EchoInput(message = "Hello, World!")
+                input = EchoInput(message = "Hello, World!"),
             )
 
             assertNotNull(executionId)
@@ -64,7 +63,7 @@ class WorkflowE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
                 workflowKind = "doubler-workflow",
-                input = DoublerInput(value = 21)
+                input = DoublerInput(value = 21),
             )
 
             assertNotNull(executionId)
@@ -79,7 +78,7 @@ class WorkflowE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
                 workflowKind = env.workflowKind("stateful-workflow"),
-                input = StatefulInput(key = "testKey", value = "testValue")
+                input = StatefulInput(key = "testKey", value = "testValue"),
             )
 
             assertNotNull(executionId)
@@ -93,7 +92,7 @@ class WorkflowE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
                 workflowKind = env.workflowKind("run-operation-workflow"),
-                input = EchoInput(message = "hello world")
+                input = EchoInput(message = "hello world"),
             )
 
             assertNotNull(executionId)
@@ -108,12 +107,11 @@ class WorkflowE2ETest {
             val executionIds = (1..5).map { i ->
                 env.startWorkflow(
                     workflowKind = env.workflowKind("echo-workflow"),
-                    input = EchoInput(message = "Message $i")
+                    input = EchoInput(message = "Message $i"),
                 )
             }
 
             assertTrue(executionIds.size == 5)
-            assertTrue(executionIds.all { it != null })
 
             // Wait for all to complete
             executionIds.forEach { id ->
@@ -127,7 +125,7 @@ class WorkflowE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
                 workflowKind = env.workflowKind("random-workflow"),
-                input = RandomInput(count = 5)
+                input = RandomInput(count = 5),
             )
 
             assertNotNull(executionId)
@@ -141,7 +139,7 @@ class WorkflowE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
                 workflowKind = env.workflowKind("sleep-workflow"),
-                input = SleepInput(durationMs = 100)
+                input = SleepInput(durationMs = 100),
             )
 
             assertNotNull(executionId)
@@ -156,7 +154,7 @@ class WorkflowE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val executionId = env.startWorkflow(
                 workflowKind = env.workflowKind("promise-workflow"),
-                input = PromiseInput(promiseName = "test-promise")
+                input = PromiseInput(promiseName = "test-promise"),
             )
 
             assertNotNull(executionId)
@@ -175,7 +173,7 @@ class WorkflowE2ETest {
             // Start workflow that waits for a promise
             val executionId = env.startWorkflow(
                 workflowKind = env.workflowKind("await-promise-workflow"),
-                input = AwaitPromiseInput(promiseName = promiseName)
+                input = AwaitPromiseInput(promiseName = promiseName),
             )
 
             assertNotNull(executionId)

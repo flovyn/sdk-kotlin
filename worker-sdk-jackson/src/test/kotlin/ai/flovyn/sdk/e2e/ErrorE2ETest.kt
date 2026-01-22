@@ -44,7 +44,7 @@ class ErrorE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "failing-workflow",
                 input = FailingInput(shouldFail = true, message = "Test failure message"),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             // Verify workflow failed
@@ -68,7 +68,7 @@ class ErrorE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "error-message-workflow",
                 input = ErrorMessageInput(errorMessage = errorMessage, includeDetails = false),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             // Verify workflow failed
@@ -77,8 +77,8 @@ class ErrorE2ETest {
 
             // Error message should contain the original error text
             assertTrue(
-                result.error!!.contains(errorMessage, ignoreCase = true),
-                "Error message should contain the original error text. Got: ${result.error}"
+                result.error.contains(errorMessage, ignoreCase = true),
+                "Error message should contain the original error text. Got: ${result.error}",
             )
         }
     }
@@ -96,7 +96,7 @@ class ErrorE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "error-message-workflow",
                 input = ErrorMessageInput(errorMessage = errorMessage, includeDetails = true),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             // Verify workflow failed
@@ -105,14 +105,14 @@ class ErrorE2ETest {
 
             // Error should contain the base message
             assertTrue(
-                result.error!!.contains(errorMessage, ignoreCase = true),
-                "Error should contain base message"
+                result.error.contains(errorMessage, ignoreCase = true),
+                "Error should contain base message",
             )
 
             // Error should contain workflow reference (added by the workflow)
             assertTrue(
-                result.error!!.contains("workflow", ignoreCase = true),
-                "Error should contain workflow reference"
+                result.error.contains("workflow", ignoreCase = true),
+                "Error should contain workflow reference",
             )
         }
     }

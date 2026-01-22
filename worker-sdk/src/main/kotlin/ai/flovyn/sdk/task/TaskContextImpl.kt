@@ -16,7 +16,7 @@ internal class TaskContextImpl(
     private val heartbeatCallback: suspend () -> Unit = {},
     private val logCallback: suspend (String, String) -> Unit = { _, _ -> },
     private val streamCallback: suspend (StreamEvent) -> Unit = {},
-    private val stateUpdateCallback: suspend (String, ByteArray?) -> Unit = { _, _ -> }
+    private val stateUpdateCallback: suspend (String, ByteArray?) -> Unit = { _, _ -> },
 ) : TaskContext {
 
     private var cancelled = false

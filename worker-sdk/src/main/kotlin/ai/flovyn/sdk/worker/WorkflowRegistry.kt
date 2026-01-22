@@ -21,12 +21,12 @@ class WorkflowRegistry {
     fun <INPUT, OUTPUT> register(
         workflow: WorkflowDefinition<INPUT, OUTPUT>,
         inputType: Class<*>,
-        outputType: Class<*>
+        outputType: Class<*>,
     ) {
         workflows[workflow.kind] = RegisteredWorkflow(
             definition = workflow,
             inputType = inputType,
-            outputType = outputType
+            outputType = outputType,
         )
     }
 
@@ -37,7 +37,7 @@ class WorkflowRegistry {
         workflows[workflow.kind] = RegisteredWorkflow(
             definition = workflow,
             inputType = Map::class.java,
-            outputType = Map::class.java
+            outputType = Map::class.java,
         )
     }
 
@@ -68,7 +68,7 @@ class WorkflowRegistry {
 data class RegisteredWorkflow<INPUT, OUTPUT>(
     val definition: WorkflowDefinition<INPUT, OUTPUT>,
     val inputType: Class<*>,
-    val outputType: Class<*>
+    val outputType: Class<*>,
 ) {
     val kind: String get() = definition.kind
     val name: String get() = definition.name
@@ -78,6 +78,5 @@ data class RegisteredWorkflow<INPUT, OUTPUT>(
 /**
  * Inline extension for registering typed workflows with reified generics.
  */
-inline fun <reified INPUT, reified OUTPUT> WorkflowRegistry.register(
-    workflow: WorkflowDefinition<INPUT, OUTPUT>
-) = register(workflow, INPUT::class.java, OUTPUT::class.java)
+inline fun <reified INPUT, reified OUTPUT> WorkflowRegistry.register(workflow: WorkflowDefinition<INPUT, OUTPUT>) =
+    register(workflow, INPUT::class.java, OUTPUT::class.java)

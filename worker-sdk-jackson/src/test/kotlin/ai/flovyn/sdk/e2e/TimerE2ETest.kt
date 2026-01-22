@@ -6,7 +6,6 @@ import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -51,19 +50,20 @@ class TimerE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "short-timer-workflow",
                 input = ShortTimerInput(durationMs = timerDuration),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
             assertNotNull(result.output, "Output should not be null")
 
-            assertEquals(true, result.output!!["timerFired"], "Timer should fire")
+            assertEquals(true, result.output["timerFired"], "Timer should fire")
 
             // Check that elapsedMs matches input duration (Python SDK pattern)
-            val elapsedMs = (result.output!!["elapsedMs"] as Number).toLong()
+            val elapsedMs = (result.output["elapsedMs"] as Number).toLong()
             assertEquals(
-                timerDuration, elapsedMs,
-                "Elapsed time should match input duration"
+                timerDuration,
+                elapsedMs,
+                "Elapsed time should match input duration",
             )
         }
     }
@@ -82,22 +82,23 @@ class TimerE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "sleep-workflow",
                 input = SleepInput(durationMs = sleepDuration),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
 
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
             assertNotNull(result.output, "Output should not be null")
 
             // Check that sleptMs matches input duration (Python SDK pattern)
-            val sleptMs = (result.output!!["sleptMs"] as Number).toLong()
+            val sleptMs = (result.output["sleptMs"] as Number).toLong()
             assertEquals(
-                sleepDuration, sleptMs,
-                "Slept time should match input duration"
+                sleepDuration,
+                sleptMs,
+                "Slept time should match input duration",
             )
 
             // Verify timing fields are present
-            val startTime = result.output!!["startTime"] as Number
-            val endTime = result.output!!["endTime"] as Number
+            val startTime = result.output["startTime"] as Number
+            val endTime = result.output["endTime"] as Number
             assertNotNull(startTime, "Start time should be recorded")
             assertNotNull(endTime, "End time should be recorded")
         }
@@ -113,7 +114,7 @@ class TimerE2ETest {
             val result1 = env.startAndAwait(
                 workflowKind = "short-timer-workflow",
                 input = ShortTimerInput(durationMs = 50),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.COMPLETED, result1.status, "First timer should complete")
 
@@ -121,7 +122,7 @@ class TimerE2ETest {
             val result2 = env.startAndAwait(
                 workflowKind = "short-timer-workflow",
                 input = ShortTimerInput(durationMs = 100),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.COMPLETED, result2.status, "Second timer should complete")
 
@@ -129,7 +130,7 @@ class TimerE2ETest {
             val result3 = env.startAndAwait(
                 workflowKind = "short-timer-workflow",
                 input = ShortTimerInput(durationMs = 75),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.COMPLETED, result3.status, "Third timer should complete")
         }

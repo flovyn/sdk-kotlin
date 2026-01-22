@@ -75,7 +75,8 @@ class LifecycleE2ETest {
             handles.forEachIndexed { index, executionId ->
                 val result = env.awaitCompletion(executionId, timeout = 30.seconds)
                 assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow $index should complete")
-                assertEquals((index + 1) * 2, result.output!!["result"], "Result should be doubled: ${(index + 1) * 2}")
+                assertNotNull(result.output, "Workflow $index should have output")
+                assertEquals((index + 1) * 2, result.output["result"], "Result should be doubled: ${(index + 1) * 2}")
             }
         }
     }
@@ -112,10 +113,11 @@ class LifecycleE2ETest {
             val result = env.startAndAwait(
                 workflowKind = "echo-workflow",
                 input = EchoInput(message = "lifecycle test"),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
-            assertEquals("lifecycle test", result.output!!["message"], "Message should be echoed")
+            assertNotNull(result.output, "Workflow should have output")
+            assertEquals("lifecycle test", result.output["message"], "Message should be echoed")
 
             // Verify still running after
             assertEquals("running", env.workerStatus, "Worker should still be running after workflow")
@@ -136,7 +138,7 @@ class LifecycleE2ETest {
             val failResult = env.startAndAwait(
                 workflowKind = "failing-workflow",
                 input = FailingInput(shouldFail = true, message = "Expected failure"),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.FAILED, failResult.status, "Workflow should fail")
 
@@ -147,10 +149,15 @@ class LifecycleE2ETest {
             val successResult = env.startAndAwait(
                 workflowKind = "echo-workflow",
                 input = EchoInput(message = "after-failure"),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
-            assertEquals(WorkflowStatus.COMPLETED, successResult.status, "Workflow should complete after previous failure")
-            assertEquals("after-failure", successResult.output!!["message"], "Message should be echoed")
+            assertEquals(
+                WorkflowStatus.COMPLETED,
+                successResult.status,
+                "Workflow should complete after previous failure",
+            )
+            assertNotNull(successResult.output, "Success workflow should have output")
+            assertEquals("after-failure", successResult.output["message"], "Message should be echoed")
         }
     }
 

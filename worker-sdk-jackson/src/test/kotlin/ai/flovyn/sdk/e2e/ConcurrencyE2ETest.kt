@@ -5,7 +5,6 @@ import kotlinx.coroutines.*
 import org.junit.jupiter.api.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -54,7 +53,7 @@ class ConcurrencyE2ETest {
                     val result = env.startAndAwait(
                         workflowKind = "doubler-workflow",
                         input = DoublerInput(value = i * 10),
-                        timeout = 30.seconds
+                        timeout = 30.seconds,
                     )
                     Pair(i, result)
                 }
@@ -68,13 +67,15 @@ class ConcurrencyE2ETest {
 
             for ((i, result) in results) {
                 assertEquals(
-                    WorkflowStatus.COMPLETED, result.status,
-                    "Workflow $i should complete"
+                    WorkflowStatus.COMPLETED,
+                    result.status,
+                    "Workflow $i should complete",
                 )
                 assertNotNull(result.output, "Workflow $i should have output")
                 assertEquals(
-                    i * 10 * 2, result.output!!["result"],
-                    "Workflow $i should double the value"
+                    i * 10 * 2,
+                    result.output["result"],
+                    "Workflow $i should double the value",
                 )
             }
         }
@@ -92,28 +93,31 @@ class ConcurrencyE2ETest {
             val result1 = env.startAndAwait(
                 workflowKind = "doubler-workflow",
                 input = DoublerInput(value = 10),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.COMPLETED, result1.status, "First workflow should complete")
-            assertEquals(20, result1.output!!["result"], "First workflow result incorrect")
+            assertNotNull(result1.output, "First workflow should have output")
+            assertEquals(20, result1.output["result"], "First workflow result incorrect")
 
             // Second workflow - different type
             val result2 = env.startAndAwait(
                 workflowKind = "echo-workflow",
                 input = EchoInput(message = "After first workflow"),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.COMPLETED, result2.status, "Second workflow should complete")
-            assertEquals("After first workflow", result2.output!!["message"], "Second workflow message incorrect")
+            assertNotNull(result2.output, "Second workflow should have output")
+            assertEquals("After first workflow", result2.output["message"], "Second workflow message incorrect")
 
             // Third workflow - back to first type
             val result3 = env.startAndAwait(
                 workflowKind = "doubler-workflow",
                 input = DoublerInput(value = 100),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.COMPLETED, result3.status, "Third workflow should complete")
-            assertEquals(200, result3.output!!["result"], "Third workflow result incorrect")
+            assertNotNull(result3.output, "Third workflow should have output")
+            assertEquals(200, result3.output["result"], "Third workflow result incorrect")
         }
     }
 
@@ -129,16 +133,17 @@ class ConcurrencyE2ETest {
             val result1 = env.startAndAwait(
                 workflowKind = "doubler-workflow",
                 input = DoublerInput(value = 5),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.COMPLETED, result1.status, "First workflow should complete")
-            assertEquals(10, result1.output!!["result"], "First workflow result incorrect")
+            assertNotNull(result1.output, "First workflow should have output")
+            assertEquals(10, result1.output["result"], "First workflow result incorrect")
 
             // Second: failing workflow
             val result2 = env.startAndAwait(
                 workflowKind = "failing-workflow",
                 input = FailingInput(shouldFail = true, message = "Intentional failure"),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.FAILED, result2.status, "Failing workflow should fail")
             assertNotNull(result2.error, "Error should be present")
@@ -147,10 +152,11 @@ class ConcurrencyE2ETest {
             val result3 = env.startAndAwait(
                 workflowKind = "doubler-workflow",
                 input = DoublerInput(value = 25),
-                timeout = 30.seconds
+                timeout = 30.seconds,
             )
             assertEquals(WorkflowStatus.COMPLETED, result3.status, "Workflow after failure should complete")
-            assertEquals(50, result3.output!!["result"], "Workflow after failure result incorrect")
+            assertNotNull(result3.output, "Third workflow should have output")
+            assertEquals(50, result3.output["result"], "Workflow after failure result incorrect")
         }
     }
 
@@ -167,7 +173,7 @@ class ConcurrencyE2ETest {
                 env.startAndAwait(
                     workflowKind = "doubler-workflow",
                     input = DoublerInput(value = 42),
-                    timeout = 30.seconds
+                    timeout = 30.seconds,
                 )
             }
 
@@ -175,7 +181,7 @@ class ConcurrencyE2ETest {
                 env.startAndAwait(
                     workflowKind = "echo-workflow",
                     input = EchoInput(message = "Concurrent test"),
-                    timeout = 30.seconds
+                    timeout = 30.seconds,
                 )
             }
 
@@ -183,7 +189,7 @@ class ConcurrencyE2ETest {
                 env.startAndAwait(
                     workflowKind = "sleep-workflow",
                     input = SleepInput(durationMs = 100),
-                    timeout = 30.seconds
+                    timeout = 30.seconds,
                 )
             }
 
@@ -194,17 +200,20 @@ class ConcurrencyE2ETest {
 
             // Verify all completed with correct results
             assertEquals(WorkflowStatus.COMPLETED, doublerResult.status, "Doubler should complete")
-            assertEquals(84, doublerResult.output!!["result"], "Doubler result incorrect")
+            assertNotNull(doublerResult.output, "Doubler should have output")
+            assertEquals(84, doublerResult.output["result"], "Doubler result incorrect")
 
             assertEquals(WorkflowStatus.COMPLETED, echoResult.status, "Echo should complete")
-            assertEquals("Concurrent test", echoResult.output!!["message"], "Echo message incorrect")
+            assertNotNull(echoResult.output, "Echo should have output")
+            assertEquals("Concurrent test", echoResult.output["message"], "Echo message incorrect")
 
             assertEquals(WorkflowStatus.COMPLETED, sleepResult.status, "Sleep should complete")
-            assertNotNull(sleepResult.output!!["sleptMs"], "Sleep duration should be present")
+            assertNotNull(sleepResult.output, "Sleep should have output")
+            assertNotNull(sleepResult.output["sleptMs"], "Sleep duration should be present")
             assertEquals(
                 100L,
-                (sleepResult.output!!["sleptMs"] as Number).toLong(),
-                "Sleep duration should match input"
+                (sleepResult.output["sleptMs"] as Number).toLong(),
+                "Sleep duration should match input",
             )
         }
     }

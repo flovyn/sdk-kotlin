@@ -68,8 +68,10 @@ object NativeLoader {
         // Extract bundled library from resources
         val resourcePath = "/natives/$platform/$libName"
         val resource = NativeLoader::class.java.getResourceAsStream(resourcePath)
-            ?: error("Native library not found: $resourcePath. " +
-                "Please ensure flovyn_worker_ffi is bundled in the JAR for platform: $platform")
+            ?: error(
+                "Native library not found: $resourcePath. " +
+                    "Please ensure flovyn_worker_ffi is bundled in the JAR for platform: $platform",
+            )
 
         // Create a temp directory for the extracted library
         val tempDir = Files.createTempDirectory("flovyn_worker_ffi").toFile()

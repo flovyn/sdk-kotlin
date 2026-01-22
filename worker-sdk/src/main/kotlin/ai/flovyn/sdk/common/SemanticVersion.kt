@@ -10,7 +10,7 @@ package ai.flovyn.sdk.common
 data class SemanticVersion(
     val major: Int,
     val minor: Int,
-    val patch: Int
+    val patch: Int,
 ) : Comparable<SemanticVersion> {
 
     init {
@@ -39,7 +39,7 @@ data class SemanticVersion(
             return SemanticVersion(
                 major = parts[0].toIntOrNull() ?: error("Invalid major version: ${parts[0]}"),
                 minor = parts[1].toIntOrNull() ?: error("Invalid minor version: ${parts[1]}"),
-                patch = parts[2].toIntOrNull() ?: error("Invalid patch version: ${parts[2]}")
+                patch = parts[2].toIntOrNull() ?: error("Invalid patch version: ${parts[2]}"),
             )
         }
     }

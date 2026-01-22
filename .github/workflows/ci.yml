@@ -32,6 +32,9 @@ jobs:
       - name: Download native libraries from sdk-rust release
         run: ./bin/download-ffi.sh ${{ env.FFI_VERSION }} linux-x86_64 linux-aarch64 windows-x86_64
 
+      - name: Check code formatting (ktlint)
+        run: ./gradlew ktlintCheck
+
       - name: Build
         run: ./gradlew build
 

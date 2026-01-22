@@ -27,7 +27,7 @@ class GreetingWorkflow : WorkflowDefinition<GreetingInput, GreetingOutput>() {
 
         return GreetingOutput(
             message = greeting,
-            timestamp = timestamp
+            timestamp = timestamp,
         )
     }
 }

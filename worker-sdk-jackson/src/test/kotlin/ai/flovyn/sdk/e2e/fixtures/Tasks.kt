@@ -84,7 +84,7 @@ class FailingTask : TaskDefinition<FailingTaskInput, FailingTaskOutput>() {
         maxAttempts = 5,
         initialDelayMs = 100,
         maxDelayMs = 1000,
-        backoffMultiplier = 2.0
+        backoffMultiplier = 2.0,
     )
 
     override suspend fun execute(input: FailingTaskInput, context: TaskContext): FailingTaskOutput {
@@ -136,7 +136,7 @@ data class StreamingAllTypesInput(
     val token: String,
     val progress: Double,
     val data: Map<String, Any?>,
-    val errorMessage: String
+    val errorMessage: String,
 )
 data class StreamingAllTypesOutput(val allTypesSent: Boolean)
 

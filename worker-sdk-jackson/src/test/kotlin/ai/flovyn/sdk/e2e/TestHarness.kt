@@ -1,12 +1,12 @@
 package ai.flovyn.sdk.e2e
 
+import org.slf4j.LoggerFactory
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
 import org.testcontainers.utility.MountableFile
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.Duration
 import java.util.*
@@ -43,9 +43,11 @@ class TestHarness private constructor() {
         private set
     var orgSlug: String = "test-${UUID.randomUUID().toString().substring(0, 8)}"
         private set
+
     // Matches Rust: format!("flovyn_sk_test_{}", &Uuid::new_v4().to_string()[..16])
     var apiKey: String = "flovyn_sk_test_${UUID.randomUUID().toString().substring(0, 16)}"
         private set
+
     // Matches Rust: format!("flovyn_wk_test_{}", &Uuid::new_v4().to_string()[..16])
     var workerToken: String = "flovyn_wk_test_${UUID.randomUUID().toString().substring(0, 16)}"
         private set
@@ -171,7 +173,7 @@ class TestHarness private constructor() {
         }
 
         throw RuntimeException(
-            "Server health check timed out after 30 seconds.\nCheck logs with: docker logs ${server.containerId}"
+            "Server health check timed out after 30 seconds.\nCheck logs with: docker logs ${server.containerId}",
         )
     }
 
@@ -221,7 +223,9 @@ authorizer = "cedar"
         fun getInstance(): TestHarness {
             val existing = instance
             if (existing != null) {
-                instanceLogger.info("[HARNESS] Reusing existing harness instance (ports: HTTP=${existing.serverHttpPort}, gRPC=${existing.serverGrpcPort})")
+                val httpPort = existing.serverHttpPort
+                val grpcPort = existing.serverGrpcPort
+                instanceLogger.info("[HARNESS] Reusing existing harness (HTTP=$httpPort, gRPC=$grpcPort)")
                 return existing
             }
 
@@ -229,12 +233,16 @@ authorizer = "cedar"
             return TestHarness().also {
                 it.start()
                 instance = it
-                instanceLogger.info("[HARNESS] New harness created (ports: HTTP=${it.serverHttpPort}, gRPC=${it.serverGrpcPort})")
+                instanceLogger.info(
+                    "[HARNESS] New harness created (ports: HTTP=${it.serverHttpPort}, gRPC=${it.serverGrpcPort})",
+                )
 
                 // Register shutdown hook for cleanup
-                Runtime.getRuntime().addShutdownHook(Thread {
-                    it.stop()
-                })
+                Runtime.getRuntime().addShutdownHook(
+                    Thread {
+                        it.stop()
+                    },
+                )
             }
         }
     }

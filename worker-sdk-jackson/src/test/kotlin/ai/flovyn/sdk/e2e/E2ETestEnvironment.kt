@@ -7,11 +7,9 @@ import ai.flovyn.sdk.workflow.WorkflowDefinition
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
 import org.slf4j.LoggerFactory
 import java.util.UUID
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -21,13 +19,13 @@ data class WorkflowResult(
     val workflowId: UUID,
     val status: WorkflowStatus,
     val output: Map<String, Any?>?,
-    val error: String?
+    val error: String?,
 )
 
 enum class WorkflowStatus {
     COMPLETED,
     FAILED,
-    PENDING
+    PENDING,
 }
 
 /**
@@ -39,7 +37,7 @@ class E2ETestEnvironment internal constructor(
     private val harness: TestHarness,
     private val queue: String,
     val client: FlovynClient,
-    private val testPrefix: String = ""
+    private val testPrefix: String = "",
 ) {
 
     /**
@@ -47,16 +45,14 @@ class E2ETestEnvironment internal constructor(
      * @param baseKind The base workflow kind (e.g., "echo-workflow")
      * @return Prefixed kind if testPrefix is set, otherwise baseKind unchanged
      */
-    fun workflowKind(baseKind: String): String =
-        if (testPrefix.isNotEmpty()) "$baseKind:$testPrefix" else baseKind
+    fun workflowKind(baseKind: String): String = if (testPrefix.isNotEmpty()) "$baseKind:$testPrefix" else baseKind
 
     /**
      * Generate a unique task kind using the test prefix.
      * @param baseKind The base task kind (e.g., "add-task")
      * @return Prefixed kind if testPrefix is set, otherwise baseKind unchanged
      */
-    fun taskKind(baseKind: String): String =
-        if (testPrefix.isNotEmpty()) "$baseKind:$testPrefix" else baseKind
+    fun taskKind(baseKind: String): String = if (testPrefix.isNotEmpty()) "$baseKind:$testPrefix" else baseKind
 
     private val logger = LoggerFactory.getLogger(E2ETestEnvironment::class.java)
     private val objectMapper = ObjectMapper().registerKotlinModule()
@@ -78,10 +74,7 @@ class E2ETestEnvironment internal constructor(
     /**
      * Start a workflow execution.
      */
-    suspend fun startWorkflow(
-        workflowKind: String,
-        input: Any? = null
-    ): UUID {
+    suspend fun startWorkflow(workflowKind: String, input: Any? = null): UUID {
         logger.info("[ENV] Starting workflow kind=$workflowKind on queue=$queue")
         val id = client.startWorkflow(workflowKind, input)
         logger.info("[ENV] Workflow started: id=$id")
@@ -94,7 +87,7 @@ class E2ETestEnvironment internal constructor(
     suspend fun startAndAwait(
         workflowKind: String,
         input: Any? = null,
-        timeout: Duration = DEFAULT_AWAIT_TIMEOUT
+        timeout: Duration = DEFAULT_AWAIT_TIMEOUT,
     ): WorkflowResult {
         val executionId = startWorkflow(workflowKind, input)
         return awaitCompletion(executionId, timeout)
@@ -104,10 +97,7 @@ class E2ETestEnvironment internal constructor(
      * Wait for workflow completion and return the result.
      * Polls HTTP API for workflow events until completion or failure is detected.
      */
-    suspend fun awaitCompletion(
-        executionId: UUID,
-        timeout: Duration = DEFAULT_AWAIT_TIMEOUT
-    ): WorkflowResult {
+    suspend fun awaitCompletion(executionId: UUID, timeout: Duration = DEFAULT_AWAIT_TIMEOUT): WorkflowResult {
         val startTime = System.currentTimeMillis()
         val timeoutMs = timeout.inWholeMilliseconds
 
@@ -120,32 +110,38 @@ class E2ETestEnvironment internal constructor(
                         "WORKFLOW_COMPLETED" -> {
                             // Parse the JSON payload to extract output
                             val payloadStr = String(ffiEvent.payload)
+
                             @Suppress("UNCHECKED_CAST")
                             val payload = if (payloadStr.isNotBlank()) {
                                 objectMapper.readValue(payloadStr, Map::class.java) as? Map<String, Any?>
-                            } else null
+                            } else {
+                                null
+                            }
                             val output = payload?.get("output") as? Map<String, Any?>
                             logger.info("Workflow {} completed via gRPC", executionId)
                             return WorkflowResult(
                                 workflowId = executionId,
                                 status = WorkflowStatus.COMPLETED,
                                 output = output,
-                                error = null
+                                error = null,
                             )
                         }
                         "WORKFLOW_EXECUTION_FAILED", "WORKFLOW_FAILED" -> {
                             val payloadStr = String(ffiEvent.payload)
+
                             @Suppress("UNCHECKED_CAST")
                             val payload = if (payloadStr.isNotBlank()) {
                                 objectMapper.readValue(payloadStr, Map::class.java) as? Map<String, Any?>
-                            } else null
+                            } else {
+                                null
+                            }
                             val error = payload?.get("error") as? String ?: "Unknown error"
                             logger.info("Workflow {} failed via gRPC: {}", executionId, error)
                             return WorkflowResult(
                                 workflowId = executionId,
                                 status = WorkflowStatus.FAILED,
                                 output = null,
-                                error = error
+                                error = error,
                             )
                         }
                     }
@@ -163,7 +159,7 @@ class E2ETestEnvironment internal constructor(
             workflowId = executionId,
             status = WorkflowStatus.PENDING,
             output = null,
-            error = "Timeout after ${timeout}"
+            error = "Timeout after $timeout",
         )
     }
 
@@ -275,7 +271,7 @@ class E2ETestEnvironment internal constructor(
  */
 class E2ETestEnvBuilder private constructor(
     private val testName: String,
-    private val testId: UUID
+    private val testId: UUID,
 ) {
     private val harness = TestHarness.getInstance()
 
@@ -314,18 +310,14 @@ class E2ETestEnvBuilder private constructor(
     /**
      * Register a workflow definition.
      */
-    inline fun <reified INPUT, reified OUTPUT> registerWorkflow(
-        workflow: WorkflowDefinition<INPUT, OUTPUT>
-    ) = apply {
+    inline fun <reified INPUT, reified OUTPUT> registerWorkflow(workflow: WorkflowDefinition<INPUT, OUTPUT>) = apply {
         clientBuilder.registerWorkflow(workflow)
     }
 
     /**
      * Register a task definition.
      */
-    inline fun <reified INPUT, reified OUTPUT> registerTask(
-        task: TaskDefinition<INPUT, OUTPUT>
-    ) = apply {
+    inline fun <reified INPUT, reified OUTPUT> registerTask(task: TaskDefinition<INPUT, OUTPUT>) = apply {
         clientBuilder.registerTask(task)
     }
 
