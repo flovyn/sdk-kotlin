@@ -97,6 +97,7 @@ internal class TaskWorker(
         return task.execute(input, context)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun isRetryable(e: Exception, task: TaskDefinition<*, *>): Boolean {
         // By default, all exceptions are retryable
         // Specific non-retryable exceptions can be marked

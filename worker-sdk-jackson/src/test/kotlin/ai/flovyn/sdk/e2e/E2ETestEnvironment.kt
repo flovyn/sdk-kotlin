@@ -117,6 +117,8 @@ class E2ETestEnvironment internal constructor(
                             } else {
                                 null
                             }
+
+                            @Suppress("UNCHECKED_CAST")
                             val output = payload?.get("output") as? Map<String, Any?>
                             logger.info("Workflow {} completed via gRPC", executionId)
                             return WorkflowResult(

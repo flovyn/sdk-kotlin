@@ -223,8 +223,8 @@ class PromiseWorkflow(kindSuffix: String = "") : WorkflowDefinition<PromiseInput
     override val version = SemanticVersion(1, 0, 0)
 
     override suspend fun execute(ctx: WorkflowContext, input: PromiseInput): PromiseOutput {
-        // Create a durable promise
-        val promise = ctx.promise<String>(input.promiseName, Duration.ofSeconds(30))
+        // Create a durable promise (result not used, just creates the promise for external resolution)
+        ctx.promise<String>(input.promiseName, Duration.ofSeconds(30))
 
         return PromiseOutput(
             promiseName = input.promiseName,
