@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -28,7 +27,6 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StreamingE2ETest {
 
-    private val logger = LoggerFactory.getLogger(StreamingE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
 
     @BeforeAll
@@ -78,8 +76,6 @@ class StreamingE2ETest {
             val taskResult = result.output!!["taskResult"] as? Map<String, Any?>
             assertNotNull(taskResult, "Task result should be present")
             assertEquals(tokens.size, taskResult["tokenCount"], "Token count should match")
-
-            logger.debug("Token streaming test completed: {} tokens", tokens.size)
         }
     }
 
@@ -113,8 +109,6 @@ class StreamingE2ETest {
             val taskResult = result.output!!["taskResult"] as? Map<String, Any?>
             assertNotNull(taskResult, "Task result should be present")
             assertEquals(1.0, taskResult["finalProgress"], "Final progress should be 1.0")
-
-            logger.debug("Progress streaming test completed")
         }
     }
 
@@ -152,8 +146,6 @@ class StreamingE2ETest {
             val taskResult = result.output!!["taskResult"] as? Map<String, Any?>
             assertNotNull(taskResult, "Task result should be present")
             assertEquals(items.size, taskResult["itemsStreamed"], "Items streamed count should match")
-
-            logger.debug("Data streaming test completed: {} items", items.size)
         }
     }
 
@@ -188,8 +180,6 @@ class StreamingE2ETest {
             val taskResult = result.output!!["taskResult"] as? Map<String, Any?>
             assertNotNull(taskResult, "Task result should be present")
             assertEquals(true, taskResult["errorSent"], "Error should have been sent")
-
-            logger.debug("Error streaming test completed")
         }
     }
 
@@ -226,8 +216,6 @@ class StreamingE2ETest {
             val taskResult = result.output!!["taskResult"] as? Map<String, Any?>
             assertNotNull(taskResult, "Task result should be present")
             assertEquals(true, taskResult["allTypesSent"], "All types should have been sent")
-
-            logger.debug("All types streaming test completed")
         }
     }
 
@@ -269,8 +257,6 @@ class StreamingE2ETest {
             val taskResult = result.output!!["taskResult"] as? Map<String, Any?>
             assertNotNull(taskResult, "Task result should be present")
             assertEquals(tokens.size, taskResult["tokenCount"], "Token count should match")
-
-            logger.debug("Custom token streaming test completed: {} tokens", tokens.size)
         }
     }
 }

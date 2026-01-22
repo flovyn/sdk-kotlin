@@ -5,7 +5,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -26,7 +25,6 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LifecycleE2ETest {
 
-    private val logger = LoggerFactory.getLogger(LifecycleE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
 
     @BeforeAll
@@ -55,7 +53,6 @@ class LifecycleE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             // If we get here, registration succeeded
             assertTrue(env.isStarted, "Worker should have started")
-            logger.debug("Worker registration verified")
         }
     }
 
@@ -80,8 +77,6 @@ class LifecycleE2ETest {
                 assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow $index should complete")
                 assertEquals((index + 1) * 2, result.output!!["result"], "Result should be doubled: ${(index + 1) * 2}")
             }
-
-            logger.debug("Worker processed {} workflows successfully", handles.size)
         }
     }
 
@@ -97,7 +92,6 @@ class LifecycleE2ETest {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val status = env.workerStatus
             assertEquals("running", status, "Worker status should be 'running', got '$status'")
-            logger.debug("Worker status verified: {}", status)
         }
     }
 
@@ -125,8 +119,6 @@ class LifecycleE2ETest {
 
             // Verify still running after
             assertEquals("running", env.workerStatus, "Worker should still be running after workflow")
-
-            logger.debug("Worker continues running after workflow completion")
         }
     }
 
@@ -159,8 +151,6 @@ class LifecycleE2ETest {
             )
             assertEquals(WorkflowStatus.COMPLETED, successResult.status, "Workflow should complete after previous failure")
             assertEquals("after-failure", successResult.output!!["message"], "Message should be echoed")
-
-            logger.debug("Worker recovered from workflow failure and processed new workflow")
         }
     }
 
@@ -184,8 +174,6 @@ class LifecycleE2ETest {
             // Get uptime again
             val uptime2 = env.workerUptimeMs
             assertTrue(uptime2 > uptime1, "Uptime should increase: $uptime2 > $uptime1")
-
-            logger.debug("Worker uptime verified: {} -> {} ms", uptime1, uptime2)
         }
     }
 
@@ -209,8 +197,6 @@ class LifecycleE2ETest {
             // Should have started within the last hour (reasonable for tests)
             val oneHourAgo = nowMs - (60 * 60 * 1000)
             assertTrue(startedAt > oneHourAgo, "Started at should be recent: $startedAt > $oneHourAgo")
-
-            logger.debug("Worker started at: {} (now: {})", startedAt, nowMs)
         }
     }
 
@@ -227,8 +213,6 @@ class LifecycleE2ETest {
             val workerId = env.workerId
             assertNotNull(workerId, "Worker ID should be available")
             assertTrue(workerId.isNotBlank(), "Worker ID should be non-empty")
-
-            logger.debug("Worker ID: {}", workerId)
         }
     }
 
@@ -252,8 +236,6 @@ class LifecycleE2ETest {
             // Check default values (10 workflows, 20 tasks)
             assertEquals(10, maxWorkflows, "Default max workflows should be 10, got $maxWorkflows")
             assertEquals(20, maxTasks, "Default max tasks should be 20, got $maxTasks")
-
-            logger.debug("Config accessors: maxWorkflows={}, maxTasks={}", maxWorkflows, maxTasks)
         }
     }
 
@@ -274,8 +256,6 @@ class LifecycleE2ETest {
 
             // Check unregistered workflow
             assertTrue(!env.hasWorkflow("non-existent-workflow"), "Should not have non-existent workflow")
-
-            logger.debug("Registration info verified")
         }
     }
 
@@ -289,7 +269,6 @@ class LifecycleE2ETest {
     fun `test is running property`(): Unit = runBlocking {
         withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             assertTrue(env.isRunning, "Worker should be running")
-            logger.debug("isRunning property verified")
         }
     }
 }

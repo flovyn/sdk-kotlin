@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.seconds
 
@@ -17,7 +16,6 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TaskE2ETest {
 
-    private val logger = LoggerFactory.getLogger(TaskE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
 
     @BeforeAll
@@ -46,7 +44,6 @@ class TaskE2ETest {
             )
 
             assertNotNull(executionId)
-            logger.debug("Started task scheduling workflow: {}", executionId)
 
             // This workflow schedules 5 add tasks, so give it more time
             env.awaitCompletion(executionId, 30.seconds)
@@ -62,7 +59,6 @@ class TaskE2ETest {
             )
 
             assertNotNull(executionId)
-            logger.debug("Started workflow with 10 tasks: {}", executionId)
 
             env.awaitCompletion(executionId, 60.seconds)
         }

@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -21,7 +20,6 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ErrorE2ETest {
 
-    private val logger = LoggerFactory.getLogger(ErrorE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
 
     @BeforeAll
@@ -52,8 +50,6 @@ class ErrorE2ETest {
             // Verify workflow failed
             assertEquals(WorkflowStatus.FAILED, result.status, "Workflow should fail")
             assertNotNull(result.error, "Error should be present")
-
-            logger.debug("Workflow failed with error: {}", result.error)
         }
     }
 
@@ -84,8 +80,6 @@ class ErrorE2ETest {
                 result.error!!.contains(errorMessage, ignoreCase = true),
                 "Error message should contain the original error text. Got: ${result.error}"
             )
-
-            logger.debug("Error message preserved: {}", result.error)
         }
     }
 
@@ -120,8 +114,6 @@ class ErrorE2ETest {
                 result.error!!.contains("workflow", ignoreCase = true),
                 "Error should contain workflow reference"
             )
-
-            logger.debug("Detailed error message: {}", result.error)
         }
     }
 }

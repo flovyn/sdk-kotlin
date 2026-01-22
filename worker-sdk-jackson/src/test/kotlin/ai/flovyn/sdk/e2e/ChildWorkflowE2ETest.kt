@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -19,7 +18,6 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ChildWorkflowE2ETest {
 
-    private val logger = LoggerFactory.getLogger(ChildWorkflowE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
 
     @BeforeAll
@@ -31,17 +29,6 @@ class ChildWorkflowE2ETest {
             .registerWorkflow(ParentWithFailingChildWorkflow())
             .registerWorkflow(NestedChildWorkflow())
             .buildAndStart()
-
-        // Warmup: run a simple workflow to ensure worker is fully registered
-        // Child workflow tests are sensitive to timing - this ensures the server
-        // has fully processed the worker registration before we test child workflows
-        logger.info("Running warmup workflow...")
-        val warmup = env.startAndAwait(
-            workflowKind = "child-workflow",
-            input = ChildInput(value = 1),
-            timeout = 30.seconds
-        )
-        logger.info("Warmup complete: status={}", warmup.status)
     }
 
     @AfterAll
@@ -59,24 +46,21 @@ class ChildWorkflowE2ETest {
      */
     @Test
     fun `test child workflow success`(): Unit = runBlocking {
-        withTimeout(90.seconds) {
+        withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val result = env.startAndAwait(
                 workflowKind = "parent-workflow",
                 input = ParentInput(value = 21),
-                timeout = 60.seconds
+                timeout = 30.seconds
             )
 
-            // Log result for debugging in CI
-            logger.info("Parent workflow result: status={}, output={}, error={}", result.status, result.output, result.error)
-
             // Verify workflow completed
-            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete successfully. Got: ${result.status}, error: ${result.error}")
+            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete successfully")
 
             // Verify output
             assertNotNull(result.output, "Output should not be null")
-            assertEquals(21, result.output!!["originalValue"], "Original value should be preserved. Got: ${result.output}")
+            assertEquals(21, result.output!!["originalValue"], "Original value should be preserved")
             // Child doubles the value: 21 * 2 = 42
-            assertEquals(42, result.output!!["childResult"], "Child should double the value. Got: ${result.output}")
+            assertEquals(42, result.output!!["childResult"], "Child should double the value")
         }
     }
 
@@ -90,11 +74,11 @@ class ChildWorkflowE2ETest {
      */
     @Test
     fun `test child workflow failure`(): Unit = runBlocking {
-        withTimeout(90.seconds) {
+        withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val result = env.startAndAwait(
                 workflowKind = "parent-with-failing-child-workflow",
                 input = ParentWithFailingChildInput(message = "Intentional child failure"),
-                timeout = 60.seconds
+                timeout = 30.seconds
             )
 
             // Parent should complete (handling child error)
@@ -112,8 +96,6 @@ class ChildWorkflowE2ETest {
                 errorMessage.contains("child", ignoreCase = true),
                 "Error message should contain relevant information"
             )
-
-            logger.debug("Parent workflow handled child failure: {}", result.output)
         }
     }
 
@@ -136,24 +118,19 @@ class ChildWorkflowE2ETest {
                 timeout = 60.seconds
             )
 
-            // Log result for debugging in CI
-            logger.info("Nested workflow result: status={}, output={}, error={}", result.status, result.output, result.error)
-
             // Verify workflow completed
-            assertEquals(WorkflowStatus.COMPLETED, result.status, "Nested workflow should complete successfully. Got: ${result.status}, error: ${result.error}")
+            assertEquals(WorkflowStatus.COMPLETED, result.status, "Nested workflow should complete successfully")
 
             // Verify output
-            assertNotNull(result.output, "Output should not be null. status=${result.status}, error=${result.error}")
+            assertNotNull(result.output, "Output should not be null")
 
             // Result should contain "leaf:nested" from the deepest level
             val resultStr = result.output!!["result"] as? String
-            assertNotNull(resultStr, "Result string should be present. output=${result.output}")
-            assertTrue(resultStr.contains("leaf:nested"), "Result should contain 'leaf:nested'. Got: $resultStr")
+            assertNotNull(resultStr, "Result string should be present")
+            assertTrue(resultStr.contains("leaf:nested"), "Result should contain 'leaf:nested'")
 
             // Verify levels count matches depth
-            assertEquals(3, result.output!!["levels"], "Levels should be 3. Got output: ${result.output}")
-
-            logger.debug("Nested child workflows completed with output: {}", result.output)
+            assertEquals(3, result.output!!["levels"], "Levels should be 3")
         }
     }
 }

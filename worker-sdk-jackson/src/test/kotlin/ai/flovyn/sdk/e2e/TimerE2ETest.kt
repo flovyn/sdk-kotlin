@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -23,7 +22,6 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TimerE2ETest {
 
-    private val logger = LoggerFactory.getLogger(TimerE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
 
     @BeforeAll
@@ -67,8 +65,6 @@ class TimerE2ETest {
                 timerDuration, elapsedMs,
                 "Elapsed time should match input duration"
             )
-
-            logger.debug("Short timer completed with duration {} ms", elapsedMs)
         }
     }
 
@@ -104,8 +100,6 @@ class TimerE2ETest {
             val endTime = result.output!!["endTime"] as Number
             assertNotNull(startTime, "Start time should be recorded")
             assertNotNull(endTime, "End time should be recorded")
-
-            logger.debug("Durable timer sleep completed with duration {} ms", sleptMs)
         }
     }
 
@@ -138,8 +132,6 @@ class TimerE2ETest {
                 timeout = 30.seconds
             )
             assertEquals(WorkflowStatus.COMPLETED, result3.status, "Third timer should complete")
-
-            logger.debug("All sequential timers completed successfully")
         }
     }
 }

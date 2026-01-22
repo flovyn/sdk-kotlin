@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -23,7 +22,6 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ReplayE2ETest {
 
-    private val logger = LoggerFactory.getLogger(ReplayE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
 
     @BeforeAll
@@ -81,8 +79,6 @@ class ReplayE2ETest {
             // Verify task result: 16 + 10 = 26
             assertEquals(26, result.output!!["taskResult"], "Task result should be 26")
             assertEquals(26, result.output!!["finalValue"], "Final value should be 26")
-
-            logger.debug("Mixed commands workflow completed: {}", result.output)
         }
     }
 
@@ -95,25 +91,19 @@ class ReplayE2ETest {
      */
     @Test
     fun `test sequential tasks in loop`(): Unit = runBlocking {
-        withTimeout(90.seconds) {
+        withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val numbers = listOf(1, 2, 3, 4, 5)
             val result = env.startAndAwait(
                 workflowKind = "task-scheduling-workflow",
                 input = TaskSchedulingInput(numbers = numbers),
-                timeout = 60.seconds
+                timeout = 30.seconds
             )
 
-            // Log result for debugging in CI
-            logger.info("Task scheduling workflow result: status={}, output={}, error={}", result.status, result.output, result.error)
-
-            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete. Got: ${result.status}, error: ${result.error}")
+            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
             assertNotNull(result.output, "Output should not be null")
 
             // Sum: 0+1=1, 1+2=3, 3+3=6, 6+4=10, 10+5=15
-            assertNotNull(result.output, "Output should not be null. status=${result.status}, error=${result.error}")
-            assertEquals(15, result.output!!["sum"], "Sum should be 15. Got output: ${result.output}")
-
-            logger.debug("Sequential task loop completed with sum: {}", result.output!!["sum"])
+            assertEquals(15, result.output!!["sum"], "Sum should be 15")
         }
     }
 
@@ -158,9 +148,6 @@ class ReplayE2ETest {
             assertNotNull(randomDoubles, "Random doubles should be present")
             assertEquals(count, randomDoubles.size, "Should have $count random doubles")
             assertTrue(randomDoubles.all { it in 0.0..1.0 }, "All random doubles should be in [0,1)")
-
-            logger.debug("Deterministic random generation completed: {} UUIDs, {} ints, {} doubles",
-                uuids.size, randomInts.size, randomDoubles.size)
         }
     }
 
@@ -191,8 +178,6 @@ class ReplayE2ETest {
                 assertNotNull(result.output!!["runResults"], "Run results should be present")
                 assertNotNull(result.output!!["taskResult"], "Task result should be present")
             }
-
-            logger.debug("Workflow consistency verified across {} runs", results.size)
         }
     }
 }

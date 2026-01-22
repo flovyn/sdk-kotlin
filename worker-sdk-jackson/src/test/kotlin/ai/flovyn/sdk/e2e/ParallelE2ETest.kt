@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -25,7 +24,6 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ParallelE2ETest {
 
-    private val logger = LoggerFactory.getLogger(ParallelE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
 
     @BeforeAll
@@ -80,8 +78,6 @@ class ParallelE2ETest {
             // Verify total length: 5 + 6 + 6 + 4 = 21
             val expectedLength = items.sumOf { it.length }
             assertEquals(expectedLength, result.output!!["totalLength"], "Total length should be $expectedLength")
-
-            logger.debug("Fan-out/fan-in completed: {} items, total length {}", items.size, expectedLength)
         }
     }
 
@@ -118,8 +114,6 @@ class ParallelE2ETest {
             // Verify min and max
             assertEquals(1, result.output!!["minValue"], "Min value should be 1")
             assertEquals(count, result.output!!["maxValue"], "Max value should be $count")
-
-            logger.debug("Large batch completed: {} tasks, total {}", count, result.output!!["total"])
         }
     }
 
@@ -214,21 +208,18 @@ class ParallelE2ETest {
      */
     @Test
     fun `test mixed parallel operations`(): Unit = runBlocking {
-        withTimeout(90.seconds) {
+        withTimeout(E2ETestEnvironment.TEST_TIMEOUT) {
             val result = env.startAndAwait(
                 workflowKind = "mixed-parallel-workflow",
                 input = MixedParallelInput(),
-                timeout = 60.seconds
+                timeout = 30.seconds
             )
 
-            // Log result for debugging in CI
-            logger.info("Mixed parallel workflow result: status={}, output={}, error={}", result.status, result.output, result.error)
-
-            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete. Got: ${result.status}, error: ${result.error}")
-            assertNotNull(result.output, "Output should not be null. status=${result.status}, error=${result.error}")
+            assertEquals(WorkflowStatus.COMPLETED, result.status, "Workflow should complete")
+            assertNotNull(result.output, "Output should not be null")
 
             // Verify success flag
-            assertEquals(true, result.output!!["success"], "Workflow should succeed. Got output: ${result.output}")
+            assertEquals(true, result.output!!["success"], "Workflow should succeed")
 
             // Phase 1: Two echo results
             @Suppress("UNCHECKED_CAST")
@@ -245,8 +236,6 @@ class ParallelE2ETest {
             assertNotNull(phase3Results, "Phase 3 results should be present")
             assertEquals(3, phase3Results.size, "Phase 3 should have 3 results")
             assertEquals(listOf(0, 2, 4), phase3Results, "Phase 3 results should be [0, 2, 4]")
-
-            logger.debug("Mixed parallel operations completed: phase1={}, phase3={}", phase1Results, phase3Results)
         }
     }
 }

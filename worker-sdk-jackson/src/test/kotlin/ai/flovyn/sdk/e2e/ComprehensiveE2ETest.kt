@@ -4,7 +4,6 @@ import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -19,7 +18,6 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ComprehensiveE2ETest {
 
-    private val logger = LoggerFactory.getLogger(ComprehensiveE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
     private lateinit var testPrefix: String
 
@@ -28,7 +26,6 @@ class ComprehensiveE2ETest {
         val builder = E2ETestEnvironment.builder("ComprehensiveE2ETest")
         testPrefix = builder.testPrefix
 
-        logger.info("[SETUP] Creating test environment with testPrefix=$testPrefix, queue=${builder.queue}")
         env = builder
             .registerWorkflow(ComprehensiveWorkflow(testPrefix))
             .registerWorkflow(DoublerWorkflow())
@@ -38,7 +35,6 @@ class ComprehensiveE2ETest {
             .registerWorkflow(RandomWorkflow(testPrefix))
             .registerWorkflow(SleepWorkflow(testPrefix))
             .buildAndStart()
-        logger.info("[SETUP] Environment started, worker status: ${env.workerStatus}")
     }
 
     @AfterAll
@@ -99,8 +95,6 @@ class ComprehensiveE2ETest {
             assertNotNull(nested, "Nested state should be present")
             assertEquals(1, nested["a"], "Nested a should be 1")
             assertEquals(2, nested["b"], "Nested b should be 2")
-
-            logger.debug("Comprehensive workflow completed with output: {}", result.output)
         }
     }
 
@@ -234,8 +228,6 @@ class ComprehensiveE2ETest {
             val stateRetrieved = result.output!!["stateRetrieved"] as? Map<String, Any?>
             assertNotNull(stateRetrieved, "State retrieved should not be null")
             assertEquals(50, stateRetrieved["counter"], "State counter should equal input value")
-
-            logger.debug("Comprehensive workflow with different input completed")
         }
     }
 
@@ -270,8 +262,6 @@ class ComprehensiveE2ETest {
             val randomFloat = randomDoubles[0]
             assertTrue(randomFloat >= 0.0, "Random float should be >= 0")
             assertTrue(randomFloat < 1.0, "Random float should be < 1.0")
-
-            logger.debug("Random workflow completed: uuid={}, random_float={}", uuids[0], randomFloat)
         }
     }
 
@@ -296,8 +286,6 @@ class ComprehensiveE2ETest {
             val sleptMs = (result.output!!["sleptMs"] as? Number)?.toLong()
             assertNotNull(sleptMs, "Slept duration should be present")
             assertEquals(durationMs, sleptMs, "Slept duration should match input")
-
-            logger.debug("Sleep workflow completed: sleptMs={}", sleptMs)
         }
     }
 }

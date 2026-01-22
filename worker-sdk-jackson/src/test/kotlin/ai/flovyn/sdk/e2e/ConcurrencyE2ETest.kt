@@ -3,7 +3,6 @@ package ai.flovyn.sdk.e2e
 import ai.flovyn.sdk.e2e.fixtures.*
 import kotlinx.coroutines.*
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -22,7 +21,6 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ConcurrencyE2ETest {
 
-    private val logger = LoggerFactory.getLogger(ConcurrencyE2ETest::class.java)
     private lateinit var env: E2ETestEnvironment
 
     @BeforeAll
@@ -79,8 +77,6 @@ class ConcurrencyE2ETest {
                     "Workflow $i should double the value"
                 )
             }
-
-            logger.debug("All {} concurrent workflows completed successfully", workflowCount)
         }
     }
 
@@ -118,8 +114,6 @@ class ConcurrencyE2ETest {
             )
             assertEquals(WorkflowStatus.COMPLETED, result3.status, "Third workflow should complete")
             assertEquals(200, result3.output!!["result"], "Third workflow result incorrect")
-
-            logger.debug("Worker successfully processed 3 sequential workflows")
         }
     }
 
@@ -157,8 +151,6 @@ class ConcurrencyE2ETest {
             )
             assertEquals(WorkflowStatus.COMPLETED, result3.status, "Workflow after failure should complete")
             assertEquals(50, result3.output!!["result"], "Workflow after failure result incorrect")
-
-            logger.debug("Worker successfully recovered from workflow error")
         }
     }
 
@@ -214,8 +206,6 @@ class ConcurrencyE2ETest {
                 (sleepResult.output!!["sleptMs"] as Number).toLong(),
                 "Sleep duration should match input"
             )
-
-            logger.debug("Concurrent mixed workflow types completed successfully")
         }
     }
 }

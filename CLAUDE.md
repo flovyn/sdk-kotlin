@@ -73,13 +73,13 @@ Native binaries come from the `flovyn/sdk-rust` repository. Use the provided scr
 
 # Option 2: Download from GitHub releases (Linux/Windows only)
 ./bin/dev/update-native.sh --download         # Latest release
-./bin/dev/update-native.sh --download v0.1.5  # Specific version
+./bin/dev/update-native.sh --download v0.1.7  # Specific version
 
 # Option 3: Regenerate Kotlin bindings only (if you already have the library)
 ./bin/dev/update-native.sh --bindings
 
 # Option 4: Direct download from GitHub releases
-./bin/download-ffi.sh v0.1.5 linux-x86_64
+./bin/download-ffi.sh v0.1.7 linux-x86_64
 ```
 
 The scripts place:
