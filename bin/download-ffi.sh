@@ -22,7 +22,7 @@ fi
 
 # Default platforms if none specified
 if [[ $# -eq 0 ]]; then
-    PLATFORMS=("linux-x86_64" "linux-aarch64" "windows-x86_64")
+    PLATFORMS=("linux-x86_64" "linux-aarch64" "macos-x86_64" "macos-aarch64" "windows-x86_64")
 else
     PLATFORMS=("$@")
 fi
