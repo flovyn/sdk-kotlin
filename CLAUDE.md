@@ -91,5 +91,3 @@ The scripts place:
 - Kotlin bindings in `worker-native/src/main/kotlin/uniffi/flovyn_worker_ffi/`
 
 Supported platforms: `linux-x86_64`, `linux-aarch64`, `macos-x86_64`, `macos-aarch64`, `windows-x86_64`
-
-**Note**: macOS builds are not available from GitHub releases and must be built locally from sdk-rust.
