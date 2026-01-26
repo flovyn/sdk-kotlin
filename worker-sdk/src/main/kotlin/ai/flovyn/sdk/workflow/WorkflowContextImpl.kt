@@ -207,6 +207,16 @@ internal class WorkflowContextImpl(
         }
     }
 
+    override suspend fun sleepUntil(timestamp: java.time.Instant) {
+        val now = java.time.Instant.ofEpochMilli(currentTimeMillis())
+        if (timestamp <= now) {
+            // Target time is in the past, return immediately
+            return
+        }
+        val duration = Duration.between(now, timestamp)
+        sleep(duration)
+    }
+
     override suspend fun <T> promise(name: String, timeout: Duration?): DurablePromise<T> {
         return when (val result = ffiContext.createPromise(name, timeout?.toMillis())) {
             is FfiPromiseResult.Resolved -> {

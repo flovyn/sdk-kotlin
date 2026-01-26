@@ -155,6 +155,15 @@ interface WorkflowContext {
      */
     suspend fun sleep(duration: Duration)
 
+    /**
+     * Sleep until a specific instant (durable timer).
+     * The workflow will be suspended and resumed at the specified time.
+     * If the time is already in the past, returns immediately.
+     *
+     * @param timestamp The instant to sleep until.
+     */
+    suspend fun sleepUntil(timestamp: java.time.Instant)
+
     // --- Promises ---
 
     /**
