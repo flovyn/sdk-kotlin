@@ -143,7 +143,7 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
-      contents: write
+      contents: write  # for GitHub Release
 
     steps:
       - uses: actions/checkout@v4
@@ -212,6 +212,26 @@ jobs:
         with:
           generate_release_notes: true
 
+  # Bump version after successful release (separate job for clean retries)
+  bump-version:
+    name: Bump to next SNAPSHOT
+    needs: publish-release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Bump to next SNAPSHOT version
         run: |
           # Parse current version (e.g., 0.1.0 -> 0.2.0-SNAPSHOT)
@@ -231,4 +251,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add gradle.properties
           git commit -m "chore: bump version to $(grep '^version=' gradle.properties | cut -d'=' -f2)"
-          git push origin HEAD:main
+          git push origin main
