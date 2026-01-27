@@ -105,9 +105,9 @@ subprojects {
                             active.set(org.jreleaser.model.Active.ALWAYS)
                             url.set("https://central.sonatype.com/api/v1/publisher")
                             stagingRepository(layout.buildDirectory.dir("staging-deploy").get().asFile.absolutePath)
-                            // Don't wait for publishing to complete (fire-and-forget)
-                            // Will still fail if upload/validation fails
-                            skipPublicationCheck.set(true)
+                            // Longer timeout for Central Portal publishing
+                            retryDelay.set(30)
+                            maxRetries.set(60)
                         }
                     }
                 }
