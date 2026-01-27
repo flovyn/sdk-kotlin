@@ -34,7 +34,7 @@ subprojects {
         configure<PublishingExtension> {
             publications {
                 create<MavenPublication>("mavenJava") {
-                    artifactId = project.name
+                    artifactId = "${project.name}-kotlin"
                     from(components["java"])
 
                     pom {
