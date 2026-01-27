@@ -2,11 +2,68 @@ name: Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
 
+env:
+  # Pin to specific sdk-rust release version for snapshot builds
+  FFI_VERSION: v0.1.9
+
 jobs:
+  # Publish SNAPSHOT to Maven Central on main branch push
+  publish-snapshot:
+    name: Publish SNAPSHOT to Maven Central
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Validate SNAPSHOT version
+        run: |
+          VERSION=$(./gradlew properties -q | grep "^version:" | awk '{print $2}')
+          if [[ ! "$VERSION" == *"SNAPSHOT"* ]]; then
+            echo "Error: Version $VERSION is not a SNAPSHOT version"
+            exit 1
+          fi
+          echo "Publishing version: $VERSION"
+
+      - name: Download native libraries from sdk-rust release
+        run: ./bin/download-ffi.sh ${{ env.FFI_VERSION }} linux-x86_64 linux-aarch64 windows-x86_64
+
+      - name: Build
+        run: ./gradlew build -x test
+
+      - name: Set up GPG key
+        run: echo "${{ secrets.MAVEN_CENTRAL_SIGNING_KEY }}" > /tmp/signing-key.asc
+
+      - name: Publish to Maven Central Snapshots
+        run: |
+          ./gradlew publish \
+            -Psigning.keyId="${MAVEN_CENTRAL_SIGNING_KEY_ID}" \
+            -Psigning.password="${MAVEN_CENTRAL_SIGNING_PASSWORD}" \
+            -Psigning.key="$(cat /tmp/signing-key.asc)"
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          MAVEN_CENTRAL_SIGNING_KEY_ID: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY_ID }}
+          MAVEN_CENTRAL_SIGNING_PASSWORD: ${{ secrets.MAVEN_CENTRAL_SIGNING_PASSWORD }}
+
+  # Build native libraries for release
+  # Platforms: linux-x86_64, linux-aarch64, macos-aarch64, windows-x86_64
   build-natives:
+    if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
         include:
@@ -14,14 +71,22 @@ jobs:
             target: x86_64-unknown-linux-gnu
             lib: libflovyn_worker_ffi.so
             native-dir: linux-x86_64
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            lib: libflovyn_worker_ffi.dylib
-            native-dir: macos-x86_64
+            use_cross: false
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            lib: libflovyn_worker_ffi.so
+            native-dir: linux-aarch64
+            use_cross: true
           - os: macos-latest
             target: aarch64-apple-darwin
             lib: libflovyn_worker_ffi.dylib
             native-dir: macos-aarch64
+            use_cross: false
+          - os: ubuntu-latest
+            target: x86_64-pc-windows-gnu
+            lib: flovyn_worker_ffi.dll
+            native-dir: windows-x86_64
+            use_cross: true
 
     runs-on: ${{ matrix.os }}
 
@@ -33,6 +98,23 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
+      - name: Install cross-compilation dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+          if [ "${{ matrix.target }}" = "aarch64-unknown-linux-gnu" ]; then
+            sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          fi
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install protobuf
+
+      - name: Install cargo-cross
+        if: matrix.use_cross
+        run: cargo install cargo-cross
+
       - name: Checkout sdk-rust (for ffi crate)
         uses: actions/checkout@v4
         with:
@@ -42,7 +124,11 @@ jobs:
       - name: Build native library
         run: |
           cd sdk-rust
-          cargo build -p flovyn-worker-ffi --release --target ${{ matrix.target }}
+          if [ "${{ matrix.use_cross }}" = "true" ]; then
+            cargo cross build -p flovyn-worker-ffi --release --target ${{ matrix.target }}
+          else
+            cargo build -p flovyn-worker-ffi --release --target ${{ matrix.target }}
+          fi
 
       - name: Upload native library
         uses: actions/upload-artifact@v4
@@ -50,9 +136,12 @@ jobs:
           name: native-${{ matrix.native-dir }}
           path: sdk-rust/target/${{ matrix.target }}/release/${{ matrix.lib }}
 
-  publish:
+  # Publish release to Maven Central on version tag
+  publish-release:
+    name: Publish Release to Maven Central
     needs: build-natives
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
       - uses: actions/checkout@v4
@@ -63,17 +152,23 @@ jobs:
           name: native-linux-x86_64
           path: worker-native/src/main/resources/natives/linux-x86_64/
 
-      - name: Download macOS x86_64 native library
+      - name: Download Linux aarch64 native library
         uses: actions/download-artifact@v4
         with:
-          name: native-macos-x86_64
-          path: worker-native/src/main/resources/natives/macos-x86_64/
+          name: native-linux-aarch64
+          path: worker-native/src/main/resources/natives/linux-aarch64/
 
       - name: Download macOS aarch64 native library
         uses: actions/download-artifact@v4
         with:
           name: native-macos-aarch64
           path: worker-native/src/main/resources/natives/macos-aarch64/
+
+      - name: Download Windows x86_64 native library
+        uses: actions/download-artifact@v4
+        with:
+          name: native-windows-x86_64
+          path: worker-native/src/main/resources/natives/windows-x86_64/
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -84,10 +179,40 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Publishing version: $VERSION"
+
+      - name: Validate release version
+        run: |
+          VERSION=$(./gradlew properties -q | grep "^version:" | awk '{print $2}')
+          if [[ "$VERSION" == *"SNAPSHOT"* ]]; then
+            echo "Error: Cannot publish SNAPSHOT version $VERSION as a release"
+            exit 1
+          fi
+
+      - name: Build
+        run: ./gradlew build -x test
+
+      - name: Set up GPG key
+        run: echo "${{ secrets.MAVEN_CENTRAL_SIGNING_KEY }}" > /tmp/signing-key.asc
+
       - name: Publish to Maven Central
-        run: ./gradlew publish
+        run: |
+          ./gradlew publish \
+            -Psigning.keyId="${MAVEN_CENTRAL_SIGNING_KEY_ID}" \
+            -Psigning.password="${MAVEN_CENTRAL_SIGNING_PASSWORD}" \
+            -Psigning.key="$(cat /tmp/signing-key.asc)"
         env:
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          MAVEN_CENTRAL_SIGNING_KEY_ID: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY_ID }}
+          MAVEN_CENTRAL_SIGNING_PASSWORD: ${{ secrets.MAVEN_CENTRAL_SIGNING_PASSWORD }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
