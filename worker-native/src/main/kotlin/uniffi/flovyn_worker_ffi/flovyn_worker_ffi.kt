@@ -842,6 +842,8 @@ internal interface UniffiForeignFutureCompleteVoid : com.sun.jna.Callback {
 
 
 
+
+
 // A JNA Library to expose the extern-C FFI definitions.
 // This is an implementation detail which will be called internally by the public API.
 
@@ -962,6 +964,8 @@ internal interface UniffiLib : Library {
     fun uniffi_flovyn_worker_ffi_fn_clone_ffiworkflowcontext(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Pointer
     fun uniffi_flovyn_worker_ffi_fn_free_ffiworkflowcontext(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_clear_all(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_clear_state(`ptr`: Pointer,`key`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
@@ -1193,6 +1197,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_workflow_execution_id(
     ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_clear_all(
+    ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_clear_state(
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_command_count(
@@ -1371,6 +1377,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffitaskcontext_workflow_execution_id() != 43823.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_clear_all() != 4373.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_clear_state() != 41051.toShort()) {
@@ -3629,6 +3638,13 @@ public object FfiConverterTypeFfiTaskContext: FfiConverter<FfiTaskContext, Point
 public interface FfiWorkflowContextInterface {
     
     /**
+     * Clear all workflow state.
+     *
+     * Generates ClearState commands for all keys and clears local state.
+     */
+    fun `clearAll`()
+    
+    /**
      * Clear workflow state.
      */
     fun `clearState`(`key`: kotlin.String)
@@ -3840,6 +3856,22 @@ open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInte
             UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_clone_ffiworkflowcontext(pointer!!, status)
         }
     }
+
+    
+    /**
+     * Clear all workflow state.
+     *
+     * Generates ClearState commands for all keys and clears local state.
+     */override fun `clearAll`()
+        = 
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_clear_all(
+        it, _status)
+}
+    }
+    
+    
 
     
     /**
