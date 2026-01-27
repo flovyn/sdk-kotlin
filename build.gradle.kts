@@ -89,6 +89,7 @@ subprojects {
 
         configure<org.jreleaser.gradle.plugin.JReleaserExtension> {
             project {
+                name.set("${project.name}-kotlin")
                 copyright.set("Flovyn")
             }
 
