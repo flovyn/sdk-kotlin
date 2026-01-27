@@ -68,13 +68,30 @@ subprojects {
             }
 
             repositories {
+                // Staging for JReleaser (releases)
                 maven {
+                    name = "staging"
                     url = uri(layout.buildDirectory.dir("staging-deploy"))
+                }
+                // Direct snapshot publishing
+                maven {
+                    name = "snapshot"
+                    url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+                    credentials {
+                        username = findProperty("mavenCentralUsername") as String?
+                            ?: System.getenv("MAVEN_CENTRAL_USERNAME")
+                        password = findProperty("mavenCentralPassword") as String?
+                            ?: System.getenv("MAVEN_CENTRAL_PASSWORD")
+                    }
                 }
             }
         }
 
         configure<org.jreleaser.gradle.plugin.JReleaserExtension> {
+            project {
+                copyright.set("Flovyn")
+            }
+
             signing {
                 active.set(org.jreleaser.model.Active.ALWAYS)
                 armored.set(true)

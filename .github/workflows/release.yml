@@ -45,17 +45,11 @@ jobs:
       - name: Build
         run: ./gradlew build -x test
 
-      - name: Stage artifacts
-        run: ./gradlew publish
-
-      - name: Deploy to Maven Central Snapshots
-        run: ./gradlew jreleaserDeploy
+      - name: Publish to Maven Central Snapshots
+        run: ./gradlew publishMavenPublicationToSnapshotRepository
         env:
-          JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          JRELEASER_GPG_PASSPHRASE: ${{ secrets.MAVEN_CENTRAL_SIGNING_PASSWORD }}
-          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.MAVEN_CENTRAL_SIGNING_PUBLIC_KEY }}
-          JRELEASER_GPG_SECRET_KEY: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY }}
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
 
   # Build native libraries for release
   # Platforms: linux-x86_64, linux-aarch64, macos-aarch64, windows-x86_64
@@ -189,7 +183,7 @@ jobs:
         run: ./gradlew build -x test -Pversion=${{ steps.version.outputs.version }}
 
       - name: Stage artifacts
-        run: ./gradlew publish -Pversion=${{ steps.version.outputs.version }}
+        run: ./gradlew publishMavenPublicationToStagingRepository -Pversion=${{ steps.version.outputs.version }}
 
       - name: Deploy to Maven Central
         run: ./gradlew jreleaserDeploy -Pversion=${{ steps.version.outputs.version }}
