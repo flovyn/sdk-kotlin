@@ -24,7 +24,7 @@ import java.util.UUID
  * Example:
  * ```kotlin
  * val client = FlovynClientBuilder()
- *     .serverAddress("localhost", 9090)
+ *     .serverAddress("https://worker.flovyn.ai")
  *     .orgId(orgId)
  *     .registerWorkflow(MyWorkflow())
  *     .registerTask(MyTask())
@@ -36,8 +36,7 @@ import java.util.UUID
  * ```
  */
 class FlovynClient(
-    private val serverHost: String,
-    private val serverPort: Int,
+    private val serverUrl: String,
     private val workerToken: String?,
     private val oauth2Credentials: OAuth2Credentials?,
     private val orgId: UUID?,
@@ -128,9 +127,6 @@ class FlovynClient(
         if (started) {
             throw IllegalStateException("Client already started")
         }
-
-        // gRPC URL format: http://host:port
-        val serverUrl = "http://$serverHost:$serverPort"
 
         // Org ID is required
         val orgIdStr = orgId?.toString()

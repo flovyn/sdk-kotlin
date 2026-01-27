@@ -18,7 +18,7 @@ import java.util.UUID
  * Example:
  * ```kotlin
  * val client = FlovynClientBuilder()
- *     .serverAddress("localhost", 9090)
+ *     .serverAddress("https://worker.flovyn.ai")
  *     .orgId(orgId)
  *     .queue("default")
  *     .registerWorkflow(MyWorkflow())
@@ -27,8 +27,7 @@ import java.util.UUID
  * ```
  */
 class FlovynClientBuilder {
-    private var serverHost: String = "localhost"
-    private var serverPort: Int = 9090
+    private var serverUrl: String = "http://localhost:9090"
     private var orgId: UUID? = null
     private var workerToken: String? = null
     private var oauth2Credentials: OAuth2Credentials? = null
@@ -47,11 +46,12 @@ class FlovynClientBuilder {
     private val hooks = mutableListOf<WorkflowHook>()
 
     /**
-     * Set the server address.
+     * Set the server URL.
+     *
+     * @param url Full server URL including scheme (e.g., "https://worker.flovyn.ai" or "http://localhost:9090")
      */
-    fun serverAddress(host: String, port: Int) = apply {
-        this.serverHost = host
-        this.serverPort = port
+    fun serverAddress(url: String) = apply {
+        this.serverUrl = url
     }
 
     /**
@@ -185,8 +185,7 @@ class FlovynClientBuilder {
         }
 
         return FlovynClient(
-            serverHost = serverHost,
-            serverPort = serverPort,
+            serverUrl = serverUrl,
             workerToken = workerToken,
             oauth2Credentials = oauth2Credentials,
             orgId = orgId,
