@@ -104,9 +104,9 @@ subprojects {
                             active.set(org.jreleaser.model.Active.ALWAYS)
                             url.set("https://central.sonatype.com/api/v1/publisher")
                             stagingRepository(layout.buildDirectory.dir("staging-deploy").get().asFile.absolutePath)
-                            // Increase timeout for slow Central Portal publishing
-                            retryDelay.set(30)  // 30 seconds between retries
-                            maxRetries.set(120) // Up to 60 minutes total
+                            // Don't wait for publishing to complete (fire-and-forget)
+                            // Will still fail if upload/validation fails
+                            skipPublicationCheck.set(true)
                         }
                     }
                 }
