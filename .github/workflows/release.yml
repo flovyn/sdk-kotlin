@@ -186,16 +186,8 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Publishing version: $VERSION"
 
-      - name: Validate release version
-        run: |
-          VERSION=$(./gradlew properties -q | grep "^version:" | awk '{print $2}')
-          if [[ "$VERSION" == *"SNAPSHOT"* ]]; then
-            echo "Error: Cannot publish SNAPSHOT version $VERSION as a release"
-            exit 1
-          fi
-
       - name: Build
-        run: ./gradlew build -x test
+        run: ./gradlew build -x test -Pversion=${{ steps.version.outputs.version }}
 
       - name: Set up GPG key
         run: echo "${{ secrets.MAVEN_CENTRAL_SIGNING_KEY }}" > /tmp/signing-key.asc
@@ -203,6 +195,7 @@ jobs:
       - name: Publish to Maven Central
         run: |
           ./gradlew publish \
+            -Pversion=${{ steps.version.outputs.version }} \
             -Psigning.keyId="${MAVEN_CENTRAL_SIGNING_KEY_ID}" \
             -Psigning.password="${MAVEN_CENTRAL_SIGNING_PASSWORD}" \
             -Psigning.key="$(cat /tmp/signing-key.asc)"
