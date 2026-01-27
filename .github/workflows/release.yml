@@ -88,7 +88,12 @@ jobs:
         run: ./gradlew publishMavenPublicationToStagingRepository -Pversion=${{ steps.version.outputs.version }}
 
       - name: Deploy to Maven Central
-        run: ./gradlew jreleaserDeploy -Pversion=${{ steps.version.outputs.version }}
+        run: |
+          # Create JReleaser output directories (required by the plugin)
+          mkdir -p worker-native/build/jreleaser
+          mkdir -p worker-sdk/build/jreleaser
+          mkdir -p worker-sdk-jackson/build/jreleaser
+          ./gradlew jreleaserDeploy -Pversion=${{ steps.version.outputs.version }}
         env:
           JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
