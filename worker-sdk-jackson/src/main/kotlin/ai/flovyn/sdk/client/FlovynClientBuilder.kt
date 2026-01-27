@@ -18,7 +18,7 @@ import java.util.UUID
  * Example:
  * ```kotlin
  * val client = FlovynClientBuilder()
- *     .serverAddress("https://worker.flovyn.ai")
+ *     .serverUrl("https://worker.flovyn.ai")
  *     .orgId(orgId)
  *     .queue("default")
  *     .registerWorkflow(MyWorkflow())
@@ -50,7 +50,7 @@ class FlovynClientBuilder {
      *
      * @param url Full server URL including scheme (e.g., "https://worker.flovyn.ai" or "http://localhost:9090")
      */
-    fun serverAddress(url: String) = apply {
+    fun serverUrl(url: String) = apply {
         this.serverUrl = url
     }
 

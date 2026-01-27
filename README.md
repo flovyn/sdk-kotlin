@@ -78,7 +78,7 @@ suspend fun main() {
     val orgId = UUID.fromString("your-org-id")
 
     val client = FlovynClient.builder()
-        .serverAddress("http://localhost:9090")
+        .serverUrl("http://localhost:9090")
         .orgId(orgId)
         .queue("default")
         .registerWorkflow(GreetingWorkflow())
