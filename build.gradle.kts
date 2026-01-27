@@ -1,8 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.22" apply false
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
-    `maven-publish`
-    signing
+    id("org.jreleaser") version "1.15.0" apply false
 }
 
 allprojects {
@@ -24,7 +23,7 @@ subprojects {
     // Apply publishing only to publishable modules
     if (name in publishableModules) {
         apply(plugin = "maven-publish")
-        apply(plugin = "signing")
+        apply(plugin = "org.jreleaser")
 
         configure<JavaPluginExtension> {
             withJavadocJar()
@@ -33,7 +32,8 @@ subprojects {
 
         configure<PublishingExtension> {
             publications {
-                create<MavenPublication>("mavenJava") {
+                create<MavenPublication>("maven") {
+                    groupId = "ai.flovyn"
                     artifactId = "${project.name}-kotlin"
                     from(components["java"])
 
@@ -41,11 +41,12 @@ subprojects {
                         name.set("Flovyn ${project.name}")
                         description.set(project.description ?: "Flovyn Kotlin SDK")
                         url.set("https://github.com/flovyn/sdk-kotlin")
+                        inceptionYear.set("2024")
 
                         licenses {
                             license {
-                                name.set("The Apache License, Version 2.0")
-                                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                                name.set("Apache-2.0")
+                                url.set("https://spdx.org/licenses/Apache-2.0.html")
                             }
                         }
 
@@ -58,8 +59,8 @@ subprojects {
                         }
 
                         scm {
-                            connection.set("scm:git:git://github.com/flovyn/sdk-kotlin.git")
-                            developerConnection.set("scm:git:ssh://github.com:flovyn/sdk-kotlin.git")
+                            connection.set("scm:git:https://github.com/flovyn/sdk-kotlin.git")
+                            developerConnection.set("scm:git:ssh://github.com/flovyn/sdk-kotlin.git")
                             url.set("https://github.com/flovyn/sdk-kotlin")
                         }
                     }
@@ -68,36 +69,28 @@ subprojects {
 
             repositories {
                 maven {
-                    name = "CentralPortal"
-                    url = if (version.toString().endsWith("SNAPSHOT")) {
-                        uri("https://central.sonatype.com/repository/maven-snapshots/")
-                    } else {
-                        uri("https://central.sonatype.com/api/v1/publisher/upload")
-                    }
-
-                    credentials {
-                        username = findProperty("centralUsername") as String?
-                            ?: System.getenv("MAVEN_CENTRAL_USERNAME")
-                        password = findProperty("centralPassword") as String?
-                            ?: System.getenv("MAVEN_CENTRAL_PASSWORD")
-                    }
+                    url = uri(layout.buildDirectory.dir("staging-deploy"))
                 }
             }
         }
 
-        configure<SigningExtension> {
-            val signingKeyId: String? = findProperty("signing.keyId") as String?
-            val signingKey: String? = findProperty("signing.key") as String?
-            val signingPassword: String? = findProperty("signing.password") as String?
-
-            if (!signingKey.isNullOrBlank()) {
-                useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword ?: "")
-                sign(the<PublishingExtension>().publications["mavenJava"])
+        configure<org.jreleaser.gradle.plugin.JReleaserExtension> {
+            signing {
+                active.set(org.jreleaser.model.Active.ALWAYS)
+                armored.set(true)
             }
-        }
 
-        tasks.withType<Sign>().configureEach {
-            onlyIf { project.hasProperty("signing.key") }
+            deploy {
+                maven {
+                    mavenCentral {
+                        create("sonatype") {
+                            active.set(org.jreleaser.model.Active.ALWAYS)
+                            url.set("https://central.sonatype.com/api/v1/publisher")
+                            stagingRepository(layout.buildDirectory.dir("staging-deploy").get().asFile.absolutePath)
+                        }
+                    }
+                }
+            }
         }
     }
 

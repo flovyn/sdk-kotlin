@@ -45,20 +45,17 @@ jobs:
       - name: Build
         run: ./gradlew build -x test
 
-      - name: Set up GPG key
-        run: echo "${{ secrets.MAVEN_CENTRAL_SIGNING_KEY }}" > /tmp/signing-key.asc
+      - name: Stage artifacts
+        run: ./gradlew publish
 
-      - name: Publish to Maven Central Snapshots
-        run: |
-          ./gradlew publish \
-            -Psigning.keyId="${MAVEN_CENTRAL_SIGNING_KEY_ID}" \
-            -Psigning.password="${MAVEN_CENTRAL_SIGNING_PASSWORD}" \
-            -Psigning.key="$(cat /tmp/signing-key.asc)"
+      - name: Deploy to Maven Central Snapshots
+        run: ./gradlew jreleaserDeploy
         env:
-          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          MAVEN_CENTRAL_SIGNING_KEY_ID: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY_ID }}
-          MAVEN_CENTRAL_SIGNING_PASSWORD: ${{ secrets.MAVEN_CENTRAL_SIGNING_PASSWORD }}
+          JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          JRELEASER_GPG_PASSPHRASE: ${{ secrets.MAVEN_CENTRAL_SIGNING_PASSWORD }}
+          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.MAVEN_CENTRAL_SIGNING_PUBLIC_KEY }}
+          JRELEASER_GPG_SECRET_KEY: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY }}
 
   # Build native libraries for release
   # Platforms: linux-x86_64, linux-aarch64, macos-aarch64, windows-x86_64
@@ -191,21 +188,17 @@ jobs:
       - name: Build
         run: ./gradlew build -x test -Pversion=${{ steps.version.outputs.version }}
 
-      - name: Set up GPG key
-        run: echo "${{ secrets.MAVEN_CENTRAL_SIGNING_KEY }}" > /tmp/signing-key.asc
+      - name: Stage artifacts
+        run: ./gradlew publish -Pversion=${{ steps.version.outputs.version }}
 
-      - name: Publish to Maven Central
-        run: |
-          ./gradlew publish \
-            -Pversion=${{ steps.version.outputs.version }} \
-            -Psigning.keyId="${MAVEN_CENTRAL_SIGNING_KEY_ID}" \
-            -Psigning.password="${MAVEN_CENTRAL_SIGNING_PASSWORD}" \
-            -Psigning.key="$(cat /tmp/signing-key.asc)"
+      - name: Deploy to Maven Central
+        run: ./gradlew jreleaserDeploy -Pversion=${{ steps.version.outputs.version }}
         env:
-          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          MAVEN_CENTRAL_SIGNING_KEY_ID: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY_ID }}
-          MAVEN_CENTRAL_SIGNING_PASSWORD: ${{ secrets.MAVEN_CENTRAL_SIGNING_PASSWORD }}
+          JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          JRELEASER_GPG_PASSPHRASE: ${{ secrets.MAVEN_CENTRAL_SIGNING_PASSWORD }}
+          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.MAVEN_CENTRAL_SIGNING_PUBLIC_KEY }}
+          JRELEASER_GPG_SECRET_KEY: ${{ secrets.MAVEN_CENTRAL_SIGNING_KEY }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
