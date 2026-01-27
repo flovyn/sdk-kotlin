@@ -105,9 +105,7 @@ subprojects {
                             active.set(org.jreleaser.model.Active.ALWAYS)
                             url.set("https://central.sonatype.com/api/v1/publisher")
                             stagingRepository(layout.buildDirectory.dir("staging-deploy").get().asFile.absolutePath)
-                            // Longer timeout for Central Portal publishing
-                            retryDelay.set(30)
-                            maxRetries.set(60)
+                            // Stage is controlled via JRELEASER_MAVENCENTRAL_SONATYPE_STAGE env var
                         }
                     }
                 }
