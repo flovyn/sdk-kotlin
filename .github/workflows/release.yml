@@ -142,6 +142,8 @@ jobs:
     needs: build-natives
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -209,3 +211,24 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: true
+
+      - name: Bump to next SNAPSHOT version
+        run: |
+          # Parse current version (e.g., 0.1.0 -> 0.2.0-SNAPSHOT)
+          VERSION=${{ steps.version.outputs.version }}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          NEXT_MINOR=$((MINOR + 1))
+          NEXT_VERSION="${MAJOR}.${NEXT_MINOR}.0-SNAPSHOT"
+
+          # Update gradle.properties
+          sed -i "s/^version=.*/version=${NEXT_VERSION}/" gradle.properties
+
+          echo "Bumped version to: $NEXT_VERSION"
+
+      - name: Commit and push version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add gradle.properties
+          git commit -m "chore: bump version to $(grep '^version=' gradle.properties | cut -d'=' -f2)"
+          git push origin HEAD:main
