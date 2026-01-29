@@ -81,6 +81,51 @@ class CoreClientBridge private constructor(
         ffiClient.rejectPromise(promiseId, error)
     }
 
+    /**
+     * Send a signal to an existing workflow.
+     *
+     * @param workflowExecutionId The workflow execution ID
+     * @param signalName The name of the signal
+     * @param signalValue The signal payload (JSON bytes)
+     * @return The response containing the signal event sequence
+     */
+    fun signalWorkflow(
+        workflowExecutionId: String,
+        signalName: String,
+        signalValue: ByteArray,
+    ): SignalWorkflowResponse {
+        return ffiClient.signalWorkflow(workflowExecutionId, signalName, signalValue)
+    }
+
+    /**
+     * Send a signal to an existing workflow, or create a new workflow and send the signal.
+     *
+     * @param workflowId The workflow ID (used as idempotency key)
+     * @param workflowKind The kind of workflow to create if it doesn't exist
+     * @param workflowInput The workflow input (JSON bytes)
+     * @param queue The task queue
+     * @param signalName The name of the signal
+     * @param signalValue The signal payload (JSON bytes)
+     * @return The response containing workflow execution ID and creation status
+     */
+    fun signalWithStartWorkflow(
+        workflowId: String,
+        workflowKind: String,
+        workflowInput: ByteArray,
+        queue: String?,
+        signalName: String,
+        signalValue: ByteArray,
+    ): SignalWithStartResponse {
+        return ffiClient.signalWithStartWorkflow(
+            workflowId,
+            workflowKind,
+            workflowInput,
+            queue,
+            signalName,
+            signalValue,
+        )
+    }
+
     override fun close() {
         ffiClient.close()
     }

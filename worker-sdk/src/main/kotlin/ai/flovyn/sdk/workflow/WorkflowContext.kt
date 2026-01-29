@@ -175,6 +175,43 @@ interface WorkflowContext {
      */
     suspend fun <T> promise(name: String, timeout: Duration? = null): DurablePromise<T>
 
+    // --- Signals ---
+
+    /**
+     * Wait for the next signal in the queue.
+     *
+     * Signals are consumed in order. If no signal is available, the workflow
+     * will suspend until a signal is received.
+     *
+     * @return The signal with its name and value
+     */
+    suspend fun <T> waitForSignal(): Signal<T>
+
+    /**
+     * Check if any signals are pending in the queue.
+     *
+     * This does not consume any signals.
+     *
+     * @return True if there are signals waiting to be processed
+     */
+    fun hasSignal(): Boolean
+
+    /**
+     * Get the number of pending signals.
+     *
+     * @return The count of signals waiting to be processed
+     */
+    fun pendingSignalCount(): Int
+
+    /**
+     * Drain all pending signals from the queue.
+     *
+     * This consumes all signals currently in the queue and returns them.
+     *
+     * @return A list of signals
+     */
+    suspend fun <T> drainSignals(): List<Signal<T>>
+
     // --- Cancellation ---
 
     /**

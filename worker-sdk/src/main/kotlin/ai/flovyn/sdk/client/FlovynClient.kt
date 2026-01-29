@@ -367,6 +367,66 @@ class FlovynClient(
     }
 
     /**
+     * Send a signal to an existing workflow.
+     *
+     * @param workflowExecutionId The workflow execution ID
+     * @param signalName The name of the signal
+     * @param value The signal payload
+     * @return The sequence number of the signal event
+     */
+    fun signalWorkflow(workflowExecutionId: UUID, signalName: String, value: Any?): Long {
+        val client = coreClient ?: throw IllegalStateException("Client not started")
+
+        val response = client.signalWorkflow(
+            workflowExecutionId.toString(),
+            signalName,
+            internalSerializer.serialize(value),
+        )
+        return response.signalEventSequence
+    }
+
+    /**
+     * Send a signal to an existing workflow, or create a new workflow and send the signal.
+     *
+     * This is an atomic operation - either the workflow exists and receives the signal,
+     * or a new workflow is created with the signal. This prevents race conditions
+     * where a workflow might be created between checking for existence and signaling.
+     *
+     * @param workflowId The workflow ID (used as idempotency key)
+     * @param workflowKind The kind of workflow to create if it doesn't exist
+     * @param input The workflow input
+     * @param signalName The name of the signal
+     * @param signalValue The signal payload
+     * @param options Optional options for the workflow
+     * @return Result with workflow execution ID and whether workflow was created
+     */
+    fun signalWithStartWorkflow(
+        workflowId: String,
+        workflowKind: String,
+        input: Any? = null,
+        signalName: String,
+        signalValue: Any?,
+        options: SignalWithStartOptions = SignalWithStartOptions(),
+    ): SignalWithStartResult {
+        val client = coreClient ?: throw IllegalStateException("Client not started")
+
+        val response = client.signalWithStartWorkflow(
+            workflowId = workflowId,
+            workflowKind = workflowKind,
+            workflowInput = internalSerializer.serialize(input),
+            queue = options.queue ?: queue,
+            signalName = signalName,
+            signalValue = internalSerializer.serialize(signalValue),
+        )
+
+        return SignalWithStartResult(
+            workflowExecutionId = UUID.fromString(response.workflowExecutionId),
+            workflowCreated = response.workflowCreated,
+            signalEventSequence = response.signalEventSequence,
+        )
+    }
+
+    /**
      * Stop the client gracefully.
      */
     fun stop() {
@@ -391,4 +451,23 @@ data class StartWorkflowOptions(
     val queue: String? = null,
     val workflowVersion: String? = null,
     val idempotencyKey: String? = null,
+)
+
+/**
+ * Options for signal-with-start.
+ */
+data class SignalWithStartOptions(
+    val queue: String? = null,
+)
+
+/**
+ * Result of a signal-with-start operation.
+ */
+data class SignalWithStartResult(
+    /** The workflow execution ID */
+    val workflowExecutionId: UUID,
+    /** Whether the workflow was created (vs already existed) */
+    val workflowCreated: Boolean,
+    /** Sequence number of the signal event */
+    val signalEventSequence: Long,
 )

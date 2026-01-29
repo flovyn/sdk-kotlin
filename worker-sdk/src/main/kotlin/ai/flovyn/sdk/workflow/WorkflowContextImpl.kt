@@ -235,6 +235,35 @@ internal class WorkflowContextImpl(
         }
     }
 
+    override suspend fun <T> waitForSignal(): Signal<T> {
+        return when (val result = ffiContext.waitForSignal()) {
+            is FfiSignalResult.Received -> {
+                @Suppress("UNCHECKED_CAST")
+                Signal(
+                    name = result.signalName,
+                    value = serializer.deserialize(result.value, Any::class.java) as T,
+                )
+            }
+            is FfiSignalResult.Pending -> {
+                throw WorkflowSuspendedException("Waiting for signal")
+            }
+        }
+    }
+
+    override fun hasSignal(): Boolean = ffiContext.hasSignal()
+
+    override fun pendingSignalCount(): Int = ffiContext.pendingSignalCount().toInt()
+
+    override suspend fun <T> drainSignals(): List<Signal<T>> {
+        return ffiContext.drainSignals().map { event ->
+            @Suppress("UNCHECKED_CAST")
+            Signal(
+                name = event.signalName,
+                value = serializer.deserialize(event.value, Any::class.java) as T,
+            )
+        }
+    }
+
     override fun isCancellationRequested(): Boolean = ffiContext.isCancellationRequested()
 
     override suspend fun checkCancellation() {

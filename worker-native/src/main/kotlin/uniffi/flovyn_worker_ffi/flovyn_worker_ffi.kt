@@ -844,6 +844,18 @@ internal interface UniffiForeignFutureCompleteVoid : com.sun.jna.Callback {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 // A JNA Library to expose the extern-C FFI definitions.
 // This is an implementation detail which will be called internally by the public API.
 
@@ -877,6 +889,10 @@ internal interface UniffiLib : Library {
     ): Unit
     fun uniffi_flovyn_worker_ffi_fn_method_coreclient_resolve_promise(`ptr`: Pointer,`promiseId`: RustBuffer.ByValue,`value`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
+    fun uniffi_flovyn_worker_ffi_fn_method_coreclient_signal_with_start_workflow(`ptr`: Pointer,`workflowId`: RustBuffer.ByValue,`workflowKind`: RustBuffer.ByValue,`workflowInput`: RustBuffer.ByValue,`queue`: RustBuffer.ByValue,`signalName`: RustBuffer.ByValue,`signalValue`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_coreclient_signal_workflow(`ptr`: Pointer,`workflowExecutionId`: RustBuffer.ByValue,`signalName`: RustBuffer.ByValue,`signalValue`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_coreclient_start_workflow(`ptr`: Pointer,`workflowKind`: RustBuffer.ByValue,`input`: RustBuffer.ByValue,`queue`: RustBuffer.ByValue,`workflowVersion`: RustBuffer.ByValue,`idempotencyKey`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_clone_coreworker(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
@@ -975,10 +991,16 @@ internal interface UniffiLib : Library {
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_current_time_millis(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Long
+    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_drain_signals(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_get_state(`ptr`: Pointer,`key`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_has_signal(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_is_cancellation_requested(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
+    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_pending_signal_count(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_random(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Double
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_random_uuid(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
@@ -1000,6 +1022,8 @@ internal interface UniffiLib : Library {
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_state_keys(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_take_commands(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_wait_for_signal(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_workflow_execution_id(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
@@ -1123,6 +1147,10 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_coreclient_resolve_promise(
     ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreclient_signal_with_start_workflow(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_coreclient_signal_workflow(
+    ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_coreclient_start_workflow(
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_coreworker_complete_task(
@@ -1207,9 +1235,15 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_current_time_millis(
     ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_drain_signals(
+    ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_get_state(
     ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_has_signal(
+    ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_is_cancellation_requested(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_pending_signal_count(
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_random(
     ): Short
@@ -1232,6 +1266,8 @@ internal interface UniffiLib : Library {
     fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_state_keys(
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_take_commands(
+    ): Short
+    fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_wait_for_signal(
     ): Short
     fun uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_workflow_execution_id(
     ): Short
@@ -1266,6 +1302,12 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreclient_resolve_promise() != 56407.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreclient_signal_with_start_workflow() != 57504.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreclient_signal_workflow() != 6467.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_coreclient_start_workflow() != 16527.toShort()) {
@@ -1394,10 +1436,19 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_current_time_millis() != 38125.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_drain_signals() != 26519.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_get_state() != 9129.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_has_signal() != 27653.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_is_cancellation_requested() != 18572.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_pending_signal_count() != 13337.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_random() != 22015.toShort()) {
@@ -1431,6 +1482,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_take_commands() != 63915.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_wait_for_signal() != 4847.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_workflow_execution_id() != 54462.toShort()) {
@@ -1925,6 +1979,39 @@ public interface CoreClientInterface {
     fun `resolvePromise`(`promiseId`: kotlin.String, `value`: kotlin.ByteArray)
     
     /**
+     * Send a signal to an existing workflow, or create a new workflow and send the signal.
+     *
+     * This is an atomic operation - either the workflow exists and receives the signal,
+     * or a new workflow is created with the signal. This prevents race conditions
+     * where a workflow might be created between checking for existence and signaling.
+     *
+     * # Arguments
+     * * `workflow_id` - The workflow ID (used as idempotency key)
+     * * `workflow_kind` - The type/kind of workflow to create if it doesn't exist
+     * * `workflow_input` - Serialized input for the workflow (JSON bytes)
+     * * `queue` - The task queue
+     * * `signal_name` - The name of the signal
+     * * `signal_value` - Serialized signal value (JSON bytes)
+     *
+     * # Returns
+     * Information about whether the workflow was created and the signal event sequence.
+     */
+    fun `signalWithStartWorkflow`(`workflowId`: kotlin.String, `workflowKind`: kotlin.String, `workflowInput`: kotlin.ByteArray, `queue`: kotlin.String?, `signalName`: kotlin.String, `signalValue`: kotlin.ByteArray): SignalWithStartResponse
+    
+    /**
+     * Send a signal to an existing workflow.
+     *
+     * # Arguments
+     * * `workflow_execution_id` - The workflow execution ID
+     * * `signal_name` - The name of the signal
+     * * `signal_value` - Serialized signal value (JSON bytes)
+     *
+     * # Returns
+     * The sequence number of the signal event.
+     */
+    fun `signalWorkflow`(`workflowExecutionId`: kotlin.String, `signalName`: kotlin.String, `signalValue`: kotlin.ByteArray): SignalWorkflowResponse
+    
+    /**
      * Start a new workflow execution.
      *
      * # Arguments
@@ -2130,6 +2217,61 @@ open class CoreClient: Disposable, AutoCloseable, CoreClientInterface {
 }
     }
     
+    
+
+    
+    /**
+     * Send a signal to an existing workflow, or create a new workflow and send the signal.
+     *
+     * This is an atomic operation - either the workflow exists and receives the signal,
+     * or a new workflow is created with the signal. This prevents race conditions
+     * where a workflow might be created between checking for existence and signaling.
+     *
+     * # Arguments
+     * * `workflow_id` - The workflow ID (used as idempotency key)
+     * * `workflow_kind` - The type/kind of workflow to create if it doesn't exist
+     * * `workflow_input` - Serialized input for the workflow (JSON bytes)
+     * * `queue` - The task queue
+     * * `signal_name` - The name of the signal
+     * * `signal_value` - Serialized signal value (JSON bytes)
+     *
+     * # Returns
+     * Information about whether the workflow was created and the signal event sequence.
+     */
+    @Throws(FfiException::class)override fun `signalWithStartWorkflow`(`workflowId`: kotlin.String, `workflowKind`: kotlin.String, `workflowInput`: kotlin.ByteArray, `queue`: kotlin.String?, `signalName`: kotlin.String, `signalValue`: kotlin.ByteArray): SignalWithStartResponse {
+            return FfiConverterTypeSignalWithStartResponse.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreclient_signal_with_start_workflow(
+        it, FfiConverterString.lower(`workflowId`),FfiConverterString.lower(`workflowKind`),FfiConverterByteArray.lower(`workflowInput`),FfiConverterOptionalString.lower(`queue`),FfiConverterString.lower(`signalName`),FfiConverterByteArray.lower(`signalValue`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Send a signal to an existing workflow.
+     *
+     * # Arguments
+     * * `workflow_execution_id` - The workflow execution ID
+     * * `signal_name` - The name of the signal
+     * * `signal_value` - Serialized signal value (JSON bytes)
+     *
+     * # Returns
+     * The sequence number of the signal event.
+     */
+    @Throws(FfiException::class)override fun `signalWorkflow`(`workflowExecutionId`: kotlin.String, `signalName`: kotlin.String, `signalValue`: kotlin.ByteArray): SignalWorkflowResponse {
+            return FfiConverterTypeSignalWorkflowResponse.lift(
+    callWithPointer {
+    uniffiRustCallWithError(FfiException) { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_coreclient_signal_workflow(
+        it, FfiConverterString.lower(`workflowExecutionId`),FfiConverterString.lower(`signalName`),FfiConverterByteArray.lower(`signalValue`),_status)
+}
+    }
+    )
+    }
     
 
     
@@ -3673,14 +3815,29 @@ public interface FfiWorkflowContextInterface {
     fun `currentTimeMillis`(): kotlin.Long
     
     /**
+     * Drain all pending signals from the queue.
+     */
+    fun `drainSignals`(): List<FfiSignalEvent>
+    
+    /**
      * Get workflow state.
      */
     fun `getState`(`key`: kotlin.String): kotlin.ByteArray?
     
     /**
+     * Check if any signals are pending in the queue.
+     */
+    fun `hasSignal`(): kotlin.Boolean
+    
+    /**
      * Check if cancellation has been requested.
      */
     fun `isCancellationRequested`(): kotlin.Boolean
+    
+    /**
+     * Get the number of pending signals.
+     */
+    fun `pendingSignalCount`(): kotlin.UInt
     
     /**
      * Generate a deterministic random number in [0, 1).
@@ -3758,6 +3915,15 @@ public interface FfiWorkflowContextInterface {
      * This drains the command buffer and returns the commands.
      */
     fun `takeCommands`(): List<FfiWorkflowCommand>
+    
+    /**
+     * Wait for the next signal in the queue.
+     *
+     * Returns:
+     * - `Received` if a signal is available
+     * - `Pending` if no signal available - workflow should suspend
+     */
+    fun `waitForSignal`(): FfiSignalResult
     
     /**
      * Get the workflow execution ID.
@@ -3943,6 +4109,21 @@ open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInte
 
     
     /**
+     * Drain all pending signals from the queue.
+     */override fun `drainSignals`(): List<FfiSignalEvent> {
+            return FfiConverterSequenceTypeFfiSignalEvent.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_drain_signals(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
      * Get workflow state.
      */override fun `getState`(`key`: kotlin.String): kotlin.ByteArray? {
             return FfiConverterOptionalByteArray.lift(
@@ -3958,12 +4139,42 @@ open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInte
 
     
     /**
+     * Check if any signals are pending in the queue.
+     */override fun `hasSignal`(): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_has_signal(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
      * Check if cancellation has been requested.
      */override fun `isCancellationRequested`(): kotlin.Boolean {
             return FfiConverterBoolean.lift(
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_is_cancellation_requested(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Get the number of pending signals.
+     */override fun `pendingSignalCount`(): kotlin.UInt {
+            return FfiConverterUInt.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_pending_signal_count(
         it, _status)
 }
     }
@@ -4153,6 +4364,25 @@ open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInte
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_take_commands(
+        it, _status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * Wait for the next signal in the queue.
+     *
+     * Returns:
+     * - `Received` if a signal is available
+     * - `Pending` if no signal available - workflow should suspend
+     */override fun `waitForSignal`(): FfiSignalResult {
+            return FfiConverterTypeFfiSignalResult.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_wait_for_signal(
         it, _status)
 }
     }
@@ -4465,6 +4695,47 @@ public object FfiConverterTypeFfiReplayEvent: FfiConverterRustBuffer<FfiReplayEv
 
 
 /**
+ * A signal event from the signal queue.
+ */
+data class FfiSignalEvent (
+    /**
+     * Signal name.
+     */
+    var `signalName`: kotlin.String, 
+    /**
+     * Serialized value as JSON bytes.
+     */
+    var `value`: kotlin.ByteArray
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiSignalEvent: FfiConverterRustBuffer<FfiSignalEvent> {
+    override fun read(buf: ByteBuffer): FfiSignalEvent {
+        return FfiSignalEvent(
+            FfiConverterString.read(buf),
+            FfiConverterByteArray.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: FfiSignalEvent) = (
+            FfiConverterString.allocationSize(value.`signalName`) +
+            FfiConverterByteArray.allocationSize(value.`value`)
+    )
+
+    override fun write(value: FfiSignalEvent, buf: ByteBuffer) {
+            FfiConverterString.write(value.`signalName`, buf)
+            FfiConverterByteArray.write(value.`value`, buf)
+    }
+}
+
+
+
+/**
  * Lifecycle event for worker status changes.
  */
 data class LifecycleEvent (
@@ -4562,6 +4833,88 @@ public object FfiConverterTypeOAuth2Credentials: FfiConverterRustBuffer<OAuth2Cr
             FfiConverterString.write(value.`clientSecret`, buf)
             FfiConverterString.write(value.`tokenEndpoint`, buf)
             FfiConverterOptionalString.write(value.`scopes`, buf)
+    }
+}
+
+
+
+/**
+ * Result of signal-with-start operation.
+ */
+data class SignalWithStartResponse (
+    /**
+     * The workflow execution ID.
+     */
+    var `workflowExecutionId`: kotlin.String, 
+    /**
+     * Whether the workflow was created (vs already existed).
+     */
+    var `workflowCreated`: kotlin.Boolean, 
+    /**
+     * Sequence number of the signal event.
+     */
+    var `signalEventSequence`: kotlin.Long
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeSignalWithStartResponse: FfiConverterRustBuffer<SignalWithStartResponse> {
+    override fun read(buf: ByteBuffer): SignalWithStartResponse {
+        return SignalWithStartResponse(
+            FfiConverterString.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterLong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: SignalWithStartResponse) = (
+            FfiConverterString.allocationSize(value.`workflowExecutionId`) +
+            FfiConverterBoolean.allocationSize(value.`workflowCreated`) +
+            FfiConverterLong.allocationSize(value.`signalEventSequence`)
+    )
+
+    override fun write(value: SignalWithStartResponse, buf: ByteBuffer) {
+            FfiConverterString.write(value.`workflowExecutionId`, buf)
+            FfiConverterBoolean.write(value.`workflowCreated`, buf)
+            FfiConverterLong.write(value.`signalEventSequence`, buf)
+    }
+}
+
+
+
+/**
+ * Result of signaling a workflow.
+ */
+data class SignalWorkflowResponse (
+    /**
+     * Sequence number of the signal event.
+     */
+    var `signalEventSequence`: kotlin.Long
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeSignalWorkflowResponse: FfiConverterRustBuffer<SignalWorkflowResponse> {
+    override fun read(buf: ByteBuffer): SignalWorkflowResponse {
+        return SignalWorkflowResponse(
+            FfiConverterLong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: SignalWorkflowResponse) = (
+            FfiConverterLong.allocationSize(value.`signalEventSequence`)
+    )
+
+    override fun write(value: SignalWorkflowResponse, buf: ByteBuffer) {
+            FfiConverterLong.write(value.`signalEventSequence`, buf)
     }
 }
 
@@ -5690,7 +6043,8 @@ enum class FfiEventType {
     CHILD_WORKFLOW_CANCELLED,
     TIMER_STARTED,
     TIMER_FIRED,
-    TIMER_CANCELLED;
+    TIMER_CANCELLED,
+    SIGNAL_RECEIVED;
     companion object
 }
 
@@ -5919,6 +6273,89 @@ public object FfiConverterTypeFfiPromiseResult : FfiConverterRustBuffer<FfiPromi
             is FfiPromiseResult.Pending -> {
                 buf.putInt(4)
                 FfiConverterString.write(value.`promiseId`, buf)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+}
+
+
+
+
+
+/**
+ * Result of waiting for a signal.
+ */
+sealed class FfiSignalResult {
+    
+    /**
+     * Signal received - return the signal data.
+     */
+    data class Received(
+        /**
+         * Signal name.
+         */
+        val `signalName`: kotlin.String, 
+        /**
+         * Serialized value as JSON bytes.
+         */
+        val `value`: kotlin.ByteArray) : FfiSignalResult() {
+        companion object
+    }
+    
+    /**
+     * No signal available - workflow should suspend.
+     */
+    object Pending : FfiSignalResult()
+    
+    
+
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeFfiSignalResult : FfiConverterRustBuffer<FfiSignalResult>{
+    override fun read(buf: ByteBuffer): FfiSignalResult {
+        return when(buf.getInt()) {
+            1 -> FfiSignalResult.Received(
+                FfiConverterString.read(buf),
+                FfiConverterByteArray.read(buf),
+                )
+            2 -> FfiSignalResult.Pending
+            else -> throw RuntimeException("invalid enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: FfiSignalResult) = when(value) {
+        is FfiSignalResult.Received -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`signalName`)
+                + FfiConverterByteArray.allocationSize(value.`value`)
+            )
+        }
+        is FfiSignalResult.Pending -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+            )
+        }
+    }
+
+    override fun write(value: FfiSignalResult, buf: ByteBuffer) {
+        when(value) {
+            is FfiSignalResult.Received -> {
+                buf.putInt(1)
+                FfiConverterString.write(value.`signalName`, buf)
+                FfiConverterByteArray.write(value.`value`, buf)
+                Unit
+            }
+            is FfiSignalResult.Pending -> {
+                buf.putInt(2)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
@@ -8247,6 +8684,34 @@ public object FfiConverterSequenceString: FfiConverterRustBuffer<List<kotlin.Str
         buf.putInt(value.size)
         value.iterator().forEach {
             FfiConverterString.write(it, buf)
+        }
+    }
+}
+
+
+
+
+/**
+ * @suppress
+ */
+public object FfiConverterSequenceTypeFfiSignalEvent: FfiConverterRustBuffer<List<FfiSignalEvent>> {
+    override fun read(buf: ByteBuffer): List<FfiSignalEvent> {
+        val len = buf.getInt()
+        return List<FfiSignalEvent>(len) {
+            FfiConverterTypeFfiSignalEvent.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<FfiSignalEvent>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeFfiSignalEvent.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<FfiSignalEvent>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeFfiSignalEvent.write(it, buf)
         }
     }
 }

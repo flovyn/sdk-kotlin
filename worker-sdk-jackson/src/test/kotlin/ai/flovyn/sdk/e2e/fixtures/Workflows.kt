@@ -751,3 +751,85 @@ class TaskSchedulerWorkflow : WorkflowDefinition<TaskSchedulerInput, TaskSchedul
         return TaskSchedulerOutput(taskCompleted = true, taskResult = result)
     }
 }
+
+// --- Signal Test Workflows ---
+
+data class SignalWorkflowInput(val dummy: Boolean = true)
+data class SignalWorkflowOutput(
+    val signalName: String,
+    val signalValue: Map<String, Any?>,
+)
+
+/**
+ * Workflow that waits for a single signal and returns it.
+ */
+class SignalWorkflow(kindSuffix: String = "") : WorkflowDefinition<SignalWorkflowInput, SignalWorkflowOutput>() {
+    override val kind = if (kindSuffix.isEmpty()) "signal-workflow" else "signal-workflow:$kindSuffix"
+    override val version = SemanticVersion(1, 0, 0)
+
+    override suspend fun execute(ctx: WorkflowContext, input: SignalWorkflowInput): SignalWorkflowOutput {
+        val signal = ctx.waitForSignal<Map<String, Any?>>()
+        return SignalWorkflowOutput(
+            signalName = signal.name,
+            signalValue = signal.value,
+        )
+    }
+}
+
+data class MultiSignalInput(val signalCount: Int)
+data class MultiSignalOutput(
+    val count: Int,
+    val signals: List<Map<String, Any?>>,
+)
+
+/**
+ * Workflow that waits for multiple signals.
+ */
+class MultiSignalWorkflow(kindSuffix: String = "") : WorkflowDefinition<MultiSignalInput, MultiSignalOutput>() {
+    override val kind = if (kindSuffix.isEmpty()) "multi-signal-workflow" else "multi-signal-workflow:$kindSuffix"
+    override val version = SemanticVersion(1, 0, 0)
+
+    override suspend fun execute(ctx: WorkflowContext, input: MultiSignalInput): MultiSignalOutput {
+        val signals = mutableListOf<Map<String, Any?>>()
+
+        for (i in 0 until input.signalCount) {
+            val signal = ctx.waitForSignal<Map<String, Any?>>()
+            signals.add(mapOf("name" to signal.name, "value" to signal.value))
+        }
+
+        return MultiSignalOutput(
+            count = signals.size,
+            signals = signals,
+        )
+    }
+}
+
+data class SignalCheckInput(val dummy: Boolean = true)
+data class SignalCheckOutput(
+    val hasSignal: Boolean,
+    val signals: List<Map<String, Any?>>,
+)
+
+/**
+ * Workflow that uses hasSignal and drainSignals for non-blocking check.
+ */
+class SignalCheckWorkflow(kindSuffix: String = "") : WorkflowDefinition<SignalCheckInput, SignalCheckOutput>() {
+    override val kind = if (kindSuffix.isEmpty()) "signal-check-workflow" else "signal-check-workflow:$kindSuffix"
+    override val version = SemanticVersion(1, 0, 0)
+
+    override suspend fun execute(ctx: WorkflowContext, input: SignalCheckInput): SignalCheckOutput {
+        // Small delay to allow signals to arrive
+        ctx.sleep(Duration.ofMillis(500))
+
+        // Check if any signals are pending
+        val hasSignal = ctx.hasSignal()
+
+        // Drain all pending signals
+        val signals = ctx.drainSignals<Map<String, Any?>>()
+
+        return SignalCheckOutput(
+            hasSignal = hasSignal,
+            signals = signals.map { mapOf("name" to it.name, "value" to it.value) },
+        )
+    }
+}
