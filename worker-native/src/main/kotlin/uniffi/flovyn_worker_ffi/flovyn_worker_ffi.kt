@@ -991,15 +991,15 @@ internal interface UniffiLib : Library {
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_current_time_millis(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Long
-    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_drain_signals(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_drain_signals(`ptr`: Pointer,`signalName`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_get_state(`ptr`: Pointer,`key`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_has_signal(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_has_signal(`ptr`: Pointer,`signalName`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_is_cancellation_requested(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
-    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_pending_signal_count(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_pending_signal_count(`ptr`: Pointer,`signalName`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Int
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_random(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Double
@@ -1023,7 +1023,7 @@ internal interface UniffiLib : Library {
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_take_commands(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_wait_for_signal(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_wait_for_signal(`ptr`: Pointer,`signalName`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_workflow_execution_id(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
@@ -1436,19 +1436,19 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_current_time_millis() != 38125.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_drain_signals() != 26519.toShort()) {
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_drain_signals() != 12306.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_get_state() != 9129.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_has_signal() != 27653.toShort()) {
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_has_signal() != 65034.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_is_cancellation_requested() != 18572.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_pending_signal_count() != 13337.toShort()) {
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_pending_signal_count() != 57526.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_random() != 22015.toShort()) {
@@ -1484,7 +1484,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_take_commands() != 63915.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_wait_for_signal() != 4847.toShort()) {
+    if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_wait_for_signal() != 7519.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_flovyn_worker_ffi_checksum_method_ffiworkflowcontext_workflow_execution_id() != 54462.toShort()) {
@@ -3815,9 +3815,9 @@ public interface FfiWorkflowContextInterface {
     fun `currentTimeMillis`(): kotlin.Long
     
     /**
-     * Drain all pending signals from the queue.
+     * Drain all pending signals with the specified name.
      */
-    fun `drainSignals`(): List<FfiSignalEvent>
+    fun `drainSignals`(`signalName`: kotlin.String): List<FfiSignalEvent>
     
     /**
      * Get workflow state.
@@ -3825,9 +3825,9 @@ public interface FfiWorkflowContextInterface {
     fun `getState`(`key`: kotlin.String): kotlin.ByteArray?
     
     /**
-     * Check if any signals are pending in the queue.
+     * Check if any signals with the specified name are pending.
      */
-    fun `hasSignal`(): kotlin.Boolean
+    fun `hasSignal`(`signalName`: kotlin.String): kotlin.Boolean
     
     /**
      * Check if cancellation has been requested.
@@ -3835,9 +3835,9 @@ public interface FfiWorkflowContextInterface {
     fun `isCancellationRequested`(): kotlin.Boolean
     
     /**
-     * Get the number of pending signals.
+     * Get the number of pending signals with the specified name.
      */
-    fun `pendingSignalCount`(): kotlin.UInt
+    fun `pendingSignalCount`(`signalName`: kotlin.String): kotlin.UInt
     
     /**
      * Generate a deterministic random number in [0, 1).
@@ -3917,13 +3917,15 @@ public interface FfiWorkflowContextInterface {
     fun `takeCommands`(): List<FfiWorkflowCommand>
     
     /**
-     * Wait for the next signal in the queue.
+     * Wait for the next signal with the specified name.
+     *
+     * Each signal name has its own FIFO queue.
      *
      * Returns:
-     * - `Received` if a signal is available
-     * - `Pending` if no signal available - workflow should suspend
+     * - `Received` if a signal with the given name is available
+     * - `Pending` if no signal with that name available - workflow should suspend
      */
-    fun `waitForSignal`(): FfiSignalResult
+    fun `waitForSignal`(`signalName`: kotlin.String): FfiSignalResult
     
     /**
      * Get the workflow execution ID.
@@ -4109,13 +4111,13 @@ open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInte
 
     
     /**
-     * Drain all pending signals from the queue.
-     */override fun `drainSignals`(): List<FfiSignalEvent> {
+     * Drain all pending signals with the specified name.
+     */override fun `drainSignals`(`signalName`: kotlin.String): List<FfiSignalEvent> {
             return FfiConverterSequenceTypeFfiSignalEvent.lift(
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_drain_signals(
-        it, _status)
+        it, FfiConverterString.lower(`signalName`),_status)
 }
     }
     )
@@ -4139,13 +4141,13 @@ open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInte
 
     
     /**
-     * Check if any signals are pending in the queue.
-     */override fun `hasSignal`(): kotlin.Boolean {
+     * Check if any signals with the specified name are pending.
+     */override fun `hasSignal`(`signalName`: kotlin.String): kotlin.Boolean {
             return FfiConverterBoolean.lift(
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_has_signal(
-        it, _status)
+        it, FfiConverterString.lower(`signalName`),_status)
 }
     }
     )
@@ -4169,13 +4171,13 @@ open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInte
 
     
     /**
-     * Get the number of pending signals.
-     */override fun `pendingSignalCount`(): kotlin.UInt {
+     * Get the number of pending signals with the specified name.
+     */override fun `pendingSignalCount`(`signalName`: kotlin.String): kotlin.UInt {
             return FfiConverterUInt.lift(
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_pending_signal_count(
-        it, _status)
+        it, FfiConverterString.lower(`signalName`),_status)
 }
     }
     )
@@ -4373,17 +4375,19 @@ open class FfiWorkflowContext: Disposable, AutoCloseable, FfiWorkflowContextInte
 
     
     /**
-     * Wait for the next signal in the queue.
+     * Wait for the next signal with the specified name.
+     *
+     * Each signal name has its own FIFO queue.
      *
      * Returns:
-     * - `Received` if a signal is available
-     * - `Pending` if no signal available - workflow should suspend
-     */override fun `waitForSignal`(): FfiSignalResult {
+     * - `Received` if a signal with the given name is available
+     * - `Pending` if no signal with that name available - workflow should suspend
+     */override fun `waitForSignal`(`signalName`: kotlin.String): FfiSignalResult {
             return FfiConverterTypeFfiSignalResult.lift(
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_flovyn_worker_ffi_fn_method_ffiworkflowcontext_wait_for_signal(
-        it, _status)
+        it, FfiConverterString.lower(`signalName`),_status)
 }
     }
     )

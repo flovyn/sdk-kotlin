@@ -762,13 +762,15 @@ data class SignalWorkflowOutput(
 
 /**
  * Workflow that waits for a single signal and returns it.
+ * All signals use the "signal" name channel.
  */
 class SignalWorkflow(kindSuffix: String = "") : WorkflowDefinition<SignalWorkflowInput, SignalWorkflowOutput>() {
     override val kind = if (kindSuffix.isEmpty()) "signal-workflow" else "signal-workflow:$kindSuffix"
     override val version = SemanticVersion(1, 0, 0)
 
     override suspend fun execute(ctx: WorkflowContext, input: SignalWorkflowInput): SignalWorkflowOutput {
-        val signal = ctx.waitForSignal<Map<String, Any?>>()
+        // Wait for a signal on the "signal" channel
+        val signal = ctx.waitForSignal<Map<String, Any?>>("signal")
         return SignalWorkflowOutput(
             signalName = signal.name,
             signalValue = signal.value,
@@ -784,6 +786,7 @@ data class MultiSignalOutput(
 
 /**
  * Workflow that waits for multiple signals.
+ * All signals use the "signal" name channel.
  */
 class MultiSignalWorkflow(kindSuffix: String = "") : WorkflowDefinition<MultiSignalInput, MultiSignalOutput>() {
     override val kind = if (kindSuffix.isEmpty()) "multi-signal-workflow" else "multi-signal-workflow:$kindSuffix"
@@ -792,8 +795,9 @@ class MultiSignalWorkflow(kindSuffix: String = "") : WorkflowDefinition<MultiSig
     override suspend fun execute(ctx: WorkflowContext, input: MultiSignalInput): MultiSignalOutput {
         val signals = mutableListOf<Map<String, Any?>>()
 
+        // All signals use the "signal" channel
         for (i in 0 until input.signalCount) {
-            val signal = ctx.waitForSignal<Map<String, Any?>>()
+            val signal = ctx.waitForSignal<Map<String, Any?>>("signal")
             signals.add(mapOf("name" to signal.name, "value" to signal.value))
         }
 
@@ -812,6 +816,7 @@ data class SignalCheckOutput(
 
 /**
  * Workflow that uses hasSignal and drainSignals for non-blocking check.
+ * Uses the "signal" name channel.
  */
 class SignalCheckWorkflow(kindSuffix: String = "") : WorkflowDefinition<SignalCheckInput, SignalCheckOutput>() {
     override val kind = if (kindSuffix.isEmpty()) "signal-check-workflow" else "signal-check-workflow:$kindSuffix"
@@ -821,15 +826,15 @@ class SignalCheckWorkflow(kindSuffix: String = "") : WorkflowDefinition<SignalCh
         // Small delay to allow signals to arrive
         ctx.sleep(Duration.ofMillis(500))
 
-        // Check if any signals are pending
-        val hasSignal = ctx.hasSignal()
+        // Check if any signals are pending on the "signal" channel
+        val hasSignal = ctx.hasSignal("signal")
 
-        // Drain all pending signals
-        val signals = ctx.drainSignals<Map<String, Any?>>()
+        // Drain all pending signals from the "signal" channel
+        val signalValues = ctx.drainSignals<Map<String, Any?>>("signal")
 
         return SignalCheckOutput(
             hasSignal = hasSignal,
-            signals = signals.map { mapOf("name" to it.name, "value" to it.value) },
+            signals = signalValues.map { mapOf("value" to it) },
         )
     }
 }

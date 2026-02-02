@@ -178,39 +178,44 @@ interface WorkflowContext {
     // --- Signals ---
 
     /**
-     * Wait for the next signal in the queue.
+     * Wait for the next signal with the specified name.
      *
-     * Signals are consumed in order. If no signal is available, the workflow
-     * will suspend until a signal is received.
+     * Each signal name has its own FIFO queue. Signals are consumed in order
+     * within each queue. If no signal with the given name is available, the
+     * workflow will suspend until one is received.
      *
+     * @param signalName The signal name to wait for
      * @return The signal with its name and value
      */
-    suspend fun <T> waitForSignal(): Signal<T>
+    suspend fun <T> waitForSignal(signalName: String): Signal<T>
 
     /**
-     * Check if any signals are pending in the queue.
+     * Check if any signals with the specified name are pending.
      *
      * This does not consume any signals.
      *
-     * @return True if there are signals waiting to be processed
+     * @param signalName The signal name to check
+     * @return True if there are signals with that name waiting to be processed
      */
-    fun hasSignal(): Boolean
+    fun hasSignal(signalName: String): Boolean
 
     /**
-     * Get the number of pending signals.
+     * Get the number of pending signals with the specified name.
      *
-     * @return The count of signals waiting to be processed
+     * @param signalName The signal name to count
+     * @return The count of signals with that name waiting to be processed
      */
-    fun pendingSignalCount(): Int
+    fun pendingSignalCount(signalName: String): Int
 
     /**
-     * Drain all pending signals from the queue.
+     * Drain all pending signals with the specified name.
      *
-     * This consumes all signals currently in the queue and returns them.
+     * This consumes all signals with the given name currently in the queue.
      *
-     * @return A list of signals
+     * @param signalName The signal name to drain
+     * @return A list of signal values
      */
-    suspend fun <T> drainSignals(): List<Signal<T>>
+    suspend fun <T> drainSignals(signalName: String): List<T>
 
     // --- Cancellation ---
 

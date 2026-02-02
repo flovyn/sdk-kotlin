@@ -49,7 +49,7 @@ class SignalE2ETest {
                 workflowId = workflowId,
                 workflowKind = env.workflowKind("signal-workflow"),
                 input = SignalWorkflowInput(),
-                signalName = "greeting",
+                signalName = "signal",
                 signalValue = mapOf("message" to "Hello from signal!"),
             )
 
@@ -63,7 +63,7 @@ class SignalE2ETest {
             // Verify the output contains the signal
             val output = workflowResult.output
             assertNotNull(output)
-            assertEquals("greeting", output["signalName"])
+            assertEquals("signal", output["signalName"])
         }
     }
 
@@ -82,7 +82,7 @@ class SignalE2ETest {
             // Send signal to the workflow
             val signalSeq = env.signalWorkflow(
                 workflowId = executionId,
-                signalName = "user-action",
+                signalName = "signal",
                 value = mapOf("action" to "approve", "user" to "admin"),
             )
 
@@ -95,7 +95,7 @@ class SignalE2ETest {
             // Verify the output contains the signal
             val output = result.output
             assertNotNull(output)
-            assertEquals("user-action", output["signalName"])
+            assertEquals("signal", output["signalName"])
         }
     }
 
@@ -111,21 +111,21 @@ class SignalE2ETest {
             // Wait for workflow to start and suspend
             delay(2000)
 
-            // Send 3 signals
+            // Send 3 signals (all with same name "signal" - per-name FIFO queue)
             for (i in 1..3) {
                 env.signalWorkflow(
                     workflowId = executionId,
-                    signalName = "message-$i",
-                    value = mapOf("content" to "Message $i"),
+                    signalName = "signal",
+                    value = mapOf("content" to "Message $i", "seq" to i),
                 )
-                delay(100) // Small delay between signals
+                delay(100)
             }
 
             // Wait for workflow to complete
             val result = env.awaitCompletion(executionId, 30.seconds)
             assertEquals(WorkflowStatus.COMPLETED, result.status)
 
-            // Verify all signals were received
+            // Verify all signals were received in FIFO order
             val output = result.output
             assertNotNull(output)
             assertEquals(3, output["count"])
@@ -147,7 +147,7 @@ class SignalE2ETest {
                 workflowId = workflowId,
                 workflowKind = env.workflowKind("multi-signal-workflow"),
                 input = MultiSignalInput(signalCount = 2),
-                signalName = "signal-1",
+                signalName = "signal",
                 signalValue = mapOf("seq" to 1),
             )
 
@@ -162,7 +162,7 @@ class SignalE2ETest {
                 workflowId = workflowId,
                 workflowKind = env.workflowKind("multi-signal-workflow"),
                 input = MultiSignalInput(signalCount = 2),
-                signalName = "signal-2",
+                signalName = "signal",
                 signalValue = mapOf("seq" to 2),
             )
 
@@ -194,7 +194,7 @@ class SignalE2ETest {
                 workflowId = workflowId,
                 workflowKind = env.workflowKind("signal-check-workflow"),
                 input = SignalCheckInput(),
-                signalName = "initial",
+                signalName = "signal",
                 signalValue = mapOf("data" to "first"),
             )
 
@@ -203,7 +203,7 @@ class SignalE2ETest {
             // Send another signal immediately
             env.signalWorkflow(
                 workflowId = result.workflowExecutionId,
-                signalName = "second",
+                signalName = "signal",
                 value = mapOf("data" to "second"),
             )
 

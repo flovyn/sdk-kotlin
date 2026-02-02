@@ -235,8 +235,8 @@ internal class WorkflowContextImpl(
         }
     }
 
-    override suspend fun <T> waitForSignal(): Signal<T> {
-        return when (val result = ffiContext.waitForSignal()) {
+    override suspend fun <T> waitForSignal(signalName: String): Signal<T> {
+        return when (val result = ffiContext.waitForSignal(signalName)) {
             is FfiSignalResult.Received -> {
                 @Suppress("UNCHECKED_CAST")
                 Signal(
@@ -245,22 +245,19 @@ internal class WorkflowContextImpl(
                 )
             }
             is FfiSignalResult.Pending -> {
-                throw WorkflowSuspendedException("Waiting for signal")
+                throw WorkflowSuspendedException("Waiting for signal '$signalName'")
             }
         }
     }
 
-    override fun hasSignal(): Boolean = ffiContext.hasSignal()
+    override fun hasSignal(signalName: String): Boolean = ffiContext.hasSignal(signalName)
 
-    override fun pendingSignalCount(): Int = ffiContext.pendingSignalCount().toInt()
+    override fun pendingSignalCount(signalName: String): Int = ffiContext.pendingSignalCount(signalName).toInt()
 
-    override suspend fun <T> drainSignals(): List<Signal<T>> {
-        return ffiContext.drainSignals().map { event ->
+    override suspend fun <T> drainSignals(signalName: String): List<T> {
+        return ffiContext.drainSignals(signalName).map { event ->
             @Suppress("UNCHECKED_CAST")
-            Signal(
-                name = event.signalName,
-                value = serializer.deserialize(event.value, Any::class.java) as T,
-            )
+            serializer.deserialize(event.value, Any::class.java) as T
         }
     }
 
