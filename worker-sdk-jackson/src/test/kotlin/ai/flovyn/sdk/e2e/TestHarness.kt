@@ -90,12 +90,9 @@ class TestHarness private constructor() {
         logger.info("NATS started on port $natsPort")
 
         // Start Flovyn Server container
-        // Matches Rust configuration exactly
-        // FLOVYN_SERVER_IMAGE should include the tag, e.g., rg.fr-par.scw.cloud/flovyn/flovyn-server:main
-        val serverImage = System.getenv("FLOVYN_SERVER_IMAGE") ?: "rg.fr-par.scw.cloud/flovyn/flovyn-server:latest"
         val verboseLogging = System.getenv("FLOVYN_E2E_VERBOSE") == "1"
 
-        server = GenericContainer(DockerImageName.parse(serverImage))
+        server = GenericContainer(DockerImageName.parse("rg.fr-par.scw.cloud/flovyn/flovyn-server:latest"))
             .withExposedPorts(8000, 9090)
             .withLabel("flovyn-test", "true")
             // Add host.docker.internal mapping for Linux (required for container to reach host ports)

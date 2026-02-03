@@ -751,3 +751,90 @@ class TaskSchedulerWorkflow : WorkflowDefinition<TaskSchedulerInput, TaskSchedul
         return TaskSchedulerOutput(taskCompleted = true, taskResult = result)
     }
 }
+
+// --- Signal Test Workflows ---
+
+data class SignalWorkflowInput(val dummy: Boolean = true)
+data class SignalWorkflowOutput(
+    val signalName: String,
+    val signalValue: Map<String, Any?>,
+)
+
+/**
+ * Workflow that waits for a single signal and returns it.
+ * All signals use the "signal" name channel.
+ */
+class SignalWorkflow(kindSuffix: String = "") : WorkflowDefinition<SignalWorkflowInput, SignalWorkflowOutput>() {
+    override val kind = if (kindSuffix.isEmpty()) "signal-workflow" else "signal-workflow:$kindSuffix"
+    override val version = SemanticVersion(1, 0, 0)
+
+    override suspend fun execute(ctx: WorkflowContext, input: SignalWorkflowInput): SignalWorkflowOutput {
+        // Wait for a signal on the "signal" channel
+        val signal = ctx.waitForSignal<Map<String, Any?>>("signal")
+        return SignalWorkflowOutput(
+            signalName = signal.name,
+            signalValue = signal.value,
+        )
+    }
+}
+
+data class MultiSignalInput(val signalCount: Int)
+data class MultiSignalOutput(
+    val count: Int,
+    val signals: List<Map<String, Any?>>,
+)
+
+/**
+ * Workflow that waits for multiple signals.
+ * All signals use the "signal" name channel.
+ */
+class MultiSignalWorkflow(kindSuffix: String = "") : WorkflowDefinition<MultiSignalInput, MultiSignalOutput>() {
+    override val kind = if (kindSuffix.isEmpty()) "multi-signal-workflow" else "multi-signal-workflow:$kindSuffix"
+    override val version = SemanticVersion(1, 0, 0)
+
+    override suspend fun execute(ctx: WorkflowContext, input: MultiSignalInput): MultiSignalOutput {
+        val signals = mutableListOf<Map<String, Any?>>()
+
+        // All signals use the "signal" channel
+        for (i in 0 until input.signalCount) {
+            val signal = ctx.waitForSignal<Map<String, Any?>>("signal")
+            signals.add(mapOf("name" to signal.name, "value" to signal.value))
+        }
+
+        return MultiSignalOutput(
+            count = signals.size,
+            signals = signals,
+        )
+    }
+}
+
+data class SignalCheckInput(val dummy: Boolean = true)
+data class SignalCheckOutput(
+    val hasSignal: Boolean,
+    val signals: List<Map<String, Any?>>,
+)
+
+/**
+ * Workflow that uses hasSignal and drainSignals for non-blocking check.
+ * Uses the "signal" name channel.
+ */
+class SignalCheckWorkflow(kindSuffix: String = "") : WorkflowDefinition<SignalCheckInput, SignalCheckOutput>() {
+    override val kind = if (kindSuffix.isEmpty()) "signal-check-workflow" else "signal-check-workflow:$kindSuffix"
+    override val version = SemanticVersion(1, 0, 0)
+
+    override suspend fun execute(ctx: WorkflowContext, input: SignalCheckInput): SignalCheckOutput {
+        // Small delay to allow signals to arrive
+        ctx.sleep(Duration.ofMillis(500))
+
+        // Check if any signals are pending on the "signal" channel
+        val hasSignal = ctx.hasSignal("signal")
+
+        // Drain all pending signals from the "signal" channel
+        val signalValues = ctx.drainSignals<Map<String, Any?>>("signal")
+
+        return SignalCheckOutput(
+            hasSignal = hasSignal,
+            signals = signalValues.map { mapOf("value" to it) },
+        )
+    }
+}

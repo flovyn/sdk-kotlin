@@ -74,5 +74,3 @@ jobs:
 
       - name: Run E2E tests
         run: ./gradlew :worker-sdk-jackson:e2eTest
-        env:
-          FLOVYN_SERVER_IMAGE: rg.fr-par.scw.cloud/flovyn/flovyn-server

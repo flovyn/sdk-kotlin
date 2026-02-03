@@ -228,6 +228,46 @@ class E2ETestEnvironment internal constructor(
     fun hasTask(kind: String): Boolean = client.hasTask(kind)
 
     /**
+     * Send a signal to an existing workflow.
+     *
+     * @param workflowId The workflow execution ID
+     * @param signalName The signal name
+     * @param value The signal value
+     * @return The sequence number of the signal event
+     */
+    fun signalWorkflow(workflowId: UUID, signalName: String, value: Any?): Long {
+        logger.info("[ENV] Sending signal '$signalName' to workflow $workflowId")
+        return client.signalWorkflow(workflowId, signalName, value)
+    }
+
+    /**
+     * Send a signal to a workflow, creating it if it doesn't exist.
+     *
+     * @param workflowId The workflow ID (used as idempotency key)
+     * @param workflowKind The kind of workflow to create if it doesn't exist
+     * @param input The workflow input
+     * @param signalName The signal name
+     * @param signalValue The signal value
+     * @return Result with workflow execution ID and creation status
+     */
+    fun signalWithStartWorkflow(
+        workflowId: String,
+        workflowKind: String,
+        input: Any? = null,
+        signalName: String,
+        signalValue: Any?,
+    ): ai.flovyn.sdk.client.SignalWithStartResult {
+        logger.info("[ENV] Signal with start: workflow=$workflowId kind=$workflowKind signal=$signalName")
+        return client.signalWithStartWorkflow(
+            workflowId = workflowId,
+            workflowKind = workflowKind,
+            input = input,
+            signalName = signalName,
+            signalValue = signalValue,
+        )
+    }
+
+    /**
      * Stop the environment.
      */
     fun stop() {

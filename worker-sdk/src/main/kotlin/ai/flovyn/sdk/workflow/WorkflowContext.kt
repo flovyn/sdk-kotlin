@@ -175,6 +175,48 @@ interface WorkflowContext {
      */
     suspend fun <T> promise(name: String, timeout: Duration? = null): DurablePromise<T>
 
+    // --- Signals ---
+
+    /**
+     * Wait for the next signal with the specified name.
+     *
+     * Each signal name has its own FIFO queue. Signals are consumed in order
+     * within each queue. If no signal with the given name is available, the
+     * workflow will suspend until one is received.
+     *
+     * @param signalName The signal name to wait for
+     * @return The signal with its name and value
+     */
+    suspend fun <T> waitForSignal(signalName: String): Signal<T>
+
+    /**
+     * Check if any signals with the specified name are pending.
+     *
+     * This does not consume any signals.
+     *
+     * @param signalName The signal name to check
+     * @return True if there are signals with that name waiting to be processed
+     */
+    fun hasSignal(signalName: String): Boolean
+
+    /**
+     * Get the number of pending signals with the specified name.
+     *
+     * @param signalName The signal name to count
+     * @return The count of signals with that name waiting to be processed
+     */
+    fun pendingSignalCount(signalName: String): Int
+
+    /**
+     * Drain all pending signals with the specified name.
+     *
+     * This consumes all signals with the given name currently in the queue.
+     *
+     * @param signalName The signal name to drain
+     * @return A list of signal values
+     */
+    suspend fun <T> drainSignals(signalName: String): List<T>
+
     // --- Cancellation ---
 
     /**
