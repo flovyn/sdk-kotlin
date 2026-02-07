@@ -9,7 +9,7 @@ on:
 
 env:
   # Pin to specific sdk-rust release version
-  FFI_VERSION: v0.1.10
+  FFI_VERSION: v0.1.12
 
 jobs:
   # Publish SNAPSHOT to Maven Central on main branch push
